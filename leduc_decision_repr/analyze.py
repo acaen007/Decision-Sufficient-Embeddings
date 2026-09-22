@@ -74,6 +74,9 @@ def main(eval_dir: Path, fig_dir: Path):
     fold1 = [z for z in tree.terminals if tree.terminal_type[z] == TERM_FOLD_SELF and tree.round[z] == 1][0]
     show = [z for z in tree.terminals if tree.terminal_type[z] == TERM_SHOWDOWN and len(tree.path_actions[z]) >= 9][0]
     text = F.fig10_tokenized_hands(tab, tree, fig_dir, [tab.obs_type_of_terminal[z] for z in (fold1, fold, show)])
+    run_dirs = {m: info["run_dir"] for m, info in ed.meta["methods"].items() if info["kind"] == "neural"}
+    if run_dirs:
+        F.fig11_training_curves(run_dirs, fig_dir)
     (eval_dir / "tokenized_examples.txt").write_text(text)
     save_json({"runtime_s": time.time() - t0}, eval_dir / "analyze_meta.json")
     print("analysis done in", time.time() - t0)

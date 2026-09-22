@@ -260,3 +260,33 @@ def fig10_tokenized_hands(tab, tree, fig_dir, examples):
     ax.set_title("Figure 10: tokenized Leduc hands as seen by the learner (opponent rank only at SHOWDOWN)", loc="left")
     _save(fig, fig_dir, "fig10_tokenized_hands", {"types": [int(t) for t in examples], "text": "\n".join(text)})
     return "\n".join(text)
+
+
+def fig11_training_curves(run_dirs, fig_dir):
+    """Validation loss (own objective) and validation g-NMSE (at N=500 and N=20) vs step for every run."""
+    import json as _json
+    from pathlib import Path as _P
+    fig, axes = plt.subplots(1, 3, figsize=(11, 3.0))
+    data = {}
+    for name, rd in run_dirs.items():
+        recs = [_json.loads(l) for l in open(_P(rd) / "log.jsonl")]
+        vals = [r for r in recs if "val_loss" in r]
+        steps = [r["step"] + 1 for r in vals]
+        obj = "DECISION" if "decision" in name.lower() else "RECON"
+        c = COLORS["NEURAL_" + obj]
+        ax = axes[0] if obj == "DECISION" else axes[1]
+        ax.plot(steps, [r["val_loss"] for r in vals], "-", color=c, alpha=0.8, label=name)
+        axes[2].plot(steps, [r["val_per_N"]["500"]["g_nmse"] for r in vals], "-", color=c, alpha=0.8, label=f"{name} N=500")
+        axes[2].plot(steps, [r["val_per_N"]["20"]["g_nmse"] for r in vals], ":", color=c, alpha=0.6, label=f"{name} N=20")
+        tr = [r for r in recs if "loss" in r]
+        data[name] = {"val_steps": steps, "val_loss": [r["val_loss"] for r in vals],
+                      "val_g_nmse_N500": [r["val_per_N"]["500"]["g_nmse"] for r in vals],
+                      "val_g_nmse_N20": [r["val_per_N"]["20"]["g_nmse"] for r in vals],
+                      "train_loss_smoothed": np.convolve([r["loss"] for r in tr], np.ones(50) / 50, mode="valid")[::50].tolist(),
+                      "best_step": int(min(vals, key=lambda r: r["val_loss"])["step"]) + 1}
+    axes[0].set_title("(a) decision: validation NMSE(g)"); axes[1].set_title("(b) reconstruction: validation CE(q)")
+    axes[2].set_title("(c) validation g-NMSE (solid N=500, dotted N=20)")
+    for ax in axes:
+        ax.set_xlabel("training step"); ax.legend(fontsize=5)
+    fig.suptitle("Figure 11: training curves (validation opponents; 3 seeds per objective)", y=1.03)
+    _save(fig, fig_dir, "fig11_training_curves", data)
