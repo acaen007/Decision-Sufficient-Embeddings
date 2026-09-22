@@ -12,5 +12,12 @@
   "n_violations_1e-7": 0,
   "max_abs_fast_vs_os": 4.440892098500626e-16,
   "runtime_s": 1126.7737839221954
+ },
+ "NEURAL_DECISION_s2": {
+  "lp_failures": 0,
+  "max_violation_os": 1.1570668034810438e-10,
+  "n_violations_1e-7": 0,
+  "max_abs_fast_vs_os": 5.551115123125783e-16,
+  "runtime_s": 1120.009745836258
  }
 }
