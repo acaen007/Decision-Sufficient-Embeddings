@@ -2427,8 +2427,44 @@
   },
   "BANK_POSTERIOR": {
    "kind": "classical"
+  },
+  "NEURAL_DECISION_s0": {
+   "kind": "neural",
+   "objective": "decision",
+   "run_dir": "leduc_decision_repr/outputs/runs/decision_s0",
+   "best_step": 5999
+  },
+  "NEURAL_DECISION_s1": {
+   "kind": "neural",
+   "objective": "decision",
+   "run_dir": "leduc_decision_repr/outputs/runs/decision_s1",
+   "best_step": 4749
+  },
+  "NEURAL_DECISION_s2": {
+   "kind": "neural",
+   "objective": "decision",
+   "run_dir": "leduc_decision_repr/outputs/runs/decision_s2",
+   "best_step": 5999
+  },
+  "NEURAL_RECON_s0": {
+   "kind": "neural",
+   "objective": "recon",
+   "run_dir": "leduc_decision_repr/outputs/runs/recon_s0",
+   "best_step": 5999
+  },
+  "NEURAL_RECON_s1": {
+   "kind": "neural",
+   "objective": "recon",
+   "run_dir": "leduc_decision_repr/outputs/runs/recon_s1",
+   "best_step": 5749
+  },
+  "NEURAL_RECON_s2": {
+   "kind": "neural",
+   "objective": "recon",
+   "run_dir": "leduc_decision_repr/outputs/runs/recon_s2",
+   "best_step": 5749
   }
  },
  "g_valid_dims": 1074,
- "predict_runtime_s": 432.2149715423584
+ "predict_runtime_s": 585.5624449253082
 }
