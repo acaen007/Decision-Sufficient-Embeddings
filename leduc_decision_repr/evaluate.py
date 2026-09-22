@@ -138,6 +138,7 @@ def predict(split: str, runs: dict, out_dir: Path, em_alpha: float = 1.0, em_ite
 # ---------------------------------------------------------------------------- solve stage
 def _solve_worker(args):
     out_dir, method, h_lo, h_hi, worker_id = args
+    os.environ["OMP_NUM_THREADS"] = "1"; os.environ["MKL_NUM_THREADS"] = "1"; os.environ["OPENBLAS_NUM_THREADS"] = "1"
     from .game.safe_lp import LeducSafeSolver, OpenSpielAuditor
     tree, sf = get_tree(), get_sequence_form()
     L = LeducSafeSolver(sf); aud = OpenSpielAuditor(sf, L.v_star)
@@ -163,10 +164,13 @@ def _solve_worker(args):
     return h_lo, u, e_fast, e_os, ok, L.lp0.n_fail
 
 
-def solve(out_dir: Path, methods, workers: int = 4):
+def solve(out_dir: Path, methods, workers: int = 4, max_hist: int | None = None):
+    # one BLAS/OpenMP thread per worker process (inherited by spawned children)
+    for var in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS"):
+        os.environ[var] = "1"
     t0 = time.time()
     meta = load_json(out_dir / "predict_meta.json")
-    H = meta["H"]
+    H = meta["H"] if max_hist is None else min(meta["H"], max_hist)
     chunks = np.linspace(0, H, workers + 1).astype(int)
     summary = {}
     for method in methods:
@@ -201,6 +205,7 @@ if __name__ == "__main__":
     ap.add_argument("--runs", default="", help="comma list name=run_dir for neural runs")
     ap.add_argument("--methods", default="", help="comma list of method names to solve (default: all predicted)")
     ap.add_argument("--workers", type=int, default=4)
+    ap.add_argument("--max_hist", type=int, default=None, help="debug: solve only the first histories")
     args = ap.parse_args()
     out_dir = Path(args.out) if args.out else EVAL_DIR / args.split
     if args.stage == "predict":
@@ -209,4 +214,4 @@ if __name__ == "__main__":
     else:
         meta = load_json(out_dir / "predict_meta.json")
         methods = args.methods.split(",") if args.methods else list(meta["methods"].keys())
-        solve(out_dir, methods, args.workers)
+        solve(out_dir, methods, args.workers, args.max_hist)

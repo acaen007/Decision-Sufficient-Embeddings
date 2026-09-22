@@ -65,6 +65,7 @@ class SequenceLP:
         self.h.setOptionValue("primal_feasibility_tolerance", primal_tol)
         self.h.setOptionValue("dual_feasibility_tolerance", dual_tol)
         self.h.setOptionValue("threads", 1)
+        self.h.setOptionValue("parallel", "off")
         self.h.passModel(lp)
         self.v0_col = self.n_self
         self.self_cols = np.arange(self.n_self, dtype=np.int32)
