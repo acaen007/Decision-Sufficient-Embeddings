@@ -1,23 +1,9 @@
 {
- "TABULAR_EM_UNIFORM": {
+ "NEURAL_DECISION_s0": {
   "lp_failures": 0,
-  "max_violation_os": 1.2543445448987e-10,
+  "max_violation_os": 4.5170242546355155e-11,
   "n_violations_1e-7": 0,
-  "max_abs_fast_vs_os": 4.440892098500626e-16,
-  "runtime_s": 2331.533011198044
- },
- "TABULAR_EM_NASH": {
-  "lp_failures": 0,
-  "max_violation_os": 7.345288405291583e-10,
-  "n_violations_1e-7": 0,
-  "max_abs_fast_vs_os": 4.996003610813204e-16,
-  "runtime_s": 2343.0772309303284
- },
- "BANK_POSTERIOR": {
-  "lp_failures": 0,
-  "max_violation_os": 6.452341438922815e-10,
-  "n_violations_1e-7": 0,
-  "max_abs_fast_vs_os": 4.440892098500626e-16,
-  "runtime_s": 2380.0647983551025
+  "max_abs_fast_vs_os": 4.579669976578771e-16,
+  "runtime_s": 1132.4110295772552
  }
 }
