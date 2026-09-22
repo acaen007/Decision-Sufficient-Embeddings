@@ -266,7 +266,7 @@ def fig11_training_curves(run_dirs, fig_dir):
     """Validation loss (own objective) and validation g-NMSE (at N=500 and N=20) vs step for every run."""
     import json as _json
     from pathlib import Path as _P
-    fig, axes = plt.subplots(1, 3, figsize=(11, 3.0))
+    fig, axes = plt.subplots(1, 3, figsize=(12, 3.2))
     data = {}
     for name, rd in run_dirs.items():
         recs = [_json.loads(l) for l in open(_P(rd) / "log.jsonl")]
@@ -284,8 +284,8 @@ def fig11_training_curves(run_dirs, fig_dir):
                       "val_g_nmse_N20": [r["val_per_N"]["20"]["g_nmse"] for r in vals],
                       "train_loss_smoothed": np.convolve([r["loss"] for r in tr], np.ones(50) / 50, mode="valid")[::50].tolist(),
                       "best_step": int(min(vals, key=lambda r: r["val_loss"])["step"]) + 1}
-    axes[0].set_title("(a) decision: validation NMSE(g)"); axes[1].set_title("(b) reconstruction: validation CE(q)")
-    axes[2].set_title("(c) validation g-NMSE (solid N=500, dotted N=20)")
+    axes[0].set_title("(a) decision: val NMSE(g)", fontsize=8); axes[1].set_title("(b) reconstruction: val CE(q)", fontsize=8)
+    axes[2].set_title("(c) val g-NMSE (solid N=500, dotted N=20)", fontsize=8)
     for ax in axes:
         ax.set_xlabel("training step"); ax.legend(fontsize=5)
     fig.suptitle("Figure 11: training curves (validation opponents; 3 seeds per objective)", y=1.03)
