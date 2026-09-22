@@ -1,0 +1,9 @@
+{
+ "TABULAR_EM_UNIFORM": {
+  "lp_failures": 0,
+  "max_violation_os": 1.2543445448987e-10,
+  "n_violations_1e-7": 0,
+  "max_abs_fast_vs_os": 4.440892098500626e-16,
+  "runtime_s": 2331.533011198044
+ }
+}
