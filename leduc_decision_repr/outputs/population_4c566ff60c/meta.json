@@ -1,0 +1,60 @@
+{
+ "config": {
+  "code": "leduc_v1",
+  "base_seed": 2024,
+  "counts": [
+   413,
+   413,
+   412,
+   412
+  ],
+  "split": [
+   [
+    300,
+    38,
+    75
+   ],
+   [
+    300,
+    38,
+    75
+   ],
+   [
+    300,
+    37,
+    75
+   ],
+   [
+    300,
+    37,
+    75
+   ]
+  ],
+  "epsilons": [
+   0.0,
+   0.05,
+   0.1,
+   0.2
+  ],
+  "blueprint_rule": "eps0_safe_lp_max_value_vs_uniform",
+  "family_A": "lognormal_tau_v2",
+  "infosets": "rank_level_144_tied",
+  "blueprints": "suit_symmetrized"
+ },
+ "env": {
+  "python": "3.11.15 (main, Mar  3 2026, 09:26:23) [GCC 13.3.0]",
+  "platform": "Linux-6.18.44-fc-v37-x86_64-with-glibc2.39",
+  "cpu_count": 4,
+  "numpy": "2.4.6",
+  "scipy": "1.17.1",
+  "torch": "2.14.0+cu130",
+  "open_spiel": "2.0.2",
+  "git": "b9c8a17ce574bc11a82b8fb78c7a19f7dc776ade",
+  "time": "2026-09-22 18:19:04"
+ },
+ "v_star": -0.08560642407800069,
+ "K": 1650,
+ "oracle_lp_failures": 0,
+ "max_oracle_violation": 1.3511788909958966e-10,
+ "runtime_s": 534.6824128627777
+}

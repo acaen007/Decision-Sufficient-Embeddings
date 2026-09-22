@@ -123,7 +123,9 @@ class LeducSafeSolver:
         assert abs(self.v_star + v1) < 1e-7, (self.v_star, v1)
 
     # ---- equilibrium selection: eps=0 safe LP maximizing value vs uniform opponent
-    def nash_blueprint(self, p: int):
+    def nash_blueprint(self, p: int, symmetrize: bool = True):
+        """Equilibrium selection rule: eps=0 safe LP maximizing value vs the uniform opponent,
+        then (optionally) suit-symmetrized by group averaging in realization space."""
         S = self.sf
         if p == 0:
             y_u = S.behavioral_to_realization(1, S.uniform_policy(1))
@@ -137,6 +139,9 @@ class LeducSafeSolver:
             ok, y, v0 = self.lp1.solve_safe(g, 0.0, self.v_star_p1)
             assert ok
             pol = S.realization_to_behavioral(1, y)
+        if symmetrize:
+            from .symmetry import get_symmetry
+            pol = get_symmetry().symmetrize_policy(S, p, pol)
         return pol
 
     def solve_safe(self, g_hat: np.ndarray, eps: float):

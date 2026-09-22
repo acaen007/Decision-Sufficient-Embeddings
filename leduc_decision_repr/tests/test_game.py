@@ -230,3 +230,33 @@ def test_safe_lp_properties():
         ok, pol, x = L.solve_safe(g, 0.2)
         if br_val - nash_val > 0.05:
             assert x @ g > nash_val + 1e-6
+
+
+# ---------------------------------------------------------------- suit symmetry
+def test_suit_symmetry():
+    from leduc_decision_repr.game.symmetry import get_symmetry
+    sym = get_symmetry()
+    assert sym.n_rank_infosets == [144, 144]
+    # payoff invariant under the group
+    x = S.behavioral_to_realization(0, random_policy(0)); y = S.behavioral_to_realization(1, random_policy(1))
+    for g in range(8):
+        xp = np.zeros_like(x); xp[sym.seq_perm[0][g]] = x
+        yp = np.zeros_like(y); yp[sym.seq_perm[1][g]] = y
+        assert S.check_realization(0, xp) < 1e-12 and S.check_realization(1, yp) < 1e-12
+        assert abs(S.value(xp, yp) - S.value(x, y)) < 1e-12
+    # symmetrized blueprints remain exact equilibria and are tied across suits
+    for p in range(2):
+        raw = L.nash_blueprint(p, symmetrize=False)
+        bp = L.nash_blueprint(p, symmetrize=True)
+        sym.reduce(p, bp, check_tied=True)
+        xr = S.behavioral_to_realization(p, bp)
+        if p == 0:
+            assert L.exploitability(xr) < 1e-9 and L.exploitability(S.behavioral_to_realization(0, raw)) < 1e-9
+        else:
+            assert S.learner_br_value(xr) - L.v_star < 1e-9
+    # expand/reduce round trip and tied policies have identical values under any learner strategy
+    qr = S.normalize_policy(1, RNG.random((144, 3)) * sym.rank_legal_mask[1]) if False else None
+    rank_pol = RNG.random((144, 3)) * sym.rank_legal_mask[1]
+    rank_pol /= rank_pol.sum(1, keepdims=True)
+    phys = sym.expand(1, rank_pol)
+    assert np.allclose(sym.reduce(1, phys, check_tied=True), rank_pol)
