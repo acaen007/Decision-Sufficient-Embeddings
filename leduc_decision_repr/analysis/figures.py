@@ -187,12 +187,12 @@ def fig6_family(summary, fig_dir, eps=0.1):
 
 
 def fig7_geometry(geom, raw, fig_dir):
-    fig, axes = plt.subplots(1, 3, figsize=(11, 3.2))
+    fig, axes = plt.subplots(1, 3, figsize=(12, 3.4))
     data = {"summary": geom}
     ax = axes[0]
     ax.scatter(raw["d_beh"], raw["d_resp"], s=2, alpha=0.2, color="#5c5c5c")
     ax.set_xlabel("behavioral distance d_beh (uniform-infoset L2)"); ax.set_ylabel("response confusion cost d_resp (ε=0.1)")
-    ax.set_title(f"(a) ρ(d_beh, d_resp) = {geom['rho_beh_resp']:.2f}")
+    ax.set_title(f"(a) ρ = {geom['rho_beh_resp']:.2f}", fontsize=8)
     ax = axes[1]
     names = []; ratios = []; los = []; his = []
     for m, e in geom["latent"].items():
@@ -202,7 +202,7 @@ def fig7_geometry(geom, raw, fig_dir):
     cols = [COLORS.get("NEURAL_" + m.split("_")[1].upper(), "#5c5c5c") if m.startswith("NEURAL") else "#e9a100" for m in names]
     ax.bar(range(len(names)), ratios, color=cols, yerr=[np.array(ratios) - np.array(los), np.array(his) - np.array(ratios)], capsize=2)
     ax.axhline(1, color="k", lw=0.8); ax.set_xticks(range(len(names))); ax.set_xticklabels(names, rotation=90, fontsize=6)
-    ax.set_title("(b) behavior-matched strategic separation (N=100)"); ax.set_ylabel("mean d_z(far) / mean d_z(near)")
+    ax.set_title("(b) behavior-matched separation, N=100", fontsize=8); ax.set_ylabel("mean d_z(far) / mean d_z(near)")
     data["separation"] = dict(zip(names, zip(ratios, los, his)))
     ax = axes[2]
     for m, e in geom["latent"].items():
@@ -210,7 +210,7 @@ def fig7_geometry(geom, raw, fig_dir):
         ax.plot(N_BUDGETS, [e[str(N)]["rho_z_resp"] for N in N_BUDGETS], "-o", ms=3, color=c, label=f"{m}: ρ(d_z,d_resp)")
         ax.plot(N_BUDGETS, [e[str(N)]["rho_z_beh"] for N in N_BUDGETS], "--s", ms=3, color=c, label=f"{m}: ρ(d_z,d_beh)")
     ax.set_xscale("log"); ax.set_xlabel("hands observed N"); ax.set_ylabel("Spearman ρ"); ax.legend(fontsize=5)
-    ax.set_title("(c) latent distance correlations vs N")
+    ax.set_title("(c) latent-distance correlations vs N", fontsize=8)
     fig.suptitle("Figure 7: strategic geometry diagnostics on held-out opponents", y=1.03)
     _save(fig, fig_dir, "fig7_geometry", data)
 
