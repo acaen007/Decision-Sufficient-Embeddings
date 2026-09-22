@@ -30,12 +30,14 @@ from .baselines.bank_posterior import BankPosterior
 EVAL_DIR = OUT / "eval"
 
 
-def predict(split: str, runs: dict, out_dir: Path, em_alpha: float = 1.0, em_iter: int = 200):
-    """runs: {method_name: run_dir} for neural runs."""
+def predict(split: str, runs: dict, out_dir: Path, em_alpha: float = 1.0, em_iter: int = 200,
+            skip_classical: bool = False, threads: int = 4):
+    """runs: {method_name: run_dir} for neural runs.  Incremental: merges into an existing predict_meta."""
     import torch
-    torch.set_num_threads(4)
+    torch.set_num_threads(threads)
     t0 = time.time()
     out_dir.mkdir(parents=True, exist_ok=True)
+    prev_meta = load_json(out_dir / "predict_meta.json") if (out_dir / "predict_meta.json").exists() else None
     tree, sf, sym, tab = get_tree(), get_sequence_form(), get_symmetry(), get_token_table()
     pop = load_population(); ds = find_dataset_dir(); data = load_split(ds, split)
     opp_ids = data["opp_ids"]; obs = data["obs_types"]
@@ -54,7 +56,8 @@ def predict(split: str, runs: dict, out_dir: Path, em_alpha: float = 1.0, em_ite
     valid = g_std > 1e-3 * g_std.max()
     g_std_safe = np.where(valid, g_std, 1.0)
     meta = {"split": split, "n_opp": int(n_opp), "n_streams": int(n_streams), "H": int(H), "N_budgets": N_BUDGETS,
-            "hist_opp": hist_opp.tolist(), "methods": {}, "g_valid_dims": int(valid.sum())}
+            "hist_opp": hist_opp.tolist(), "methods": {} if prev_meta is None else prev_meta["methods"],
+            "g_valid_dims": int(valid.sum())}
     np.save(out_dir / "hist_opp.npy", hist_opp)
 
     def g_err(g_hat):
@@ -68,11 +71,12 @@ def predict(split: str, runs: dict, out_dir: Path, em_alpha: float = 1.0, em_ite
         return np.sqrt(d.sum((1, 2)) / mask.shape[0])            # uniform-infoset RMS over infosets
 
     # ---------------- classical baselines
+    classical = [] if skip_classical else [1]
     uniform = sym.rank_legal_mask[1] / sym.rank_legal_mask[1].sum(1, keepdims=True)
     nash_rank = pop["blueprint1_rank"]
     bank = BankPosterior(lik, pop["rank_policies"][train_ids], pop["G"][train_ids])
     fam_train = pop["family_index"][train_ids]
-    for name, prior in [("TABULAR_EM_UNIFORM", uniform), ("TABULAR_EM_NASH", nash_rank)]:
+    for name, prior in ([("TABULAR_EM_UNIFORM", uniform), ("TABULAR_EM_NASH", nash_rank)] if classical else []):
         em = TabularEM(lik, sym.rank_legal_mask[1], prior, alpha=em_alpha, n_iter=em_iter)
         ghat = np.zeros((H, len(N_BUDGETS), G_true.shape[1]), dtype=np.float32)
         gn = np.zeros((H, len(N_BUDGETS))); gr = np.zeros((H, len(N_BUDGETS))); qe = np.zeros((H, len(N_BUDGETS)))
@@ -86,21 +90,22 @@ def predict(split: str, runs: dict, out_dir: Path, em_alpha: float = 1.0, em_ite
         np.savez(out_dir / f"pred_{name}.npz", g_nmse=gn, g_raw=gr, q_err=qe)
         meta["methods"][name] = {"kind": "classical", "prior": name.split("_")[-1], "alpha": em_alpha}
     # bank posterior
-    name = "BANK_POSTERIOR"
-    ghat = np.zeros((H, len(N_BUDGETS), G_true.shape[1]), dtype=np.float32)
-    gn = np.zeros((H, len(N_BUDGETS))); gr = np.zeros((H, len(N_BUDGETS)))
-    fam_mass = np.zeros((H, len(N_BUDGETS), 4)); ent = np.zeros((H, len(N_BUDGETS)))
-    for j, N in enumerate(N_BUDGETS):
-        counts = type_counts(flat_obs[:, :N], tab.n_types)
-        g_bar, post = bank.g_bar(counts)
-        ghat[:, j] = g_bar; gn[:, j], gr[:, j] = g_err(g_bar)
-        for f in range(4):
-            fam_mass[:, j, f] = post[:, fam_train == f].sum(1)
-        ent[:, j] = -(post * np.log(np.maximum(post, 1e-300))).sum(1)
-    np.save(out_dir / f"ghat_{name}.npy", ghat)
-    np.savez(out_dir / f"pred_{name}.npz", g_nmse=gn, g_raw=gr, family_mass=fam_mass, posterior_entropy=ent)
-    meta["methods"][name] = {"kind": "classical"}
-    print(f"{name} done ({time.time()-t0:.0f}s)", flush=True)
+    if classical:
+        name = "BANK_POSTERIOR"
+        ghat = np.zeros((H, len(N_BUDGETS), G_true.shape[1]), dtype=np.float32)
+        gn = np.zeros((H, len(N_BUDGETS))); gr = np.zeros((H, len(N_BUDGETS)))
+        fam_mass = np.zeros((H, len(N_BUDGETS), 4)); ent = np.zeros((H, len(N_BUDGETS)))
+        for j, N in enumerate(N_BUDGETS):
+            counts = type_counts(flat_obs[:, :N], tab.n_types)
+            g_bar, post = bank.g_bar(counts)
+            ghat[:, j] = g_bar; gn[:, j], gr[:, j] = g_err(g_bar)
+            for f in range(4):
+                fam_mass[:, j, f] = post[:, fam_train == f].sum(1)
+            ent[:, j] = -(post * np.log(np.maximum(post, 1e-300))).sum(1)
+        np.save(out_dir / f"ghat_{name}.npy", ghat)
+        np.savez(out_dir / f"pred_{name}.npz", g_nmse=gn, g_raw=gr, family_mass=fam_mass, posterior_entropy=ent)
+        meta["methods"][name] = {"kind": "classical"}
+        print(f"{name} done ({time.time()-t0:.0f}s)", flush=True)
     # ---------------- neural runs
     from .train import load_trained
     from .models.torch_g import TorchRankPolicyToG
@@ -130,7 +135,7 @@ def predict(split: str, runs: dict, out_dir: Path, em_alpha: float = 1.0, em_ite
         np.save(out_dir / f"ghat_{name}.npy", ghat)
         np.savez(out_dir / f"pred_{name}.npz", g_nmse=gn, g_raw=gr, q_err=qe, z=Z)
         meta["methods"][name] = {"kind": "neural", "objective": method, "run_dir": str(run_dir), "best_step": int(ck["step"])}
-    meta["predict_runtime_s"] = time.time() - t0
+    meta["predict_runtime_s"] = (prev_meta.get("predict_runtime_s", 0) if prev_meta else 0) + time.time() - t0
     save_json(meta, out_dir / "predict_meta.json")
     print("predict stage done", time.time() - t0)
 
@@ -206,11 +211,13 @@ if __name__ == "__main__":
     ap.add_argument("--methods", default="", help="comma list of method names to solve (default: all predicted)")
     ap.add_argument("--workers", type=int, default=4)
     ap.add_argument("--max_hist", type=int, default=None, help="debug: solve only the first histories")
+    ap.add_argument("--skip_classical", action="store_true")
+    ap.add_argument("--threads", type=int, default=4)
     args = ap.parse_args()
     out_dir = Path(args.out) if args.out else EVAL_DIR / args.split
     if args.stage == "predict":
         runs = dict(kv.split("=") for kv in args.runs.split(",") if kv)
-        predict(args.split, runs, out_dir)
+        predict(args.split, runs, out_dir, skip_classical=args.skip_classical, threads=args.threads)
     else:
         meta = load_json(out_dir / "predict_meta.json")
         methods = args.methods.split(",") if args.methods else list(meta["methods"].keys())
