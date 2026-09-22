@@ -32,6 +32,23 @@ class EvalData:
         self.solve = {m: dict(np.load(self.dir / f"solve_{m}.npz")) for m in self.methods}
         self.pred = {m: dict(np.load(self.dir / f"pred_{m}.npz")) for m in self.meta["methods"]
                      if (self.dir / f"pred_{m}.npz").exists()}
+        # robustness: if a solve covers only a prefix of the histories (debug runs), truncate everything
+        # to the opponents whose streams are all solved
+        H_solved = min([s["u"].shape[0] for s in self.solve.values()] + [len(self.hist_opp)])
+        n_full = H_solved // self.n_streams
+        if n_full < self.n_opp:
+            print(f"WARNING: only {H_solved} histories solved -> restricting to first {n_full} opponents")
+            self.n_opp = n_full; H = n_full * self.n_streams
+            self.opp_ids = self.opp_ids[:n_full]; self.family = self.family[:n_full]
+            self.V = self.V[:n_full]; self.u_nash = self.u_nash[:n_full]; self.G_oracle = self.G_oracle[:n_full]
+            for s in self.solve.values():
+                for k in list(s.keys()):
+                    if hasattr(s[k], "shape") and s[k].ndim >= 1 and s[k].shape[0] >= H:
+                        s[k] = s[k][:H]
+            for p in self.pred.values():
+                for k in list(p.keys()):
+                    if hasattr(p[k], "shape") and p[k].ndim >= 1 and p[k].shape[0] >= H:
+                        p[k] = p[k][:H]
 
     def per_opp(self, arr):
         """(H, ...) -> (n_opp, ...) mean over streams (streams are consecutive)."""
