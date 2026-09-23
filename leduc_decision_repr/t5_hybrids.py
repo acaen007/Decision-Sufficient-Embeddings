@@ -45,7 +45,7 @@ def net_ghat(run_dirs, obs, N, method_is_recon, tg):
     return np.mean(outs, 0)
 
 
-def main(net_runs, recon_runs, out_dir: Path, kappas=(1.0, 3.0, 10.0, 30.0, 100.0), lams=None):
+def main(net_runs, recon_runs, out_dir: Path, kappas=(1.0, 3.0, 10.0, 30.0, 100.0), lams=None, suffix="", ensemble_only=False):
     t0 = time.time(); out_dir.mkdir(parents=True, exist_ok=True)
     tree, sf, sym, tab = get_tree(), get_sequence_form(), get_symmetry(), get_token_table()
     L = get_solver(); pop = load_population(); r2g = RankPolicyToG(tree, sf, sym); tg = TorchRankPolicyToG(r2g)
@@ -65,7 +65,7 @@ def main(net_runs, recon_runs, out_dir: Path, kappas=(1.0, 3.0, 10.0, 30.0, 100.
         if g_net is not None:
             regs = {lam: float(val_regret(L, pop, lam * g_net + (1 - lam) * g_em, vids).mean()) for lam in lams}
             lam_sel[N] = min(regs, key=regs.get); res["blend"][str(N)] = {"val_regret_by_lambda": regs, "selected": lam_sel[N]}
-        if recon_runs:
+        if recon_runs and not ensemble_only:
             q_hat = net_ghat(recon_runs, vobs, N, True, tg)                 # (n, 144, 3)
             regs = {}
             for kappa in kappas:
@@ -88,7 +88,7 @@ def main(net_runs, recon_runs, out_dir: Path, kappas=(1.0, 3.0, 10.0, 30.0, 100.
             ghat_blend[:, j] = lam_sel[N] * g_net + (1 - lam_sel[N]) * g_em
         if recon_runs:
             q_hat = net_ghat(recon_runs, tobs, N, True, tg)
-            ghat_prior[:, j] = r2g.g(fit_em_with_row_prior(lik, mask, q_hat, kappa_sel[N], counts))
+            ghat_prior[:, j] = r2g.g(q_hat) if ensemble_only else r2g.g(fit_em_with_row_prior(lik, mask, q_hat, kappa_sel[N], counts))
         print(f"test N={N} done ({time.time()-t0:.0f}s)", flush=True)
     # write into the standard eval dir as pseudo-methods (g errors as in predict)
     G_true = pop["G"][np.repeat(test["opp_ids"], test["obs_types"].shape[1])]
@@ -96,15 +96,17 @@ def main(net_runs, recon_runs, out_dir: Path, kappas=(1.0, 3.0, 10.0, 30.0, 100.
     valid = g_std > 1e-3 * g_std.max(); g_std_safe = np.where(valid, g_std, 1.0)
     hm = out_dir / "hyb_meta.json"
     meta = load_json(hm) if hm.exists() else {"methods": {}}
-    for name, arr in [("HYB_BLEND", ghat_blend if net_runs else None), ("HYB_PRIOR_EM", ghat_prior if recon_runs else None)]:
+    prior_name = ("HYB_ENSREC" if ensemble_only else "HYB_PRIOR_EM") + suffix
+    for name, arr in [("HYB_BLEND" + suffix, ghat_blend if net_runs else None), (prior_name, ghat_prior if recon_runs else None)]:
         if arr is None:
             continue
         np.save(out_dir / f"ghat_{name}.npy", arr)
         gn = (((arr - G_true[:, None]) / g_std_safe) ** 2)[:, :, valid].mean(2); gr = np.sqrt(((arr - G_true[:, None]) ** 2).sum(2))
         np.savez(out_dir / f"pred_{name}.npz", g_nmse=gn, g_raw=gr)
-        meta["methods"][name] = {"kind": "classical", "hybrid": True, "selection": res["blend"] if name == "HYB_BLEND" else res["prior_em"]}
+        meta["methods"][name] = {"kind": "classical", "hybrid": True, "runs": net_runs if name.startswith("HYB_BLEND") else recon_runs,
+                                 "selection": res["blend"] if name.startswith("HYB_BLEND") else res["prior_em"]}
     save_json(meta, hm)
-    save_json(res, out_dir / ("t5_hybrid_selection_blend.json" if net_runs else "t5_hybrid_selection_prior.json"))
+    save_json(res, out_dir / (("t5_hybrid_selection_blend" if net_runs else "t5_hybrid_selection_prior") + suffix + ".json"))
     print("done", time.time() - t0)
 
 
@@ -130,5 +132,6 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--net_runs", default=""); ap.add_argument("--recon_runs", default="")
     ap.add_argument("--out", default=str(OUT / "eval" / "test"))
+    ap.add_argument("--suffix", default=""); ap.add_argument("--ensemble_only", action="store_true")
     a = ap.parse_args()
-    main([r for r in a.net_runs.split(",") if r], [r for r in a.recon_runs.split(",") if r], Path(a.out))
+    main([r for r in a.net_runs.split(",") if r], [r for r in a.recon_runs.split(",") if r], Path(a.out), suffix=a.suffix, ensemble_only=a.ensemble_only)
