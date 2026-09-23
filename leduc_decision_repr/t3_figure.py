@@ -27,9 +27,9 @@ ax.plot(eps[1:], cs["orthogonal_value_by_eps"][1:], "-s", ms=4, label="orthogona
 ax.plot(eps[1:], cs["gain_by_eps"][1:], "--", color="gray", label="full g (oracle gain)")
 ax.set_xscale("log"); ax.set_xlabel("ε"); ax.set_ylabel("mean value over mean-g response [chips]"); ax.legend(fontsize=6); ax.set_title(f"(c) g components (hull dim {d['nash_hull']['dimension_tol1e-6']})", fontsize=8)
 ax = axes[3]
-ax.scatter(kp["expl"], kp["dist"], s=6, alpha=0.6); k = d["kappa"]["kappa_distance_max_ratio"]
-xx = np.linspace(0, kp["expl"].max(), 10); ax.plot(xx, k * xx, "r--", lw=1, label=f"κ_dist = {k:.2f}")
-ax.set_xlabel("Expl(x)"); ax.set_ylabel("dist(x, Nash set)"); ax.legend(fontsize=7); ax.set_title("(d) Hoffman-type bound", fontsize=8)
+ax.scatter(kp["expl"], kp["dist"], s=6, alpha=0.6); k = d["kappa"]["kappa_distance_max_ratio"]; km = d["kappa"]["kappa_distance_median_ratio"]
+xx = np.array([kp["expl"].min(), kp["expl"].max()]); ax.plot(xx, k * xx, "r--", lw=1, label=f"max ratio κ_dist = {k:.0f}"); ax.plot(xx, km * xx, "g:", lw=1, label=f"median ratio = {km:.0f}")
+ax.set_xscale("log"); ax.set_yscale("log"); ax.set_xlabel("Expl(x) [chips]"); ax.set_ylabel("dist(x, Nash set) [L2, realization plan]"); ax.legend(fontsize=7); ax.set_title("(d) dist(x, N) vs Expl(x) (log-log)", fontsize=8)
 fig.suptitle("Figure V3-T3: ε-rank oracle curve, Nash-hull component split, κ", y=1.03)
 fig.savefig(FIG / "figV3_T3_eps_rank.png", bbox_inches="tight", dpi=130); fig.savefig(FIG / "figV3_T3_eps_rank.pdf", bbox_inches="tight")
 save_json({"k_needed": d["k_needed"], "component_split": cs, "kappa": d["kappa"], "nash_hull_dim": d["nash_hull"]["dimension_tol1e-6"]}, FIG / "figV3_T3_eps_rank_data.json")
