@@ -86,19 +86,27 @@ def n_training():
 
 
 def evaluate(name):
+    """predict (all checkpoints) + exact LP solve: the best checkpoint at the configured eps indices, extra
+    checkpoints (step 3000, used only by T2 at eps = 0.10) at eps index 2 only."""
     sub, tag, eps_idx, extra = eval_cfg(name)
     base = name.rsplit("_s", 1)[0]; seed = name.rsplit("_s", 1)[1]
     out_dir = O / "eval" / sub
-    runs = [f"NEURAL_{base.upper()}_s{seed}={R / name}"] + [f"NEURAL_{base.upper()}3K_s{seed}={R / name}:{c}" for c in extra]
-    methods = ",".join(r.split("=")[0] for r in runs)
+    main_run = f"NEURAL_{base.upper()}_s{seed}={R / name}"
+    extra_runs = [f"NEURAL_{base.upper()}3K_s{seed}={R / name}:{c}" for c in extra]
     log = open(O / "v3_eval.log", "a")
-    cmd = PY + ["leduc_decision_repr.evaluate", "predict", "--split", "test", "--out", str(out_dir), "--skip_classical", "--threads", "2", "--runs", ",".join(runs)]
+    cmd = PY + ["leduc_decision_repr.evaluate", "predict", "--split", "test", "--out", str(out_dir), "--skip_classical", "--threads", "2", "--runs", ",".join([main_run] + extra_runs)]
     if tag:
         cmd += ["--dataset_tag", tag]
     subprocess.run(["nice", "-n", "5"] + cmd, env=ENV, stdout=log, stderr=log)
-    cmd = PY + ["leduc_decision_repr.evaluate", "solve", "--split", "test", "--out", str(out_dir), "--workers", "2", "--methods", methods, "--eps_idx", eps_idx]
-    subprocess.run(["nice", "-n", "5"] + cmd, env=ENV, stdout=log, stderr=log)
+    for runs, ei in [([main_run], eps_idx), (extra_runs, "2")]:
+        if not runs:
+            continue
+        methods = ",".join(r.split("=")[0] for r in runs)
+        cmd = PY + ["leduc_decision_repr.evaluate", "solve", "--split", "test", "--out", str(out_dir), "--workers", "2", "--methods", methods, "--eps_idx", ei]
+        subprocess.run(["nice", "-n", "2"] + cmd, env=ENV, stdout=log, stderr=log)
     (R / name / "EVALUATED").write_text(time.strftime("%Y-%m-%d %H:%M:%S"))
+    if (R / name / "EVALUATING").exists():
+        (R / name / "EVALUATING").unlink()
     log.write(f"evaluated {name} -> {sub} at {time.strftime('%H:%M:%S')}\n"); log.close()
 
 
@@ -108,7 +116,8 @@ def main():
     state_log = open(O / "v3_scheduler.log", "a")
 
     def unevaluated():
-        return sorted(n for n in os.listdir(R) if (R / n).is_dir() and (R / n / "result.json").exists() and not (R / n / "EVALUATED").exists())
+        return sorted(n for n in os.listdir(R) if (R / n).is_dir() and (R / n / "result.json").exists() and not (R / n / "EVALUATED").exists()
+                      and not (R / n / "EVALUATING").exists())
 
     while pending or running or unevaluated() or eval_proc is not None:
         # launch
@@ -135,7 +144,7 @@ def main():
         if eval_proc is None:
             todo = [n for n in unevaluated() if n not in running]
             if todo:
-                eval_name = todo[0]
+                eval_name = todo[0]; (R / eval_name / "EVALUATING").write_text(time.strftime("%Y-%m-%d %H:%M:%S"))
                 eval_proc = subprocess.Popen([sys.executable, "-m", "leduc_decision_repr.v3_scheduler", "--eval", eval_name], env=ENV, cwd=ROOT)
                 state_log.write(f"{time.strftime('%H:%M:%S')} evaluating {eval_name}\n"); state_log.flush()
         time.sleep(30)
