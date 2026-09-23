@@ -2463,8 +2463,26 @@
    "objective": "recon",
    "run_dir": "leduc_decision_repr/outputs/runs/recon_s2",
    "best_step": 5749
+  },
+  "NEURAL_SAFE_REGRET_s0": {
+   "kind": "neural",
+   "objective": "safe_regret",
+   "run_dir": "leduc_decision_repr/outputs/runs_v2/safe_regret_t0.01_s0",
+   "best_step": 5749
+  },
+  "NEURAL_SAFE_REGRET_s1": {
+   "kind": "neural",
+   "objective": "safe_regret",
+   "run_dir": "leduc_decision_repr/outputs/runs_v2/safe_regret_final_s1",
+   "best_step": 5499
+  },
+  "NEURAL_SAFE_REGRET_s2": {
+   "kind": "neural",
+   "objective": "safe_regret",
+   "run_dir": "leduc_decision_repr/outputs/runs_v2/safe_regret_final_s2",
+   "best_step": 4999
   }
  },
  "g_valid_dims": 1074,
- "predict_runtime_s": 585.5624449253082
+ "predict_runtime_s": 644.6236159801483
 }
