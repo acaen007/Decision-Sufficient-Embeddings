@@ -1,0 +1,28 @@
+{
+ "summary": {
+  "SR_t0.05_fixednorm": {
+   "lp_failures": 0,
+   "max_violation_os": 1.5238629802460935e-11,
+   "n_violations_1e-7": 0,
+   "max_abs_fast_vs_os": 3.885780586188048e-16,
+   "runtime_s": 302.0204861164093,
+   "eps_idx": [
+    1,
+    2,
+    3
+   ]
+  }
+ },
+ "runtime_s": 302.02165150642395,
+ "env": {
+  "python": "3.11.15 (main, Mar  3 2026, 09:26:23) [GCC 13.3.0]",
+  "platform": "Linux-6.18.44-fc-v37-x86_64-with-glibc2.39",
+  "cpu_count": 4,
+  "numpy": "2.4.6",
+  "scipy": "1.17.1",
+  "torch": "2.14.0+cu130",
+  "open_spiel": "2.0.2",
+  "git": "e87ea230726a823c96bdec1fe85ee4f3a161c081",
+  "time": "2026-09-23 12:28:01"
+ }
+}
