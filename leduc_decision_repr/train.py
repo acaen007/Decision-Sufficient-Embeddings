@@ -29,7 +29,10 @@ DEFAULT_CFG = dict(
     d_model=128, z_dim=LATENT_DIM, n_layers=2, n_heads=4, dim_ff=256, dropout=0.1,
     lr=3e-4, weight_decay=0.01, grad_clip=1.0, batch=32, steps=6000, warmup=200, min_lr_frac=0.1,
     val_every=250, g_std_rel_threshold=1e-3, recon_hidden=256, decision_hidden=512, threads=2,
+    # SAFE_REGRET only: regularization schedule tau_t (linear from tau_start to tau_end; "const" keeps tau_start)
+    tau_start=0.05, tau_end=1e-4, tau_schedule="linear", train_eps="0.05,0.1,0.2", val_subset_streams=1,
 )
+TRAIN_EPS_INDEX = {0.05: 1, 0.1: 2, 0.2: 3}       # index into the population's V_oracle columns
 
 
 def build_model(method, cfg, tab, sym, tree, g_stats):
@@ -39,7 +42,7 @@ def build_model(method, cfg, tab, sym, tree, g_stats):
     if method == "recon":
         head = ReconstructionHead(rank_infoset_features(tree, sym, 1), sym.rank_legal_mask[1],
                                   z_dim=cfg["z_dim"], d_hidden=cfg["recon_hidden"])
-    else:
+    else:   # "decision" (standardized MSE on g) and "safe_regret" (same head, regret objective)
         head = DecisionHead(g_stats["mean"], g_stats["std"], g_stats["valid"], z_dim=cfg["z_dim"],
                             d_hidden=cfg["decision_hidden"])
     return enc, head
@@ -74,6 +77,20 @@ class Trainer:
         self.g_std = torch.as_tensor(self.g_stats["std"], dtype=torch.float32)
         self.g_valid = torch.as_tensor(self.g_stats["valid"])
         self.log = []
+        self.Vt = torch.as_tensor(self.pop["V_oracle"], dtype=torch.float32)      # (K, 4) oracle values
+        if method == "safe_regret":
+            from .game.safe_lp import get_solver
+            from .game.safe_qp import SafeQP, make_torch_layer
+            self.L = get_solver()
+            self.qp = SafeQP(self.sf, self.L.v_star)
+            self.qp_layer = make_torch_layer(self.qp)
+            self.train_eps = [float(e) for e in cfg["train_eps"].split(",")]
+            # fixed validation subset for the exact-LP regret (checkpoint selection) and probes
+            vr = np.random.default_rng(123)
+            n_val = self.val["obs_types"].shape[0]
+            self.val_sub = {"N": [5, 20, 100, 500], "streams": list(range(cfg["val_subset_streams"])), "eps": 0.1}
+            self.probe = {"opp": vr.choice(n_val, 32, replace=False), "N": 100, "eps": 0.1, "prev_active": None, "prev_support": None}
+        self.last_tau = None
 
     def lr_at(self, step):
         cfg = self.cfg
@@ -82,10 +99,31 @@ class Trainer:
         prog = (step - cfg["warmup"]) / max(1, cfg["steps"] - cfg["warmup"])
         return cfg["lr"] * (cfg["min_lr_frac"] + (1 - cfg["min_lr_frac"]) * 0.5 * (1 + np.cos(np.pi * prog)))
 
+    def tau_at(self, step):
+        cfg = self.cfg
+        if cfg["tau_schedule"] == "const":
+            return float(cfg["tau_start"])
+        frac = min(1.0, step / max(1, cfg["steps"] - 1))
+        return float(cfg["tau_start"] + (cfg["tau_end"] - cfg["tau_start"]) * frac)
+
     def targets(self, opp_ids):
         return self.Qt[opp_ids] if self.method == "recon" else self.Gt[opp_ids]
 
-    def loss_fn(self, z, opp_ids):
+    def regret_loss(self, z, opp_ids, eps_vec, tau, collect=None):
+        """Mean safe-response regret V_eps(q) - x_hat^T g(q) through the regularized safe solver."""
+        g_hat = self.head(z)                                                   # (B, n0) unstandardized
+        x_hat = self.qp_layer.apply(g_hat, eps_vec, tau)                      # (B, n0)
+        eps_idx = torch.as_tensor([TRAIN_EPS_INDEX[float(e)] for e in eps_vec])
+        V = self.Vt[opp_ids, eps_idx]
+        u = (x_hat * self.Gt[opp_ids]).sum(1)
+        loss = (V - u).mean()
+        if collect is not None:
+            collect["x_hat"] = x_hat.detach().numpy()
+        return loss
+
+    def loss_fn(self, z, opp_ids, eps_vec=None, tau=None, collect=None):
+        if self.method == "safe_regret":
+            return self.regret_loss(z, opp_ids, eps_vec, tau, collect)
         return self.head.loss(z, self.targets(opp_ids))
 
     def g_nmse(self, z, opp_ids):
@@ -103,7 +141,10 @@ class Trainer:
         n_opp, n_streams = self.train["obs_types"].shape[:2]
         idx = self.rng.integers(0, n_opp, cfg["batch"]); st = self.rng.integers(0, n_streams, cfg["batch"])
         x = torch.as_tensor(self.train["obs_types"][idx, st, :N].astype(np.int64))
-        return x, torch.as_tensor(self.train["opp_ids"][idx]), N
+        eps_vec = None
+        if self.method == "safe_regret":
+            eps_vec = np.array(self.rng.choice(self.train_eps, size=cfg["batch"]))
+        return x, torch.as_tensor(self.train["opp_ids"][idx]), N, eps_vec
 
     def validate(self):
         self.enc.eval(); self.head.eval()
@@ -118,13 +159,65 @@ class Trainer:
                         sl = slice(start, start + 50)
                         x = torch.as_tensor(obs[sl, s, :N].astype(np.int64)); ids = torch.as_tensor(opp[sl])
                         z = self.enc(x)
-                        losses.append(self.loss_fn(z, ids).item() * len(ids))
+                        if self.method == "safe_regret":
+                            losses.append(0.0)        # per-N QP loss is too expensive; see validate_regret()
+                        else:
+                            losses.append(self.loss_fn(z, ids).item() * len(ids))
                         nm, rw = self.g_nmse(z, ids); nmses.append(nm * len(ids)); raws.append(rw * len(ids))
                 tot = n_opp * n_streams
                 per_N[N] = {"loss": sum(losses) / tot, "g_nmse": sum(nmses) / tot, "g_raw": sum(raws) / tot}
+        extra = {}
+        if self.method == "safe_regret":
+            extra = self.validate_regret()
         self.enc.train(); self.head.train()
         mean_loss = float(np.mean([v["loss"] for v in per_N.values()]))
-        return mean_loss, per_N
+        if self.method == "safe_regret":
+            mean_loss = extra["val_lp_regret"]            # checkpoint selection = exact-LP safe regret
+        return mean_loss, {**per_N, **extra}
+
+    def validate_regret(self):
+        """Exact-LP and regularized-QP safe regret on a fixed validation subset (eps = 0.1), plus
+        active-set / support-change probes on 32 fixed validation samples."""
+        tau = self.last_tau if self.last_tau is not None else self.cfg["tau_start"]
+        obs = self.val["obs_types"]; opp = self.val["opp_ids"]
+        sub = self.val_sub; eps = sub["eps"]; k = TRAIN_EPS_INDEX[eps]
+        lp_reg, qp_reg, gnm = [], [], []
+        stats = {"entropy": [], "det": [], "xzero": [], "nact": [], "iters": []}
+        with torch.no_grad():
+            for N in sub["N"]:
+                for s in sub["streams"]:
+                    x = torch.as_tensor(obs[:, s, :N].astype(np.int64)); ids = opp
+                    g_hat = self.head(self.enc(x)).numpy().astype(np.float64)
+                    for i in range(len(ids)):
+                        g_true = self.G[ids[i]]; V = self.pop["V_oracle"][ids[i], k]
+                        ok, pol, xd = self.L.solve_safe(g_hat[i], eps)
+                        lp_reg.append(V - xd @ g_true)
+                        sol = self.qp.solve(g_hat[i], eps, tau)
+                        qp_reg.append(V - sol["x"] @ g_true)
+                        if i % 10 == 0:
+                            ps = self.qp.policy_stats(sol["x"])
+                            stats["entropy"].append(ps["mean_entropy_reachable"]); stats["det"].append(ps["frac_deterministic_reachable"])
+                            stats["xzero"].append(ps["frac_x_zero"]); stats["nact"].append(int(self.qp.active_set(sol).sum())); stats["iters"].append(sol["iterations"])
+            # probes: active-set and LP-support changes since the previous validation
+            pr = self.probe
+            x = torch.as_tensor(obs[pr["opp"], 0, :pr["N"]].astype(np.int64))
+            g_hat = self.head(self.enc(x)).numpy().astype(np.float64)
+            act = []; supp = []
+            for i in range(len(pr["opp"])):
+                sol = self.qp.solve(g_hat[i], pr["eps"], tau); act.append(self.qp.active_set(sol))
+                ok, pol, xd = self.L.solve_safe(g_hat[i], pr["eps"]); supp.append(xd > 1e-9)
+            act = np.array(act); supp = np.array(supp)
+            change = {}
+            if pr["prev_active"] is not None:
+                change = {"probe_active_set_change_frac": float((act != pr["prev_active"]).mean()),
+                          "probe_active_set_any_change_frac": float((act != pr["prev_active"]).any(1).mean()),
+                          "probe_lp_support_change_frac": float((supp != pr["prev_support"]).mean()),
+                          "probe_lp_support_any_change_frac": float((supp != pr["prev_support"]).any(1).mean())}
+            pr["prev_active"], pr["prev_support"] = act, supp
+        return {"val_lp_regret": float(np.mean(lp_reg)), "val_qp_regret": float(np.mean(qp_reg)), "val_tau": tau,
+                "val_policy_entropy": float(np.mean(stats["entropy"])), "val_policy_det_frac": float(np.mean(stats["det"])),
+                "val_x_zero_frac": float(np.mean(stats["xzero"])), "val_n_active": float(np.mean(stats["nact"])),
+                "val_qp_iters": float(np.mean(stats["iters"])), "qp_failures": int(self.qp.n_fail), **change}
 
     def run(self):
         cfg = self.cfg; t0 = time.time(); best = np.inf; best_step = -1
@@ -133,14 +226,28 @@ class Trainer:
         for step in range(cfg["steps"]):
             for grp in self.opt.param_groups:
                 grp["lr"] = self.lr_at(step)
-            x, ids, N = self.sample_batch()
+            x, ids, N, eps_vec = self.sample_batch()
+            tau = self.tau_at(step) if self.method == "safe_regret" else None
+            self.last_tau = tau
             z = self.enc(x)
-            loss = self.loss_fn(z, ids)
+            if self.method == "safe_regret":
+                z.retain_grad()
+            collect = {} if (self.method == "safe_regret" and step % 50 == 0) else None
+            loss = self.loss_fn(z, ids, eps_vec, tau, collect)
             self.opt.zero_grad(set_to_none=True)
             loss.backward()
             gn = torch.nn.utils.clip_grad_norm_(list(self.enc.parameters()) + list(self.head.parameters()), cfg["grad_clip"])
             self.opt.step()
             rec = {"step": step, "N": N, "loss": loss.item(), "grad_norm": float(gn), "lr": self.lr_at(step), "t": time.time() - t0}
+            if self.method == "safe_regret":
+                rec["tau"] = tau
+                rec["grad_norm_z"] = float(z.grad.norm(dim=1).mean()) if z.grad is not None else None
+                rec["grad_norm_enc"] = float(torch.sqrt(sum((p.grad ** 2).sum() for p in self.enc.parameters() if p.grad is not None)))
+                if collect:
+                    ps = [self.qp.policy_stats(xh) for xh in collect["x_hat"][:4]]
+                    rec["policy_entropy"] = float(np.mean([p["mean_entropy_reachable"] for p in ps]))
+                    rec["policy_det_frac"] = float(np.mean([p["frac_deterministic_reachable"] for p in ps]))
+                    rec["x_zero_frac"] = float(np.mean([p["frac_x_zero"] for p in ps]))
             if (step + 1) % cfg["val_every"] == 0 or step == cfg["steps"] - 1:
                 vl, per_N = self.validate()
                 rec["val_loss"] = vl; rec["val_per_N"] = per_N
@@ -150,9 +257,12 @@ class Trainer:
                                 "val_loss": vl, "cfg": cfg, "method": self.method, "seed": self.seed,
                                 "g_stats": {k: (v.tolist() if hasattr(v, "tolist") else v) for k, v in self.g_stats.items()}},
                                self.out / "best.pt")
+                gN = {N: round(v['g_nmse'], 3) for N, v in per_N.items() if isinstance(N, int)}
+                extra = (f" qp_regret={per_N.get('val_qp_regret', float('nan')):.4f} tau={per_N.get('val_tau', 0):.4g} "
+                         f"det={per_N.get('val_policy_det_frac', float('nan')):.2f} nact={per_N.get('val_n_active', float('nan')):.0f} "
+                         f"gz={rec.get('grad_norm_z', float('nan')):.3g}") if self.method == "safe_regret" else ""
                 print(f"[{self.method} s{self.seed}] step {step+1} loss {loss.item():.4f} val {vl:.4f} "
-                      f"(best {best:.4f} @ {best_step+1}) gN={ {N: round(v['g_nmse'],3) for N, v in per_N.items()} } "
-                      f"t={time.time()-t0:.0f}s", flush=True)
+                      f"(best {best:.4f} @ {best_step+1}) gN={gN}{extra} t={time.time()-t0:.0f}s", flush=True)
             self.log.append(rec)
             if (step + 1) % 50 == 0:
                 with open(self.out / "log.jsonl", "w") as f:
@@ -179,7 +289,7 @@ def load_trained(run_dir):
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("--method", choices=["recon", "decision"], required=True)
+    ap.add_argument("--method", choices=["recon", "decision", "safe_regret"], required=True)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--out", type=str, default=None)
     for k, v in DEFAULT_CFG.items():

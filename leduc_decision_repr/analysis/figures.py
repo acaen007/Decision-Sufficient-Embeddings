@@ -11,12 +11,12 @@ import numpy as np
 
 from ..common import N_BUDGETS, EPSILONS, save_json
 
-COLORS = {"NEURAL_DECISION": "#1b6ca8", "NEURAL_RECON": "#d1495b", "TABULAR_EM_UNIFORM": "#8a8a8a",
+COLORS = {"NEURAL_SAFE_REGRET": "#7b2cbf", "NEURAL_DECISION": "#1b6ca8", "NEURAL_RECON": "#d1495b", "TABULAR_EM_UNIFORM": "#8a8a8a",
           "TABULAR_EM_NASH": "#5c5c5c", "BANK_POSTERIOR": "#2a9d8f", "NASH": "#000000", "ORACLE_SAFE": "#e9a100"}
-LABELS = {"NEURAL_DECISION": "neural decision (g)", "NEURAL_RECON": "neural reconstruction (q)",
+LABELS = {"NEURAL_SAFE_REGRET": "SAFE_REGRET (end-to-end)", "NEURAL_DECISION": "G_MSE (neural decision)", "NEURAL_RECON": "RECON (neural reconstruction)",
           "TABULAR_EM_UNIFORM": "tabular EM (uniform prior)", "TABULAR_EM_NASH": "tabular EM (Nash prior)",
           "BANK_POSTERIOR": "train-bank posterior", "NASH": "Nash blueprint", "ORACLE_SAFE": "safe oracle"}
-MAIN = ["NEURAL_DECISION", "NEURAL_RECON", "BANK_POSTERIOR", "TABULAR_EM_NASH", "TABULAR_EM_UNIFORM"]
+MAIN = ["NEURAL_SAFE_REGRET", "NEURAL_DECISION", "NEURAL_RECON", "BANK_POSTERIOR", "TABULAR_EM_NASH", "TABULAR_EM_UNIFORM"]
 plt.rcParams.update({"font.size": 9, "axes.spines.top": False, "axes.spines.right": False, "figure.dpi": 130})
 
 
@@ -202,14 +202,14 @@ def fig7_geometry(geom, raw, fig_dir):
         s = e["N100"]["separation"]; names.append(m); ratios.append(s["ratio"]); los.append(s["lo"]); his.append(s["hi"])
     for lab, key in [("true g(q)", "separation_true_g"), ("d_beh (control)", "separation_behavior_itself")]:
         s = geom[key]; names.append(lab); ratios.append(s["ratio"]); los.append(s["lo"]); his.append(s["hi"])
-    cols = [COLORS.get("NEURAL_" + m.split("_")[1].upper(), "#5c5c5c") if m.startswith("NEURAL") else "#e9a100" for m in names]
+    cols = [COLORS.get(m.rsplit("_s", 1)[0], "#5c5c5c") if m.startswith("NEURAL") else "#e9a100" for m in names]
     ax.bar(range(len(names)), ratios, color=cols, yerr=[np.array(ratios) - np.array(los), np.array(his) - np.array(ratios)], capsize=2)
     ax.axhline(1, color="k", lw=0.8); ax.set_xticks(range(len(names))); ax.set_xticklabels(names, rotation=90, fontsize=6)
     ax.set_title("(b) behavior-matched separation, N=100", fontsize=8); ax.set_ylabel("mean d_z(far) / mean d_z(near)")
     data["separation"] = dict(zip(names, zip(ratios, los, his)))
     ax = axes[2]
     for m, e in geom["latent"].items():
-        c = COLORS.get("NEURAL_" + m.split("_")[1].upper(), "#5c5c5c")
+        c = COLORS.get(m.rsplit("_s", 1)[0], "#5c5c5c")
         ax.plot(N_BUDGETS, [e[str(N)]["rho_z_resp"] for N in N_BUDGETS], "-o", ms=3, color=c, label=f"{m}: ρ(d_z,d_resp)")
         ax.plot(N_BUDGETS, [e[str(N)]["rho_z_beh"] for N in N_BUDGETS], "--s", ms=3, color=c, label=f"{m}: ρ(d_z,d_beh)")
     ax.set_xscale("log"); ax.set_xlabel("hands observed N"); ax.set_ylabel("Spearman ρ"); ax.legend(fontsize=5)
@@ -269,15 +269,15 @@ def fig11_training_curves(run_dirs, fig_dir):
     """Validation loss (own objective) and validation g-NMSE (at N=500 and N=20) vs step for every run."""
     import json as _json
     from pathlib import Path as _P
-    fig, axes = plt.subplots(1, 3, figsize=(12, 3.2))
+    fig, axes = plt.subplots(1, 4, figsize=(15, 3.2))
     data = {}
     for name, rd in run_dirs.items():
         recs = [_json.loads(l) for l in open(_P(rd) / "log.jsonl")]
         vals = [r for r in recs if "val_loss" in r]
         steps = [r["step"] + 1 for r in vals]
-        obj = "DECISION" if "decision" in name.lower() else "RECON"
+        obj = "SAFE_REGRET" if "safe_regret" in name.lower() else ("DECISION" if "decision" in name.lower() else "RECON")
         c = COLORS["NEURAL_" + obj]
-        ax = axes[0] if obj == "DECISION" else axes[1]
+        ax = axes[0] if obj == "DECISION" else (axes[1] if obj == "RECON" else axes[3])
         ax.plot(steps, [r["val_loss"] for r in vals], "-", color=c, alpha=0.8, label=name)
         axes[2].plot(steps, [r["val_per_N"]["500"]["g_nmse"] for r in vals], "-", color=c, alpha=0.8, label=f"{name} N=500")
         axes[2].plot(steps, [r["val_per_N"]["20"]["g_nmse"] for r in vals], ":", color=c, alpha=0.6, label=f"{name} N=20")
@@ -287,9 +287,54 @@ def fig11_training_curves(run_dirs, fig_dir):
                       "val_g_nmse_N20": [r["val_per_N"]["20"]["g_nmse"] for r in vals],
                       "train_loss_smoothed": np.convolve([r["loss"] for r in tr], np.ones(50) / 50, mode="valid")[::50].tolist(),
                       "best_step": int(min(vals, key=lambda r: r["val_loss"])["step"]) + 1}
-    axes[0].set_title("(a) decision: val NMSE(g)", fontsize=8); axes[1].set_title("(b) reconstruction: val CE(q)", fontsize=8)
+    axes[0].set_title("(a) G_MSE: val NMSE(g)", fontsize=8); axes[1].set_title("(b) RECON: val CE(q)", fontsize=8)
     axes[2].set_title("(c) val g-NMSE (solid N=500, dotted N=20)", fontsize=8)
+    axes[3].set_title("(d) SAFE_REGRET: val exact-LP regret (subset, ε=0.1)", fontsize=8)
     for ax in axes:
         ax.set_xlabel("training step"); ax.legend(fontsize=5)
     fig.suptitle("Figure 11: training curves (validation opponents; 3 seeds per objective)", y=1.03)
     _save(fig, fig_dir, "fig11_training_curves", data)
+
+
+def fig12_annealing(run_dirs, fig_dir):
+    """Annealing diagnostics for the SAFE_REGRET sweep: tau, encoder gradient norm, determinism,
+    active-set / LP-support changes, validation exact-LP and QP regret vs step."""
+    import json as _json
+    from pathlib import Path as _P
+    fig, axes = plt.subplots(2, 3, figsize=(13, 6.2))
+    data = {}
+    palette = ["#7b2cbf", "#1b6ca8", "#d1495b", "#2a9d8f", "#e9a100", "#5c5c5c"]
+    for ci, (name, rd) in enumerate(run_dirs.items()):
+        recs = [_json.loads(l) for l in open(_P(rd) / "log.jsonl")]
+        c = palette[ci % len(palette)]
+        steps = np.array([r["step"] + 1 for r in recs]); tau = np.array([r.get("tau", np.nan) for r in recs])
+        gz = np.array([r.get("grad_norm_z", np.nan) for r in recs], dtype=float)
+        genc = np.array([r.get("grad_norm_enc", np.nan) for r in recs], dtype=float)
+        k = 50
+        sm = lambda v: np.convolve(np.nan_to_num(v, nan=0.0), np.ones(k) / k, mode="valid")
+        axes[0, 0].plot(steps, tau, color=c, label=name); axes[0, 0].set_yscale("log")
+        axes[0, 1].plot(steps[k - 1:], sm(gz), color=c, label=name); axes[0, 1].set_yscale("log")
+        axes[0, 2].plot(steps[k - 1:], sm(genc), color=c, label=name); axes[0, 2].set_yscale("log")
+        vals = [r for r in recs if "val_loss" in r]
+        vs = [r["step"] + 1 for r in vals]
+        det = [r["val_per_N"].get("val_policy_det_frac", np.nan) for r in vals]
+        ent = [r["val_per_N"].get("val_policy_entropy", np.nan) for r in vals]
+        ach = [r["val_per_N"].get("probe_active_set_change_frac", np.nan) for r in vals]
+        sch = [r["val_per_N"].get("probe_lp_support_change_frac", np.nan) for r in vals]
+        lpr = [r["val_per_N"].get("val_lp_regret", np.nan) for r in vals]; qpr = [r["val_per_N"].get("val_qp_regret", np.nan) for r in vals]
+        gn5 = [r["val_per_N"]["500"]["g_nmse"] for r in vals]
+        axes[1, 0].plot(vs, det, "-o", ms=3, color=c, label=f"{name} determinism"); axes[1, 0].plot(vs, ent, ":", color=c)
+        axes[1, 1].plot(vs, ach, "-o", ms=3, color=c, label=f"{name} QP active set"); axes[1, 1].plot(vs, sch, "--s", ms=3, color=c, label=f"{name} LP support")
+        axes[1, 2].plot(vs, lpr, "-o", ms=3, color=c, label=f"{name} exact LP"); axes[1, 2].plot(vs, qpr, ":", color=c)
+        data[name] = {"val_steps": vs, "tau_at_val": [float(tau[min(len(tau) - 1, v - 1)]) for v in vs], "det_frac": det, "entropy": ent,
+                      "active_set_change": ach, "lp_support_change": sch, "val_lp_regret": lpr, "val_qp_regret": qpr, "val_g_nmse_N500": gn5,
+                      "grad_norm_z_smoothed": sm(gz)[::100].tolist(), "grad_norm_enc_smoothed": sm(genc)[::100].tolist()}
+    axes[0, 0].set_title("(a) regularization τ_t", fontsize=8); axes[0, 1].set_title("(b) ‖∂L/∂z‖ into the encoder (50-step mean)", fontsize=8)
+    axes[0, 2].set_title("(c) encoder parameter gradient norm (pre-clip)", fontsize=8)
+    axes[1, 0].set_title("(d) validation policies: deterministic fraction (solid), entropy (dotted)", fontsize=8)
+    axes[1, 1].set_title("(e) fraction of active-set / LP-support entries changed between validations", fontsize=8)
+    axes[1, 2].set_title("(f) validation regret: exact LP (solid), regularized QP (dotted)", fontsize=8)
+    for ax in axes.ravel():
+        ax.set_xlabel("training step"); ax.legend(fontsize=5)
+    fig.suptitle("Figure 12: SAFE_REGRET annealing diagnostics (validation-only sweep)", y=1.01)
+    _save(fig, fig_dir, "fig12_annealing", data)

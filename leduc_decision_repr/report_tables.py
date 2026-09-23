@@ -9,7 +9,7 @@ import numpy as np
 
 from .common import OUT, N_BUDGETS, EPSILONS, load_json
 
-ORDER = ["NEURAL_DECISION", "NEURAL_RECON", "BANK_POSTERIOR", "TABULAR_EM_NASH", "TABULAR_EM_UNIFORM"]
+ORDER = ["NEURAL_SAFE_REGRET", "NEURAL_DECISION", "NEURAL_RECON", "BANK_POSTERIOR", "TABULAR_EM_NASH", "TABULAR_EM_UNIFORM"]
 
 
 def fmt(v, d=3):
@@ -53,8 +53,9 @@ def main(eval_dir: Path):
             out.append(f"| {eps} | {m} | " + " | ".join(f"{b[k]['median']:.0f} [{b[k]['p2.5']:.0f}, {b[k]['p97.5']:.0f}]" for k in ["N50", "N80", "N90"]) + " |")
     out.append("")
     out.append("### Table R4. Paired differences (decision − reconstruction), mean over opponents with 95% CI\n")
-    key = "NEURAL_DECISION_minus_NEURAL_RECON"
-    if key in S["pairwise"]:
+    for key in [k for k in ["NEURAL_DECISION_minus_NEURAL_RECON", "NEURAL_SAFE_REGRET_minus_NEURAL_DECISION",
+                            "NEURAL_SAFE_REGRET_minus_NEURAL_RECON", "NEURAL_SAFE_REGRET_minus_BANK_POSTERIOR"] if k in S["pairwise"]]:
+        out.append(f"**{key.replace('_minus_', ' − ')}**\n")
         out.append("| ε | quantity | " + " | ".join(f"N={n}" for n in N_BUDGETS) + " |")
         out.append("|---|---|" + "---|" * len(N_BUDGETS))
         for eps in EPSILONS:

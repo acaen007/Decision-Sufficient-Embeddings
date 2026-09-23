@@ -142,7 +142,7 @@ def predict(split: str, runs: dict, out_dir: Path, em_alpha: float = 1.0, em_ite
 
 # ---------------------------------------------------------------------------- solve stage
 def _solve_worker(args):
-    out_dir, method, h_lo, h_hi, worker_id = args
+    out_dir, method, h_lo, h_hi, worker_id, eps_idx = args
     os.environ["OMP_NUM_THREADS"] = "1"; os.environ["MKL_NUM_THREADS"] = "1"; os.environ["OPENBLAS_NUM_THREADS"] = "1"
     from .game.safe_lp import LeducSafeSolver, OpenSpielAuditor
     tree, sf = get_tree(), get_sequence_form()
@@ -159,6 +159,9 @@ def _solve_worker(args):
         for j in range(nN):
             g = np.asarray(ghat[h, j], dtype=np.float64)
             for k, eps in enumerate(EPSILONS):
+                if k not in eps_idx:
+                    ok[i, j, k] = True; u[i, j, k] = np.nan; e_fast[i, j, k] = np.nan; e_os[i, j, k] = np.nan
+                    continue
                 okk, pol, x = L.solve_safe(g, eps)
                 ok[i, j, k] = okk
                 u[i, j, k] = x @ g_true
@@ -169,7 +172,8 @@ def _solve_worker(args):
     return h_lo, u, e_fast, e_os, ok, L.lp0.n_fail
 
 
-def solve(out_dir: Path, methods, workers: int = 4, max_hist: int | None = None):
+def solve(out_dir: Path, methods, workers: int = 4, max_hist: int | None = None, eps_idx=None):
+    eps_idx = list(range(len(EPSILONS))) if eps_idx is None else list(eps_idx)
     # one BLAS/OpenMP thread per worker process (inherited by spawned children)
     for var in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS"):
         os.environ[var] = "1"
@@ -182,7 +186,7 @@ def solve(out_dir: Path, methods, workers: int = 4, max_hist: int | None = None)
         if (out_dir / f"solve_{method}.npz").exists():
             print(f"{method}: already solved, skipping"); continue
         tm = time.time()
-        jobs = [(str(out_dir), method, int(chunks[w]), int(chunks[w + 1]), w) for w in range(workers)]
+        jobs = [(str(out_dir), method, int(chunks[w]), int(chunks[w + 1]), w, eps_idx) for w in range(workers)]
         with mp.get_context("spawn").Pool(workers) as pool:
             res = pool.map(_solve_worker, jobs)
         nN, nE = len(N_BUDGETS), len(EPSILONS)
@@ -192,11 +196,11 @@ def solve(out_dir: Path, methods, workers: int = 4, max_hist: int | None = None)
             n = uu.shape[0]
             u[h_lo:h_lo + n] = uu; ef[h_lo:h_lo + n] = ff; eo[h_lo:h_lo + n] = oo; ok[h_lo:h_lo + n] = kk; fails += nf
         np.savez(out_dir / f"solve_{method}.npz", u=u, e_fast=ef, e_os=eo, ok=ok, lp_failures=fails)
-        viol = eo - np.array(EPSILONS)[None, None]
-        summary[method] = {"lp_failures": int(fails), "max_violation_os": float(viol.max()),
-                           "n_violations_1e-7": int((viol > 1e-7).sum()), "max_abs_fast_vs_os": float(np.abs(ef - eo).max()),
-                           "runtime_s": time.time() - tm}
-        print(f"{method}: solved {H*nN*nE} LPs in {time.time()-tm:.0f}s; max OpenSpiel violation {viol.max():.2e}; "
+        viol = (eo - np.array(EPSILONS)[None, None])[:, :, eps_idx]
+        summary[method] = {"lp_failures": int(fails), "max_violation_os": float(np.nanmax(viol)),
+                           "n_violations_1e-7": int((viol > 1e-7).sum()), "max_abs_fast_vs_os": float(np.nanmax(np.abs(ef - eo))),
+                           "runtime_s": time.time() - tm, "eps_idx": eps_idx}
+        print(f"{method}: solved {H*nN*len(eps_idx)} LPs in {time.time()-tm:.0f}s; max OpenSpiel violation {np.nanmax(viol):.2e}; "
               f"LP failures {fails}", flush=True)
         save_json(summary, out_dir / "solve_summary_partial.json")
     save_json({"summary": summary, "runtime_s": time.time() - t0, "env": environment_info()}, out_dir / "solve_summary.json")
@@ -213,6 +217,7 @@ if __name__ == "__main__":
     ap.add_argument("--max_hist", type=int, default=None, help="debug: solve only the first histories")
     ap.add_argument("--skip_classical", action="store_true")
     ap.add_argument("--threads", type=int, default=4)
+    ap.add_argument("--eps_idx", default="", help="comma list of epsilon indices to solve (default all)")
     args = ap.parse_args()
     out_dir = Path(args.out) if args.out else EVAL_DIR / args.split
     if args.stage == "predict":
@@ -221,4 +226,5 @@ if __name__ == "__main__":
     else:
         meta = load_json(out_dir / "predict_meta.json")
         methods = args.methods.split(",") if args.methods else list(meta["methods"].keys())
-        solve(out_dir, methods, args.workers, args.max_hist)
+        eps_idx = [int(v) for v in args.eps_idx.split(",")] if args.eps_idx else None
+        solve(out_dir, methods, args.workers, args.max_hist, eps_idx)

@@ -20,7 +20,7 @@ from .analysis.geometry import geometry_analysis, precondition_analysis
 from .analysis import figures as F
 
 
-def main(eval_dir: Path, fig_dir: Path):
+def main(eval_dir: Path, fig_dir: Path, sweep_dirs: dict | None = None):
     t0 = time.time()
     fig_dir.mkdir(parents=True, exist_ok=True)
     tree, sf, sym, tab = get_tree(), get_sequence_form(), get_symmetry(), get_token_table()
@@ -77,6 +77,8 @@ def main(eval_dir: Path, fig_dir: Path):
     run_dirs = {m: info["run_dir"] for m, info in ed.meta["methods"].items() if info["kind"] == "neural"}
     if run_dirs:
         F.fig11_training_curves(run_dirs, fig_dir)
+    if sweep_dirs:
+        F.fig12_annealing(sweep_dirs, fig_dir)
     (eval_dir / "tokenized_examples.txt").write_text(text)
     save_json({"runtime_s": time.time() - t0}, eval_dir / "analyze_meta.json")
     print("analysis done in", time.time() - t0)
@@ -86,5 +88,7 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--eval_dir", default=str(OUT / "eval" / "test"))
     ap.add_argument("--fig_dir", default=str(FIG))
+    ap.add_argument("--sweep_dirs", default="", help="comma list name=run_dir of SAFE_REGRET sweep runs for Figure 12")
     a = ap.parse_args()
-    main(Path(a.eval_dir), Path(a.fig_dir))
+    sweep = dict(kv.split("=") for kv in a.sweep_dirs.split(",") if kv) or None
+    main(Path(a.eval_dir), Path(a.fig_dir), sweep)

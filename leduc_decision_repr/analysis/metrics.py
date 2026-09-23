@@ -185,7 +185,8 @@ def summarize(ed: EvalData, rng_seed=0):
     # paired comparisons of interest
     pairs = [("NEURAL_DECISION", "NEURAL_RECON"), ("NEURAL_DECISION", "BANK_POSTERIOR"),
              ("NEURAL_RECON", "BANK_POSTERIOR"), ("NEURAL_DECISION", "TABULAR_EM_NASH"),
-             ("NEURAL_RECON", "TABULAR_EM_NASH")]
+             ("NEURAL_RECON", "TABULAR_EM_NASH"), ("NEURAL_SAFE_REGRET", "NEURAL_DECISION"),
+             ("NEURAL_SAFE_REGRET", "NEURAL_RECON"), ("NEURAL_SAFE_REGRET", "BANK_POSTERIOR")]
     for a, b in pairs:
         if a in curves and b in curves:
             Ra, Fa = curves[a]; Rb, Fb = curves[b]
@@ -201,11 +202,12 @@ def summarize(ed: EvalData, rng_seed=0):
     for m in ed.methods:
         s = ed.solve[m]
         viol = s["e_os"] - np.array(EPSILONS)[None, None]
-        res["safety"][m] = {"max_violation": float(viol.max()), "n_violations_gt_1e-7": int((viol > 1e-7).sum()),
-                            "n_strategies": int(viol.size), "lp_failures": int(s["lp_failures"]),
-                            "violation_quantiles": {q: float(np.quantile(viol, q)) for q in [0.5, 0.9, 0.99, 0.999, 1.0]},
-                            "max_abs_fast_minus_os": float(np.abs(s["e_fast"] - s["e_os"]).max()),
-                            "mean_exploitability_by_eps": s["e_os"].mean((0, 1)).tolist()}
+        vv = viol[np.isfinite(viol)]
+        res["safety"][m] = {"max_violation": float(vv.max()), "n_violations_gt_1e-7": int((vv > 1e-7).sum()),
+                            "n_strategies": int(vv.size), "lp_failures": int(s["lp_failures"]),
+                            "violation_quantiles": {q: float(np.quantile(vv, q)) for q in [0.5, 0.9, 0.99, 0.999, 1.0]},
+                            "max_abs_fast_minus_os": float(np.nanmax(np.abs(s["e_fast"] - s["e_os"]))),
+                            "mean_exploitability_by_eps": np.nanmean(s["e_os"], (0, 1)).tolist()}
     # prediction errors
     res["prediction"] = {}
     for m, p in ed.pred.items():
