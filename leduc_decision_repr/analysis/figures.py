@@ -274,6 +274,8 @@ def fig11_training_curves(run_dirs, fig_dir):
     for name, rd in run_dirs.items():
         recs = [_json.loads(l) for l in open(_P(rd) / "log.jsonl")]
         vals = [r for r in recs if "val_loss" in r]
+        if not vals:
+            continue
         steps = [r["step"] + 1 for r in vals]
         obj = "SAFE_REGRET" if "safe_regret" in name.lower() else ("DECISION" if "decision" in name.lower() else "RECON")
         c = COLORS["NEURAL_" + obj]
