@@ -1,41 +1,12 @@
 {
- "NEURAL_SAFE_REGRET_s0": {
+ "HYB_PRIOR_EM": {
   "lp_failures": 0,
-  "max_violation_os": 9.419463820048435e-11,
-  "n_violations_1e-7": 0,
-  "max_abs_fast_vs_os": 4.996003610813204e-16,
-  "runtime_s": 999.3522596359253,
-  "eps_idx": [
-   0,
-   1,
-   2,
-   3
-  ]
- },
- "NEURAL_SAFE_REGRET_s1": {
-  "lp_failures": 0,
-  "max_violation_os": 9.18027598384441e-11,
+  "max_violation_os": 7.610867075458216e-10,
   "n_violations_1e-7": 0,
   "max_abs_fast_vs_os": 4.440892098500626e-16,
-  "runtime_s": 984.8248703479767,
+  "runtime_s": 643.4140865802765,
   "eps_idx": [
-   0,
-   1,
-   2,
-   3
-  ]
- },
- "NEURAL_SAFE_REGRET_s2": {
-  "lp_failures": 0,
-  "max_violation_os": 8.256004213613721e-11,
-  "n_violations_1e-7": 0,
-  "max_abs_fast_vs_os": 4.996003610813204e-16,
-  "runtime_s": 1027.8614120483398,
-  "eps_idx": [
-   0,
-   1,
-   2,
-   3
+   2
   ]
  }
 }
