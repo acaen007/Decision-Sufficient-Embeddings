@@ -1,0 +1,14 @@
+{
+ "SR_t0.01": {
+  "lp_failures": 0,
+  "max_violation_os": 3.544280147149692e-11,
+  "n_violations_1e-7": 0,
+  "max_abs_fast_vs_os": 4.440892098500626e-16,
+  "runtime_s": 145.38714241981506,
+  "eps_idx": [
+   1,
+   2,
+   3
+  ]
+ }
+}
