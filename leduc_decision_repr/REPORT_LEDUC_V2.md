@@ -265,7 +265,28 @@ consequences rather than by behavior) is supported in Leduc by SAFE_REGRET and n
 
 ## 7. Supplementary: deploying the regularized solution instead of the LP vertex
 
-DEPLOY_SECTION_PLACEHOLDER
+The regularized solver's output is itself exactly ε-safe (same constraints), so one could deploy it instead of
+the LP vertex.  Supplementary comparison (never used for selection): for the three SAFE_REGRET seeds and the
+three G_MSE seeds, every test (history, N, ε > 0) was re-solved with the regularized QP at a fixed τ = 0.01
+from the same ĝ, audited with OpenSpiel, and compared with the official LP-vertex deployment (302 400 QP
+solves; 0 solver failures; max audited exploitability − ε = 1.6e−7, i.e. interior-point accuracy, versus
+1e−10 for the LP).  Regret difference **regularized − LP** (mean over opponents, 95 % paired CI), ε = 0.10:
+
+| method | N=5 | N=20 | N=100 | N=500 | ε=0.05 (N=5 / 500) | ε=0.20 (N=5 / 500) |
+|---|---|---|---|---|---|---|
+| G_MSE s0 / s1 / s2 | +0.030 / +0.032 / +0.032 [≈ ±0.005] | +0.028 / +0.028 / +0.030 | +0.026 / +0.027 / +0.028 | +0.026 / +0.026 / +0.025 | +0.023–0.026 / +0.017–0.018 | +0.038–0.042 / +0.041–0.045 |
+| SAFE_REGRET s0 / s1 / s2 | +0.001 / +0.001 / +0.001 [≈ ±0.002] | +0.000 / +0.000 / +0.001 | +0.001 / +0.001 / +0.001 | +0.001 / +0.002 / +0.002 | +0.001 / +0.002 | +0.000 / +0.002–0.005 |
+
+Smoothing the deployed strategy does not help either method.  For G_MSE it costs 0.02–0.04 chips per hand at
+every N — a quarter of its regret — because its ĝ is accurate enough that the exact LP vertex is the right
+response and the quadratic term only pulls mass away from it.  For SAFE_REGRET the two deployments coincide
+to within 0.002: its inflated ĝ (‖ĝ‖/‖g‖ ≈ 1.8–2.4) makes τ = 0.01 an effective τ of ≈ 0.005, close to the
+regime it was trained in at the end of the schedule, and its responses are equally (im)precise either way.
+The fixed-norm run's training-time observation that its QP regret was below its LP regret (§4, Finding C)
+occurred at a much stronger effective τ (0.02–0.04, early in its schedule) for a model trained under that τ;
+deploying at such a τ was not tested.  Conclusion for the protocol: the exact unregularized LP is the
+correct deployment, and nothing here suggests a safety-preserving "interior" deployment would recover the
+gap between SAFE_REGRET and G_MSE.
 
 ## 8. Conclusions of V2
 
@@ -298,7 +319,7 @@ RECON latent inverts it (0.88).  The encoder trained through the solver learns "
 decision" as a *geometry*; it just does not turn that geometry into better ĝ or better responses under this
 budget.  Effective latent dimension is also lowest (2.1–2.6 vs 3.3–4.3 for G_MSE).
 
-**Supplementary (§7).**  DEPLOY_PLACEHOLDER
+**Supplementary (§7).**  Deploying the regularized (still exactly safe) solution instead of the LP vertex does not help: it costs G_MSE 0.02–0.04 chips per hand and leaves SAFE_REGRET unchanged, so the exact LP is the right deployment for both.
 
 **Updated ranking at identical exact safety (ε = 0.10, N = 5 → 500):** bank posterior best at N ≤ 10;
 G_MSE best among neural methods at every N and best overall for 20 ≤ N ≤ 100; per-opponent tabular EM best at
@@ -323,7 +344,7 @@ Same container as V1 (4 CPU cores, no GPU).  Session 2026-09-23 08:10 → ≈ 19
 | test prediction (3 seeds) | 1 min | |
 | test LP + audit, 3 × 67 200 | 50 min (4 workers) | 0 failures, max violation 9.4e−11 |
 | analysis + figures | 52 s | |
-| supplementary regularized deployment (6 methods × 50 400 QPs + audits) | DEPLOY_RUNTIME_PLACEHOLDER | |
+| supplementary regularized deployment (6 methods × 50 400 QPs + audits) | 65 min (4 workers) | 302 400 QP solves + audits, 0 failures |
 
 **Reproduce** (after the V1 pipeline; from the repository root):
 ```bash

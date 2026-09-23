@@ -1,0 +1,7 @@
+sweep done at Wed Sep 23 13:01:28 UTC 2026
+sweep selection done at Wed Sep 23 13:10:59 UTC 2026
+selected SR_t0.01 (leduc_decision_repr/outputs/runs_v2/safe_regret_t0.01_s0) tau_start=0.01 schedule=linear
+seeds 1,2 done at Wed Sep 23 16:37:15 UTC 2026
+test predict done at Wed Sep 23 16:38:16 UTC 2026
+test solve done at Wed Sep 23 17:28:30 UTC 2026
+analysis done at Wed Sep 23 17:29:26 UTC 2026

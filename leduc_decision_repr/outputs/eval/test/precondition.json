@@ -15,7 +15,7 @@
   "dims_95": 50,
   "dims_99": 90
  },
- "g_standardized_pr": 10.711049150106723,
+ "g_standardized_pr": 10.71104915010672,
  "g_standardized_pca": {
   "dims_90": 42,
   "dims_95": 62,
@@ -23,9 +23,9 @@
  },
  "by_family": {
   "NASH_LOGIT_PERTURB": {
-   "policy_pr": 11.115208131728602,
-   "g_pr": 7.902654775846714,
-   "g_standardized_pr": 10.04863219280013,
+   "policy_pr": 11.1152081317286,
+   "g_pr": 7.902654775846716,
+   "g_standardized_pr": 10.048632192800127,
    "exploitability_mean": 0.7799667328289198,
    "exploitability_std": 0.7275488584579033,
    "gain_mean_by_eps": [
@@ -62,8 +62,8 @@
   },
   "STRUCTURED_CORRELATED": {
    "policy_pr": 4.46868868113848,
-   "g_pr": 3.6245216177316433,
-   "g_standardized_pr": 5.666990194793008,
+   "g_pr": 3.6245216177316455,
+   "g_standardized_pr": 5.666990194793007,
    "exploitability_mean": 2.865086795959978,
    "exploitability_std": 1.6881851901514318,
    "gain_mean_by_eps": [
@@ -80,9 +80,9 @@
    "mean_policy_variation": 6.924010684264161
   },
   "UNSTRUCTURED_DIRICHLET": {
-   "policy_pr": 103.9126642025007,
-   "g_pr": 25.509499267995796,
-   "g_standardized_pr": 28.178348414216813,
+   "policy_pr": 103.91266420250076,
+   "g_pr": 25.509499267995775,
+   "g_standardized_pr": 28.17834841421682,
    "exploitability_mean": 2.9803009173456743,
    "exploitability_std": 0.5055477170833698,
    "gain_mean_by_eps": [

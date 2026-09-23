@@ -1,0 +1,6 @@
+methods with solve results: ['TABULAR_EM_UNIFORM', 'TABULAR_EM_NASH', 'BANK_POSTERIOR', 'NEURAL_DECISION_s0', 'NEURAL_DECISION_s1', 'NEURAL_DECISION_s2', 'NEURAL_RECON_s0', 'NEURAL_RECON_s1', 'NEURAL_RECON_s2', 'NEURAL_SAFE_REGRET_s0', 'NEURAL_SAFE_REGRET_s1', 'NEURAL_SAFE_REGRET_s2']
+/home/user/Decision-Sufficient-Embeddings/leduc_decision_repr/analysis/metrics.py:87: RuntimeWarning: Mean of empty slice
+  out[name] = (np.mean([self.regret(m) for m in members], 0), np.nanmean([self.frac(m) for m in members], 0))
+/home/user/Decision-Sufficient-Embeddings/leduc_decision_repr/analysis/metrics.py:97: RuntimeWarning: Mean of empty slice
+  reps = np.array([np.nanmean(x[i], axis=0) for i in idx])
+analysis done in 52.363391637802124
