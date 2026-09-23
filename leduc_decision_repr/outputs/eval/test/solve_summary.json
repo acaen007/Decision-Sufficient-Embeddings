@@ -1,28 +1,49 @@
 {
  "summary": {
-  "TABULAR_EM_UNIFORM": {
+  "NEURAL_DECISION_s0": {
    "lp_failures": 0,
-   "max_violation_os": 1.2543445448987e-10,
+   "max_violation_os": 4.5170242546355155e-11,
+   "n_violations_1e-7": 0,
+   "max_abs_fast_vs_os": 4.579669976578771e-16,
+   "runtime_s": 1132.4110295772552
+  },
+  "NEURAL_DECISION_s1": {
+   "lp_failures": 0,
+   "max_violation_os": 3.3689113998480735e-10,
    "n_violations_1e-7": 0,
    "max_abs_fast_vs_os": 4.440892098500626e-16,
-   "runtime_s": 2331.533011198044
+   "runtime_s": 1126.7737839221954
   },
-  "TABULAR_EM_NASH": {
+  "NEURAL_DECISION_s2": {
    "lp_failures": 0,
-   "max_violation_os": 7.345288405291583e-10,
+   "max_violation_os": 1.1570668034810438e-10,
+   "n_violations_1e-7": 0,
+   "max_abs_fast_vs_os": 5.551115123125783e-16,
+   "runtime_s": 1120.009745836258
+  },
+  "NEURAL_RECON_s0": {
+   "lp_failures": 0,
+   "max_violation_os": 2.9575336624176884e-10,
    "n_violations_1e-7": 0,
    "max_abs_fast_vs_os": 4.996003610813204e-16,
-   "runtime_s": 2343.0772309303284
+   "runtime_s": 1154.4771416187286
   },
-  "BANK_POSTERIOR": {
+  "NEURAL_RECON_s1": {
    "lp_failures": 0,
-   "max_violation_os": 6.452341438922815e-10,
+   "max_violation_os": 5.538477870770109e-10,
    "n_violations_1e-7": 0,
-   "max_abs_fast_vs_os": 4.440892098500626e-16,
-   "runtime_s": 2380.0647983551025
+   "max_abs_fast_vs_os": 4.996003610813204e-16,
+   "runtime_s": 1159.520489692688
+  },
+  "NEURAL_RECON_s2": {
+   "lp_failures": 0,
+   "max_violation_os": 3.6522029844832105e-10,
+   "n_violations_1e-7": 0,
+   "max_abs_fast_vs_os": 4.996003610813204e-16,
+   "runtime_s": 1156.2653539180756
   }
  },
- "runtime_s": 7054.677410125732,
+ "runtime_s": 6849.462515830994,
  "env": {
   "python": "3.11.15 (main, Mar  3 2026, 09:26:23) [GCC 13.3.0]",
   "platform": "Linux-6.18.44-fc-v37-x86_64-with-glibc2.39",
@@ -31,7 +52,7 @@
   "scipy": "1.17.1",
   "torch": "2.14.0+cu130",
   "open_spiel": "2.0.2",
-  "git": "ad53c098c408fa018c39b30e8e9c31783c4f31f2",
-  "time": "2026-09-22 20:50:05"
+  "git": "86a277506f7cf617f1a84865e070d34278dc97b1",
+  "time": "2026-09-23 00:09:40"
  }
 }
