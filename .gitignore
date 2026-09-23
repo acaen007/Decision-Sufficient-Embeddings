@@ -9,3 +9,4 @@ leduc_decision_repr/outputs/eval_dry_val*
 leduc_decision_repr/outputs/**/*.log
 leduc_decision_repr/outputs/**/*.jsonl
 leduc_decision_repr/outputs/*.log
+leduc_decision_repr/outputs/*.stdout
