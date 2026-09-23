@@ -2646,8 +2646,24 @@
     "leduc_decision_repr/outputs/runs/recon_s2"
    ],
    "selection": {}
+  },
+  "NEURAL_DEC133K_s1": {
+   "kind": "neural",
+   "objective": "decision",
+   "run_dir": "/home/user/Decision-Sufficient-Embeddings/leduc_decision_repr/outputs/runs_v3/dec133k_s1",
+   "best_step": 5749,
+   "ckpt": "best.pt",
+   "group": "NEURAL_DEC133K"
+  },
+  "NEURAL_DEC133K3K_s1": {
+   "kind": "neural",
+   "objective": "decision",
+   "run_dir": "/home/user/Decision-Sufficient-Embeddings/leduc_decision_repr/outputs/runs_v3/dec133k_s1",
+   "best_step": 2999,
+   "ckpt": "step3000.pt",
+   "group": "NEURAL_DEC133K3K"
   }
  },
  "g_valid_dims": 1074,
- "predict_runtime_s": 644.6236159801483
+ "predict_runtime_s": 898.481204032898
 }
