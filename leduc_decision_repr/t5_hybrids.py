@@ -106,7 +106,7 @@ def main(net_runs, recon_runs, out_dir: Path, kappas=(1.0, 3.0, 10.0, 30.0, 100.
         meta["methods"][name] = {"kind": "classical", "hybrid": True, "runs": net_runs if name.startswith("HYB_BLEND") else recon_runs,
                                  "selection": res["blend"] if name.startswith("HYB_BLEND") else res["prior_em"]}
     save_json(meta, hm)
-    save_json(res, out_dir / (("t5_hybrid_selection_blend" if net_runs else "t5_hybrid_selection_prior") + suffix + ".json"))
+    save_json(res, out_dir / (("t5_hybrid_selection_blend" if net_runs else ("t5_hybrid_selection_ensrec" if ensemble_only else "t5_hybrid_selection_prior")) + suffix + ".json"))
     print("done", time.time() - t0)
 
 
