@@ -110,11 +110,12 @@ class HistoryEncoder(nn.Module):
         self.norm = nn.LayerNorm(d_model)
         self.proj = nn.Linear(d_model, z_dim)
 
-    def forward(self, hands, mask):
-        """hands (B, N, d), mask (B, N) bool (True = real hand) -> z (B, z_dim)."""
+    def forward(self, hands, mask, cls_extra=None):
+        """hands (B, N, d), mask (B, N) bool (True = real hand), cls_extra (B, d) added to the CLS token -> z."""
         B, N, _ = hands.shape
         pos = torch.arange(N + 1, device=hands.device)
-        h = torch.cat([self.cls.expand(B, 1, -1), hands], dim=1) + self.pos(pos)[None]
+        cls = self.cls.expand(B, 1, -1) if cls_extra is None else self.cls.expand(B, 1, -1) + cls_extra[:, None, :]
+        h = torch.cat([cls, hands], dim=1) + self.pos(pos)[None]
         key_pad = torch.cat([torch.zeros(B, 1, dtype=torch.bool, device=hands.device), ~mask], dim=1)
         out = self.enc(h, src_key_padding_mask=key_pad)
         return self.proj(self.norm(out[:, 0]))
@@ -122,8 +123,9 @@ class HistoryEncoder(nn.Module):
 
 class OpponentEncoder(nn.Module):
     def __init__(self, type_cat, type_num, type_len, d_model=128, z_dim=128, n_layers=2, n_heads=4,
-                 dim_ff=256, dropout=0.1, max_hands=500):
+                 dim_ff=256, dropout=0.1, max_hands=500, extra_dim=0):
         super().__init__()
+        self.extra = nn.Linear(extra_dim, d_model) if extra_dim else None
         self.register_buffer("type_cat", torch.tensor(np.asarray(type_cat), dtype=torch.long))
         self.register_buffer("type_num", torch.tensor(np.asarray(type_num), dtype=torch.float32))
         self.register_buffer("type_len", torch.tensor(np.asarray(type_len), dtype=torch.long))
@@ -133,13 +135,13 @@ class OpponentEncoder(nn.Module):
     def hand_table(self):
         return self.hand(self.type_cat, self.type_num, self.type_len)           # (T, d)
 
-    def forward(self, type_ids, mask=None):
-        """type_ids (B, N) long observation-type ids; mask (B, N) bool -> z (B, z_dim)."""
+    def forward(self, type_ids, mask=None, extra=None):
+        """type_ids (B, N) long observation-type ids; mask (B, N) bool; extra (B, extra_dim) -> z (B, z_dim)."""
         if mask is None:
             mask = torch.ones_like(type_ids, dtype=torch.bool)
         table = self.hand_table()
         hands = table[type_ids.clamp(min=0)] * mask[..., None]
-        return self.history(hands, mask)
+        return self.history(hands, mask, self.extra(extra) if (self.extra is not None and extra is not None) else None)
 
     def encode_hands_direct(self, type_ids, mask=None):
         """Per-hand path (no deduplication) used by tests."""

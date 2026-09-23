@@ -45,9 +45,13 @@ TRAIN_EPS_INDEX = {0.05: 1, 0.1: 2, 0.2: 3}       # index into the population's 
 
 
 def build_model(method, cfg, tab, sym, tree, g_stats):
+    extra_dim = 0
+    if cfg.get("extra_features", 0):
+        from .baselines.likelihood import CountFeatures
+        extra_dim = CountFeatures(tab, sym).dim
     enc = OpponentEncoder(tab.cat, tab.num, tab.length, d_model=cfg["d_model"], z_dim=cfg["z_dim"],
                           n_layers=cfg["n_layers"], n_heads=cfg["n_heads"], dim_ff=cfg["dim_ff"],
-                          dropout=cfg["dropout"])
+                          dropout=cfg["dropout"], extra_dim=extra_dim)
     if method == "recon":
         head = ReconstructionHead(rank_infoset_features(tree, sym, 1), sym.rank_legal_mask[1],
                                   z_dim=cfg["z_dim"], d_hidden=cfg["recon_hidden"])
@@ -108,6 +112,10 @@ class Trainer:
             self.val_sub = {"N": [5, 20, 100, 500], "streams": list(range(cfg["val_subset_streams"])), "eps": 0.1}
             self.probe = {"opp": vr.choice(n_val, 32, replace=False), "N": 100, "eps": 0.1, "prev_active": None, "prev_support": None}
         self.last_tau = None
+        self.cf = None
+        if cfg.get("extra_features", 0):
+            from .baselines.likelihood import CountFeatures
+            self.cf = CountFeatures(self.tab, self.sym)
         if method == "decision" and cfg.get("spo_lambda", -1.0) >= 0:
             from .game.safe_lp import get_solver
             from .game.spo_plus import SPOPlus
@@ -186,6 +194,7 @@ class Trainer:
         n_opp, n_streams = self.train["obs_types"].shape[:2]
         idx = self.rng.integers(0, n_opp, cfg["batch"]); st = self.rng.integers(0, n_streams, cfg["batch"])
         x = torch.as_tensor(self.train["obs_types"][idx, st, :N].astype(np.int64))
+        self._extra = torch.as_tensor(self.cf.features(self.train["obs_types"][idx, st, :N])) if self.cf is not None else None
         eps_vec = None
         if self.method == "safe_regret":
             eps_vec = np.array(self.rng.choice(self.train_eps, size=cfg["batch"]))
@@ -203,7 +212,7 @@ class Trainer:
                     for start in range(0, n_opp, 50):
                         sl = slice(start, start + 50)
                         x = torch.as_tensor(obs[sl, s, :N].astype(np.int64)); ids = torch.as_tensor(opp[sl])
-                        z = self.enc(x)
+                        z = self.enc(x, extra=(torch.as_tensor(self.cf.features(obs[sl, s, :N])) if self.cf is not None else None))
                         if self.method == "safe_regret":
                             losses.append(0.0)        # per-N QP loss is too expensive; see validate_regret()
                         else:
@@ -277,7 +286,7 @@ class Trainer:
             x, ids, N, eps_vec = self.sample_batch()
             tau = self.tau_at(step) if self.method == "safe_regret" else None
             self.last_tau = tau
-            z = self.enc(x)
+            z = self.enc(x, extra=self._extra)
             if self.method == "safe_regret":
                 z.retain_grad()
             collect = {} if (self.method == "safe_regret" and step % 50 == 0) else None

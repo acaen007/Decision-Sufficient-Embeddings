@@ -92,7 +92,7 @@ def main():
             name, cmd = pending[0]
             if name in GATES and not GATES[name].exists():
                 break
-            if (R / name / "result.json").exists():
+            if (R / name / "result.json").exists() or (R / f"{name}.log").exists():   # finished or already started
                 pending.pop(0); continue
             pending.pop(0)
             (R / name).mkdir(exist_ok=True)

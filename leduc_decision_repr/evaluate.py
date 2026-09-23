@@ -116,6 +116,10 @@ def predict(split: str, runs: dict, out_dir: Path, em_alpha: float = 1.0, em_ite
             run_dir, ckpt = str(run_dir).split(":", 1)
         enc, head, ck = load_trained(run_dir, ckpt)
         method = ck["method"]
+        cf = None
+        if ck["cfg"].get("extra_features", 0):
+            from .baselines.likelihood import CountFeatures
+            cf = CountFeatures(tab, sym)
         ghat = np.zeros((H, len(N_BUDGETS), G_true.shape[1]), dtype=np.float32)
         Z = np.zeros((H, len(N_BUDGETS), enc.history.proj.out_features), dtype=np.float32)
         gn = np.zeros((H, len(N_BUDGETS))); gr = np.zeros((H, len(N_BUDGETS))); qe = np.full((H, len(N_BUDGETS)), np.nan)
@@ -124,7 +128,7 @@ def predict(split: str, runs: dict, out_dir: Path, em_alpha: float = 1.0, em_ite
                 for start in range(0, H, 100):
                     sl = slice(start, min(start + 100, H))
                     x = torch.as_tensor(flat_obs[sl, :N].astype(np.int64))
-                    z = enc(x)
+                    z = enc(x, extra=(torch.as_tensor(cf.features(flat_obs[sl, :N])) if cf is not None else None))
                     Z[sl, j] = z.numpy()
                     if method == "recon":
                         q_hat = head(z)
