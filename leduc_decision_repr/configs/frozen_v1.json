@@ -1,0 +1,58 @@
+{
+ "train": {
+  "d_model": 128,
+  "z_dim": 128,
+  "n_layers": 2,
+  "n_heads": 4,
+  "dim_ff": 256,
+  "dropout": 0.1,
+  "lr": 0.0003,
+  "weight_decay": 0.01,
+  "grad_clip": 1.0,
+  "batch": 32,
+  "steps": 6000,
+  "warmup": 200,
+  "min_lr_frac": 0.1,
+  "val_every": 250,
+  "g_std_rel_threshold": 0.001,
+  "recon_hidden": 256,
+  "decision_hidden": 512,
+  "threads": 1
+ },
+ "seeds": [
+  0,
+  1,
+  2
+ ],
+ "methods": [
+  "decision",
+  "recon"
+ ],
+ "note": "Frozen after the train/val-only smoke test (400 steps) and validation-split pipeline check. No test-split evaluation was run before freezing.",
+ "epsilons": [
+  0.0,
+  0.05,
+  0.1,
+  0.2
+ ],
+ "N_budgets": [
+  5,
+  10,
+  20,
+  50,
+  100,
+  200,
+  500
+ ],
+ "em": {
+  "alpha": 1.0,
+  "n_iter": 200,
+  "priors": [
+   "uniform",
+   "nash"
+  ]
+ },
+ "bank_prior": "uniform over 1200 train opponents",
+ "latent_dim": 128,
+ "eval_streams_test": 8
+}

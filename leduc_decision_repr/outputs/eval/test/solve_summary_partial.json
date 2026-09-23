@@ -1,0 +1,44 @@
+{
+ "NEURAL_DECISION_s0": {
+  "lp_failures": 0,
+  "max_violation_os": 4.5170242546355155e-11,
+  "n_violations_1e-7": 0,
+  "max_abs_fast_vs_os": 4.579669976578771e-16,
+  "runtime_s": 1132.4110295772552
+ },
+ "NEURAL_DECISION_s1": {
+  "lp_failures": 0,
+  "max_violation_os": 3.3689113998480735e-10,
+  "n_violations_1e-7": 0,
+  "max_abs_fast_vs_os": 4.440892098500626e-16,
+  "runtime_s": 1126.7737839221954
+ },
+ "NEURAL_DECISION_s2": {
+  "lp_failures": 0,
+  "max_violation_os": 1.1570668034810438e-10,
+  "n_violations_1e-7": 0,
+  "max_abs_fast_vs_os": 5.551115123125783e-16,
+  "runtime_s": 1120.009745836258
+ },
+ "NEURAL_RECON_s0": {
+  "lp_failures": 0,
+  "max_violation_os": 2.9575336624176884e-10,
+  "n_violations_1e-7": 0,
+  "max_abs_fast_vs_os": 4.996003610813204e-16,
+  "runtime_s": 1154.4771416187286
+ },
+ "NEURAL_RECON_s1": {
+  "lp_failures": 0,
+  "max_violation_os": 5.538477870770109e-10,
+  "n_violations_1e-7": 0,
+  "max_abs_fast_vs_os": 4.996003610813204e-16,
+  "runtime_s": 1159.520489692688
+ },
+ "NEURAL_RECON_s2": {
+  "lp_failures": 0,
+  "max_violation_os": 3.6522029844832105e-10,
+  "n_violations_1e-7": 0,
+  "max_abs_fast_vs_os": 4.996003610813204e-16,
+  "runtime_s": 1156.2653539180756
+ }
+}

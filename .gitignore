@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+leduc_decision_repr/outputs/**/*.npy
+leduc_decision_repr/outputs/**/*.npz
+leduc_decision_repr/outputs/**/*.pt
+leduc_decision_repr/outputs/**/*.pkl
+leduc_decision_repr/outputs/eval_dry_val*
+leduc_decision_repr/outputs/**/*.log
+leduc_decision_repr/outputs/**/*.jsonl
+leduc_decision_repr/outputs/*.log
