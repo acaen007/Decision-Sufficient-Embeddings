@@ -1,0 +1,565 @@
+{
+ "rows": [
+  {
+   "eval_dir": "test",
+   "method": "BANK_POSTERIOR",
+   "eps": 0.0,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 1.4282279525712482e-10,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "BANK_POSTERIOR",
+   "eps": 0.05,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 8.231301751315812e-11,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "BANK_POSTERIOR",
+   "eps": 0.1,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 1.0233104641432789e-10,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "BANK_POSTERIOR",
+   "eps": 0.2,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 6.452341438922815e-10,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "HYB_ENSREC",
+   "eps": 0.0,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": NaN,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "HYB_ENSREC",
+   "eps": 0.05,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": NaN,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "HYB_ENSREC",
+   "eps": 0.1,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 1.5051611346184046e-10,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "HYB_ENSREC",
+   "eps": 0.2,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": NaN,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "HYB_PRIOR_EM",
+   "eps": 0.0,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": NaN,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "HYB_PRIOR_EM",
+   "eps": 0.05,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": NaN,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "HYB_PRIOR_EM",
+   "eps": 0.1,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 7.610867075458216e-10,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "HYB_PRIOR_EM",
+   "eps": 0.2,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": NaN,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "HYB_PRIOR_EM_S0",
+   "eps": 0.0,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": NaN,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "HYB_PRIOR_EM_S0",
+   "eps": 0.05,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": NaN,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "HYB_PRIOR_EM_S0",
+   "eps": 0.1,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 1.975457297742622e-11,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "HYB_PRIOR_EM_S0",
+   "eps": 0.2,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": NaN,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_DECISION_s0",
+   "eps": 0.0,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 4.5170242546355155e-11,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_DECISION_s0",
+   "eps": 0.05,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 1.3108708563080995e-11,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_DECISION_s0",
+   "eps": 0.1,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 9.306402870556951e-12,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_DECISION_s0",
+   "eps": 0.2,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 1.755290357507988e-11,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_DECISION_s1",
+   "eps": 0.0,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 3.3689113998480735e-10,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_DECISION_s1",
+   "eps": 0.05,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 1.5989540247396405e-10,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_DECISION_s1",
+   "eps": 0.1,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 2.2063358084967177e-10,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_DECISION_s1",
+   "eps": 0.2,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 3.274808202391455e-11,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_DECISION_s2",
+   "eps": 0.0,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 1.1570668034810438e-10,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_DECISION_s2",
+   "eps": 0.05,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 8.014910957143684e-11,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_DECISION_s2",
+   "eps": 0.1,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 1.0008896489388519e-11,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_DECISION_s2",
+   "eps": 0.2,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 1.722938458570411e-11,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_RECON_s0",
+   "eps": 0.0,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 1.866824334006978e-10,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_RECON_s0",
+   "eps": 0.05,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 1.0392367522094048e-10,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_RECON_s0",
+   "eps": 0.1,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 1.2764443668711323e-10,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_RECON_s0",
+   "eps": 0.2,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 2.9575336624176884e-10,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_RECON_s1",
+   "eps": 0.0,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 1.6420589887822246e-10,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_RECON_s1",
+   "eps": 0.05,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 2.905356233373624e-10,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_RECON_s1",
+   "eps": 0.1,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 5.538477870770109e-10,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_RECON_s1",
+   "eps": 0.2,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 7.615702513064093e-11,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_RECON_s2",
+   "eps": 0.0,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 9.067412098939798e-11,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_RECON_s2",
+   "eps": 0.05,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 1.3994180814158597e-10,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_RECON_s2",
+   "eps": 0.1,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 2.0098984976346657e-10,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_RECON_s2",
+   "eps": 0.2,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 3.6522029844832105e-10,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_SAFE_REGRET_s0",
+   "eps": 0.0,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 9.419463820048435e-11,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_SAFE_REGRET_s0",
+   "eps": 0.05,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 1.9429569064755015e-11,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_SAFE_REGRET_s0",
+   "eps": 0.1,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 3.5025454758752517e-12,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_SAFE_REGRET_s0",
+   "eps": 0.2,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 6.00292038299699e-12,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_SAFE_REGRET_s1",
+   "eps": 0.0,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 5.057261553975678e-11,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_SAFE_REGRET_s1",
+   "eps": 0.05,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 9.18027598384441e-11,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_SAFE_REGRET_s1",
+   "eps": 0.1,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 3.1741137496155147e-12,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_SAFE_REGRET_s1",
+   "eps": 0.2,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 1.0908884906513094e-11,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_SAFE_REGRET_s2",
+   "eps": 0.0,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 2.886275940472416e-11,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_SAFE_REGRET_s2",
+   "eps": 0.05,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 8.256004213613721e-11,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_SAFE_REGRET_s2",
+   "eps": 0.1,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 5.793200641424079e-11,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_SAFE_REGRET_s2",
+   "eps": 0.2,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 5.731137786568752e-12,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "TABULAR_EM_NASH",
+   "eps": 0.0,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 1.3855847025290302e-11,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "TABULAR_EM_NASH",
+   "eps": 0.05,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 3.017455729725782e-11,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "TABULAR_EM_NASH",
+   "eps": 0.1,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 7.345288405291583e-10,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "TABULAR_EM_NASH",
+   "eps": 0.2,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 8.501310766462211e-11,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "TABULAR_EM_UNIFORM",
+   "eps": 0.0,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 3.4457534048293326e-11,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "TABULAR_EM_UNIFORM",
+   "eps": 0.05,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 6.312803058072802e-11,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "TABULAR_EM_UNIFORM",
+   "eps": 0.1,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 1.2543445448987e-10,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "TABULAR_EM_UNIFORM",
+   "eps": 0.2,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 5.3966775492853e-11,
+   "n_violations": 0,
+   "lp_failures": 0
+  }
+ ],
+ "extra": [
+  {
+   "source": "T3 oracle (rank-k, hull, components, kappa)",
+   "n_strategies": 40767,
+   "max_expl_minus_eps": 1.1221782062614816e-09,
+   "lp_failures": 0
+  },
+  {
+   "source": "T2 covariance gap (subsample)",
+   "n_strategies": 84,
+   "max_expl_minus_eps": 1.2732870313669764e-13,
+   "lp_failures": 0
+  }
+ ],
+ "total": {
+  "n_strategies": 1048851,
+  "max_expl_minus_eps": 1.1221782062614816e-09,
+  "n_violations": 0,
+  "lp_failures": 0
+ },
+ "tolerance": 1e-07
+}

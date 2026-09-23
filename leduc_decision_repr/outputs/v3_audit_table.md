@@ -1,0 +1,65 @@
+| eval dir | method | ε | strategies | max(Expl − ε) | violations | LP failures |
+|---|---|---|---|---|---|---|
+| test | BANK_POSTERIOR | 0.0 | 16800 | 1.4e-10 | 0 | 0 |
+| test | BANK_POSTERIOR | 0.05 | 16800 | 8.2e-11 | 0 | 0 |
+| test | BANK_POSTERIOR | 0.1 | 16800 | 1.0e-10 | 0 | 0 |
+| test | BANK_POSTERIOR | 0.2 | 16800 | 6.5e-10 | 0 | 0 |
+| test | HYB_ENSREC | 0.0 | 16800 | nan | 0 | 0 |
+| test | HYB_ENSREC | 0.05 | 16800 | nan | 0 | 0 |
+| test | HYB_ENSREC | 0.1 | 16800 | 1.5e-10 | 0 | 0 |
+| test | HYB_ENSREC | 0.2 | 16800 | nan | 0 | 0 |
+| test | HYB_PRIOR_EM | 0.0 | 16800 | nan | 0 | 0 |
+| test | HYB_PRIOR_EM | 0.05 | 16800 | nan | 0 | 0 |
+| test | HYB_PRIOR_EM | 0.1 | 16800 | 7.6e-10 | 0 | 0 |
+| test | HYB_PRIOR_EM | 0.2 | 16800 | nan | 0 | 0 |
+| test | HYB_PRIOR_EM_S0 | 0.0 | 16800 | nan | 0 | 0 |
+| test | HYB_PRIOR_EM_S0 | 0.05 | 16800 | nan | 0 | 0 |
+| test | HYB_PRIOR_EM_S0 | 0.1 | 16800 | 2.0e-11 | 0 | 0 |
+| test | HYB_PRIOR_EM_S0 | 0.2 | 16800 | nan | 0 | 0 |
+| test | NEURAL_DECISION_s0 | 0.0 | 16800 | 4.5e-11 | 0 | 0 |
+| test | NEURAL_DECISION_s0 | 0.05 | 16800 | 1.3e-11 | 0 | 0 |
+| test | NEURAL_DECISION_s0 | 0.1 | 16800 | 9.3e-12 | 0 | 0 |
+| test | NEURAL_DECISION_s0 | 0.2 | 16800 | 1.8e-11 | 0 | 0 |
+| test | NEURAL_DECISION_s1 | 0.0 | 16800 | 3.4e-10 | 0 | 0 |
+| test | NEURAL_DECISION_s1 | 0.05 | 16800 | 1.6e-10 | 0 | 0 |
+| test | NEURAL_DECISION_s1 | 0.1 | 16800 | 2.2e-10 | 0 | 0 |
+| test | NEURAL_DECISION_s1 | 0.2 | 16800 | 3.3e-11 | 0 | 0 |
+| test | NEURAL_DECISION_s2 | 0.0 | 16800 | 1.2e-10 | 0 | 0 |
+| test | NEURAL_DECISION_s2 | 0.05 | 16800 | 8.0e-11 | 0 | 0 |
+| test | NEURAL_DECISION_s2 | 0.1 | 16800 | 1.0e-11 | 0 | 0 |
+| test | NEURAL_DECISION_s2 | 0.2 | 16800 | 1.7e-11 | 0 | 0 |
+| test | NEURAL_RECON_s0 | 0.0 | 16800 | 1.9e-10 | 0 | 0 |
+| test | NEURAL_RECON_s0 | 0.05 | 16800 | 1.0e-10 | 0 | 0 |
+| test | NEURAL_RECON_s0 | 0.1 | 16800 | 1.3e-10 | 0 | 0 |
+| test | NEURAL_RECON_s0 | 0.2 | 16800 | 3.0e-10 | 0 | 0 |
+| test | NEURAL_RECON_s1 | 0.0 | 16800 | 1.6e-10 | 0 | 0 |
+| test | NEURAL_RECON_s1 | 0.05 | 16800 | 2.9e-10 | 0 | 0 |
+| test | NEURAL_RECON_s1 | 0.1 | 16800 | 5.5e-10 | 0 | 0 |
+| test | NEURAL_RECON_s1 | 0.2 | 16800 | 7.6e-11 | 0 | 0 |
+| test | NEURAL_RECON_s2 | 0.0 | 16800 | 9.1e-11 | 0 | 0 |
+| test | NEURAL_RECON_s2 | 0.05 | 16800 | 1.4e-10 | 0 | 0 |
+| test | NEURAL_RECON_s2 | 0.1 | 16800 | 2.0e-10 | 0 | 0 |
+| test | NEURAL_RECON_s2 | 0.2 | 16800 | 3.7e-10 | 0 | 0 |
+| test | NEURAL_SAFE_REGRET_s0 | 0.0 | 16800 | 9.4e-11 | 0 | 0 |
+| test | NEURAL_SAFE_REGRET_s0 | 0.05 | 16800 | 1.9e-11 | 0 | 0 |
+| test | NEURAL_SAFE_REGRET_s0 | 0.1 | 16800 | 3.5e-12 | 0 | 0 |
+| test | NEURAL_SAFE_REGRET_s0 | 0.2 | 16800 | 6.0e-12 | 0 | 0 |
+| test | NEURAL_SAFE_REGRET_s1 | 0.0 | 16800 | 5.1e-11 | 0 | 0 |
+| test | NEURAL_SAFE_REGRET_s1 | 0.05 | 16800 | 9.2e-11 | 0 | 0 |
+| test | NEURAL_SAFE_REGRET_s1 | 0.1 | 16800 | 3.2e-12 | 0 | 0 |
+| test | NEURAL_SAFE_REGRET_s1 | 0.2 | 16800 | 1.1e-11 | 0 | 0 |
+| test | NEURAL_SAFE_REGRET_s2 | 0.0 | 16800 | 2.9e-11 | 0 | 0 |
+| test | NEURAL_SAFE_REGRET_s2 | 0.05 | 16800 | 8.3e-11 | 0 | 0 |
+| test | NEURAL_SAFE_REGRET_s2 | 0.1 | 16800 | 5.8e-11 | 0 | 0 |
+| test | NEURAL_SAFE_REGRET_s2 | 0.2 | 16800 | 5.7e-12 | 0 | 0 |
+| test | TABULAR_EM_NASH | 0.0 | 16800 | 1.4e-11 | 0 | 0 |
+| test | TABULAR_EM_NASH | 0.05 | 16800 | 3.0e-11 | 0 | 0 |
+| test | TABULAR_EM_NASH | 0.1 | 16800 | 7.3e-10 | 0 | 0 |
+| test | TABULAR_EM_NASH | 0.2 | 16800 | 8.5e-11 | 0 | 0 |
+| test | TABULAR_EM_UNIFORM | 0.0 | 16800 | 3.4e-11 | 0 | 0 |
+| test | TABULAR_EM_UNIFORM | 0.05 | 16800 | 6.3e-11 | 0 | 0 |
+| test | TABULAR_EM_UNIFORM | 0.1 | 16800 | 1.3e-10 | 0 | 0 |
+| test | TABULAR_EM_UNIFORM | 0.2 | 16800 | 5.4e-11 | 0 | 0 |
+| — | T3 oracle (rank-k, hull, components, kappa) | mixed | 40767 | 1.1e-09 | 0 | 0 |
+| — | T2 covariance gap (subsample) | mixed | 84 | 1.3e-13 | 0 | 0 |
+| **total** | | | **1048851** | **1.1e-09** | **0** | **0** |
