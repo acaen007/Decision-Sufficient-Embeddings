@@ -31,6 +31,7 @@ DEFAULT_CFG = dict(
     val_every=250, g_std_rel_threshold=1e-3, recon_hidden=256, decision_hidden=512, threads=2,
     # SAFE_REGRET only: regularization schedule tau_t (linear from tau_start to tau_end; "const" keeps tau_start)
     tau_start=0.05, tau_end=1e-4, tau_schedule="linear", train_eps="0.05,0.1,0.2", val_subset_streams=1,
+    g_norm_fixed=0,     # SAFE_REGRET diagnostic variant: 1 = rescale g_hat to the mean training ||g|| before the solver
 )
 TRAIN_EPS_INDEX = {0.05: 1, 0.1: 2, 0.2: 3}       # index into the population's V_oracle columns
 
@@ -67,6 +68,8 @@ class Trainer:
         self.G = self.pop["G"]; self.Q = self.pop["rank_policies"]
         self.g_stats = g_stats_from_train(self.G[self.train["opp_ids"]], cfg["g_std_rel_threshold"])
         self.enc, self.head = build_model(method, cfg, self.tab, self.sym, self.tree, self.g_stats)
+        if method == "safe_regret" and cfg.get("g_norm_fixed", 0):
+            self.head.fixed_norm = float(np.linalg.norm(self.G[self.train["opp_ids"]], axis=1).mean())
         self.r2g = TorchRankPolicyToG(RankPolicyToG(self.tree, self.sf, self.sym))
         params = list(self.enc.parameters()) + list(self.head.parameters())
         self.opt = torch.optim.AdamW(params, lr=cfg["lr"], weight_decay=cfg["weight_decay"])
@@ -182,12 +185,13 @@ class Trainer:
         obs = self.val["obs_types"]; opp = self.val["opp_ids"]
         sub = self.val_sub; eps = sub["eps"]; k = TRAIN_EPS_INDEX[eps]
         lp_reg, qp_reg, gnm = [], [], []
-        stats = {"entropy": [], "det": [], "xzero": [], "nact": [], "iters": []}
+        stats = {"entropy": [], "det": [], "xzero": [], "nact": [], "iters": [], "scale": []}
         with torch.no_grad():
             for N in sub["N"]:
                 for s in sub["streams"]:
                     x = torch.as_tensor(obs[:, s, :N].astype(np.int64)); ids = opp
                     g_hat = self.head(self.enc(x)).numpy().astype(np.float64)
+                    stats["scale"].extend((np.linalg.norm(g_hat, axis=1) / np.linalg.norm(self.G[ids], axis=1)).tolist())
                     for i in range(len(ids)):
                         g_true = self.G[ids[i]]; V = self.pop["V_oracle"][ids[i], k]
                         ok, pol, xd = self.L.solve_safe(g_hat[i], eps)
@@ -217,7 +221,8 @@ class Trainer:
         return {"val_lp_regret": float(np.mean(lp_reg)), "val_qp_regret": float(np.mean(qp_reg)), "val_tau": tau,
                 "val_policy_entropy": float(np.mean(stats["entropy"])), "val_policy_det_frac": float(np.mean(stats["det"])),
                 "val_x_zero_frac": float(np.mean(stats["xzero"])), "val_n_active": float(np.mean(stats["nact"])),
-                "val_qp_iters": float(np.mean(stats["iters"])), "qp_failures": int(self.qp.n_fail), **change}
+                "val_qp_iters": float(np.mean(stats["iters"])), "qp_failures": int(self.qp.n_fail),
+                "val_ghat_scale_ratio": float(np.mean(stats["scale"])), "val_tau_effective": float(tau / np.mean(stats["scale"])), **change}
 
     def run(self):
         cfg = self.cfg; t0 = time.time(); best = np.inf; best_step = -1
@@ -255,6 +260,7 @@ class Trainer:
                     best, best_step = vl, step
                     torch.save({"enc": self.enc.state_dict(), "head": self.head.state_dict(), "step": step,
                                 "val_loss": vl, "cfg": cfg, "method": self.method, "seed": self.seed,
+                                "fixed_norm": getattr(self.head, "fixed_norm", None),
                                 "g_stats": {k: (v.tolist() if hasattr(v, "tolist") else v) for k, v in self.g_stats.items()}},
                                self.out / "best.pt")
                 gN = {N: round(v['g_nmse'], 3) for N, v in per_N.items() if isinstance(N, int)}
@@ -283,6 +289,8 @@ def load_trained(run_dir):
     gs = {k: np.array(v) if isinstance(v, list) else v for k, v in ck["g_stats"].items()}
     enc, head = build_model(ck["method"], ck["cfg"], tab, sym, tree, gs)
     enc.load_state_dict(ck["enc"]); head.load_state_dict(ck["head"])
+    if ck.get("fixed_norm") is not None:
+        head.fixed_norm = float(ck["fixed_norm"])
     enc.eval(); head.eval()
     return enc, head, ck
 

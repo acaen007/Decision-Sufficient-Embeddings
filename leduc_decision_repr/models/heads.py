@@ -46,6 +46,7 @@ class DecisionHead(nn.Module):
         self.register_buffer("valid", torch.as_tensor(valid, dtype=torch.bool))
         self.mlp = nn.Sequential(nn.Linear(z_dim, d_hidden), nn.GELU(), nn.Linear(d_hidden, d_hidden), nn.GELU(),
                                  nn.Linear(d_hidden, len(g_mean)))
+        self.fixed_norm = None      # if set, g_hat is rescaled to this L2 norm (closes the tau/scale loophole)
 
     def forward_standardized(self, z):
         return self.mlp(z)
@@ -54,7 +55,10 @@ class DecisionHead(nn.Module):
         """Unstandardized g_hat; excluded dims are predicted at their training mean."""
         s = self.forward_standardized(z)
         g = self.g_mean + s * self.g_std
-        return torch.where(self.valid[None], g, self.g_mean[None].expand_as(g))
+        g = torch.where(self.valid[None], g, self.g_mean[None].expand_as(g))
+        if self.fixed_norm is not None:
+            g = g * (self.fixed_norm / g.norm(dim=1, keepdim=True).clamp(min=1e-8))
+        return g
 
     def loss(self, z, g_true):
         s = self.forward_standardized(z)
