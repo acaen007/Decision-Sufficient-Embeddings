@@ -24,8 +24,9 @@ def main(runs: dict, out_dir: Path, workers: int):
         p = ed.pred[m]
         res[m] = {"val_regret_mean_all": float(np.nanmean(R[:, :, 1:])), "per_eps": per_eps,
                   "g_nmse_by_N": ed.per_opp(p["g_nmse"]).mean(0).tolist(),
-                  "best_step": int(load_json(Path(runs[m]) / "result.json")["best_step"]) + 1}
-    best = min(res, key=lambda m: res[m]["val_regret_mean_all"])
+                  "best_step": (int(load_json(Path(runs[m]) / "result.json")["best_step"]) + 1
+                                if (Path(runs[m]) / "result.json").exists() else -1)}
+    best = min(res, key=lambda m: (res[m]["val_regret_mean_all"] if np.isfinite(res[m]["val_regret_mean_all"]) else np.inf))
     res["_selected"] = best
     save_json(res, out_dir / "sweep_selection.json")
     for m, r in res.items():
