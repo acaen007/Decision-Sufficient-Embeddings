@@ -96,7 +96,7 @@ def fig3_thresholds(summary, fig_dir):
             for x, v in zip(xs, vals):
                 ax.text(x, min(v, 700) * 1.05, ">500" if v == 1000 else str(v), ha="center", fontsize=6, rotation=90)
         ax.set_yscale("log"); ax.set_ylim(3, 1500); ax.set_xticks(np.arange(len(ms)))
-        ax.set_xticklabels([LABELS[m].replace(" (", "\n(") for m in ms], fontsize=6)
+        ax.set_xticklabels([LABELS[m].replace(" (", "\n(") for m in ms], fontsize=5.5, rotation=30, ha="right")
         ax.set_title(f"ε = {eps:.2f}")
         if k == 0:
             ax.set_ylabel("hands needed (log)")
@@ -126,7 +126,10 @@ def fig4_safety(summary, ed, fig_dir):
     ax = axes[2]
     nv = [summary["safety"][m]["n_violations_gt_1e-7"] for m in ms]
     ax.bar(range(len(ms)), nv, color="#d1495b"); ax.set_xticks(range(len(ms))); ax.set_xticklabels(ms, rotation=90, fontsize=6)
-    ax.set_title("(c) # strategies with e(x) > ε + 1e-7"); data["n_violations"] = dict(zip(ms, nv))
+    ax.set_ylim(0, max(1, max(nv) * 1.2)); ax.set_title("(c) # strategies with e(x) > ε + 1e-7")
+    for i, v in enumerate(nv):
+        ax.text(i, 0.05, str(v), ha="center", fontsize=7)
+    data["n_violations"] = dict(zip(ms, nv))
     data["n_strategies_per_method"] = {m: summary["safety"][m]["n_strategies"] for m in ms}
     fig.suptitle("Figure 4: independent OpenSpiel best-response safety audit of every deployed strategy", y=1.03)
     _save(fig, fig_dir, "fig4_safety_audit", data)
