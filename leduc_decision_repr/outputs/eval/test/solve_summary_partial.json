@@ -24,5 +24,18 @@
    2,
    3
   ]
+ },
+ "NEURAL_SAFE_REGRET_s2": {
+  "lp_failures": 0,
+  "max_violation_os": 8.256004213613721e-11,
+  "n_violations_1e-7": 0,
+  "max_abs_fast_vs_os": 4.996003610813204e-16,
+  "runtime_s": 1027.8614120483398,
+  "eps_idx": [
+   0,
+   1,
+   2,
+   3
+  ]
  }
 }
