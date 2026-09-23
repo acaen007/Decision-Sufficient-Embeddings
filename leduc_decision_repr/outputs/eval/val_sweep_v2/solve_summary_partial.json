@@ -34,5 +34,17 @@
    2,
    3
   ]
+ },
+ "SR_const1e-4": {
+  "lp_failures": 0,
+  "max_violation_os": 7.615338915023528e-12,
+  "n_violations_1e-7": 0,
+  "max_abs_fast_vs_os": 3.3306690738754696e-16,
+  "runtime_s": 133.54287481307983,
+  "eps_idx": [
+   1,
+   2,
+   3
+  ]
  }
 }

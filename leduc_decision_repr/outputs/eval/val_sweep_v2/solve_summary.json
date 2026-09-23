@@ -1,0 +1,64 @@
+{
+ "summary": {
+  "SR_t0.01": {
+   "lp_failures": 0,
+   "max_violation_os": 3.544280147149692e-11,
+   "n_violations_1e-7": 0,
+   "max_abs_fast_vs_os": 4.440892098500626e-16,
+   "runtime_s": 145.38714241981506,
+   "eps_idx": [
+    1,
+    2,
+    3
+   ]
+  },
+  "SR_t0.05": {
+   "lp_failures": 0,
+   "max_violation_os": 8.108527738137639e-12,
+   "n_violations_1e-7": 0,
+   "max_abs_fast_vs_os": 3.3306690738754696e-16,
+   "runtime_s": 135.48768544197083,
+   "eps_idx": [
+    1,
+    2,
+    3
+   ]
+  },
+  "SR_t0.10": {
+   "lp_failures": 0,
+   "max_violation_os": 1.5985407442187238e-11,
+   "n_violations_1e-7": 0,
+   "max_abs_fast_vs_os": 3.608224830031759e-16,
+   "runtime_s": 131.94608402252197,
+   "eps_idx": [
+    1,
+    2,
+    3
+   ]
+  },
+  "SR_const1e-4": {
+   "lp_failures": 0,
+   "max_violation_os": 7.615338915023528e-12,
+   "n_violations_1e-7": 0,
+   "max_abs_fast_vs_os": 3.3306690738754696e-16,
+   "runtime_s": 133.54287481307983,
+   "eps_idx": [
+    1,
+    2,
+    3
+   ]
+  }
+ },
+ "runtime_s": 546.367534160614,
+ "env": {
+  "python": "3.11.15 (main, Mar  3 2026, 09:26:23) [GCC 13.3.0]",
+  "platform": "Linux-6.18.44-fc-v37-x86_64-with-glibc2.39",
+  "cpu_count": 4,
+  "numpy": "2.4.6",
+  "scipy": "1.17.1",
+  "torch": "2.14.0+cu130",
+  "open_spiel": "2.0.2",
+  "git": "fb1aefb4fbea544902962ae03ff1acd946433c5c",
+  "time": "2026-09-23 13:10:59"
+ }
+}
