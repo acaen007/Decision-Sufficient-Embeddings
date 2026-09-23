@@ -104,9 +104,13 @@ def evaluate(name):
 
 def main():
     R.mkdir(parents=True, exist_ok=True)
-    pending = list(JOBS); running = {}
+    pending = list(JOBS); running = {}; eval_proc = None; eval_name = None
     state_log = open(O / "v3_scheduler.log", "a")
-    while pending or running or any((R / n).exists() and (R / n / "result.json").exists() and not (R / n / "EVALUATED").exists() for n in os.listdir(R) if (R / n).is_dir()):
+
+    def unevaluated():
+        return sorted(n for n in os.listdir(R) if (R / n).is_dir() and (R / n / "result.json").exists() and not (R / n / "EVALUATED").exists())
+
+    while pending or running or unevaluated() or eval_proc is not None:
         # launch
         while pending and n_training() < 4:
             pending = apply_lambda_marker(pending)
@@ -124,16 +128,24 @@ def main():
         for name, p in list(running.items()):
             if p.poll() is not None:
                 state_log.write(f"{time.strftime('%H:%M:%S')} finished {name} rc={p.returncode}\n"); state_log.flush(); del running[name]
-        # evaluate one finished run
-        todo = sorted(n for n in os.listdir(R) if (R / n).is_dir() and (R / n / "result.json").exists() and not (R / n / "EVALUATED").exists())
-        if todo:
-            evaluate(todo[0])
-        else:
-            time.sleep(30)
+        # evaluation runs in its own process so that launching never waits for the LP solves
+        if eval_proc is not None and eval_proc.poll() is not None:
+            state_log.write(f"{time.strftime('%H:%M:%S')} evaluation of {eval_name} exited rc={eval_proc.returncode}\n"); state_log.flush()
+            eval_proc = None; eval_name = None
+        if eval_proc is None:
+            todo = [n for n in unevaluated() if n not in running]
+            if todo:
+                eval_name = todo[0]
+                eval_proc = subprocess.Popen([sys.executable, "-m", "leduc_decision_repr.v3_scheduler", "--eval", eval_name], env=ENV, cwd=ROOT)
+                state_log.write(f"{time.strftime('%H:%M:%S')} evaluating {eval_name}\n"); state_log.flush()
+        time.sleep(30)
         if (O / "V3_STOP").exists():
             break
     state_log.write(f"{time.strftime('%H:%M:%S')} scheduler done\n"); state_log.close()
 
 
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) > 2 and sys.argv[1] == "--eval":
+        evaluate(sys.argv[2])
+    else:
+        main()
