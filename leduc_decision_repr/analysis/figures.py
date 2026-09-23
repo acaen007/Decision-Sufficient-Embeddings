@@ -303,7 +303,7 @@ def fig12_annealing(run_dirs, fig_dir):
     active-set / LP-support changes, validation exact-LP and QP regret vs step."""
     import json as _json
     from pathlib import Path as _P
-    fig, axes = plt.subplots(2, 3, figsize=(13, 6.2))
+    fig, axes = plt.subplots(2, 3, figsize=(14, 6.6))
     data = {}
     palette = ["#7b2cbf", "#1b6ca8", "#d1495b", "#2a9d8f", "#e9a100", "#5c5c5c"]
     for ci, (name, rd) in enumerate(run_dirs.items()):
@@ -331,11 +331,11 @@ def fig12_annealing(run_dirs, fig_dir):
         data[name] = {"val_steps": vs, "tau_at_val": [float(tau[min(len(tau) - 1, v - 1)]) for v in vs], "det_frac": det, "entropy": ent,
                       "active_set_change": ach, "lp_support_change": sch, "val_lp_regret": lpr, "val_qp_regret": qpr, "val_g_nmse_N500": gn5,
                       "grad_norm_z_smoothed": sm(gz)[::100].tolist(), "grad_norm_enc_smoothed": sm(genc)[::100].tolist()}
-    axes[0, 0].set_title("(a) regularization τ_t", fontsize=8); axes[0, 1].set_title("(b) ‖∂L/∂z‖ into the encoder (50-step mean)", fontsize=8)
-    axes[0, 2].set_title("(c) encoder parameter gradient norm (pre-clip)", fontsize=8)
-    axes[1, 0].set_title("(d) validation policies: deterministic fraction (solid), entropy (dotted)", fontsize=8)
-    axes[1, 1].set_title("(e) fraction of active-set / LP-support entries changed between validations", fontsize=8)
-    axes[1, 2].set_title("(f) validation regret: exact LP (solid), regularized QP (dotted)", fontsize=8)
+    axes[0, 0].set_title("(a) scheduled τ_t", fontsize=8); axes[0, 1].set_title("(b) ‖∂L/∂z‖ into encoder (50-step mean)", fontsize=8)
+    axes[0, 2].set_title("(c) encoder grad norm (pre-clip)", fontsize=8)
+    axes[1, 0].set_title("(d) val policies: determinism (solid), entropy (dotted)", fontsize=8)
+    axes[1, 1].set_title("(e) active-set (solid) / LP-support (dashed) change fraction", fontsize=8)
+    axes[1, 2].set_title("(f) val regret: exact LP (solid), regularized QP (dotted)", fontsize=8)
     for ax in axes.ravel():
         ax.set_xlabel("training step"); ax.legend(fontsize=5)
     fig.suptitle("Figure 12: SAFE_REGRET annealing diagnostics (validation-only sweep)", y=1.01)
