@@ -158,7 +158,7 @@ def t5(eval_dir=OUT / "eval" / "test"):
     for g in ed.neural_groups():
         if g in ("NEURAL_DEC133K", "NEURAL_COUNT133K", "NEURAL_SPO0_133K", "NEURAL_SPO1_133K"):
             names[g] = group_regret(ed, g, 2)[0]
-    for m_ in ["BANK_POSTERIOR", "TABULAR_EM_UNIFORM", "HYB_BLEND", "HYB_PRIOR_EM"]:
+    for m_ in ["BANK_POSTERIOR", "TABULAR_EM_UNIFORM", "HYB_BLEND", "HYB_PRIOR_EM", "HYB_PRIOR_EM_S0", "HYB_ENSREC", "HYB_PRIOR_EM_889K"]:
         if m_ in ed.methods:
             names[m_] = ed.regret(m_)[:, :, 2]
     for k, R in names.items():
@@ -171,12 +171,22 @@ def t5(eval_dir=OUT / "eval" / "test"):
             m = np.nanmean(R, 0)
             res["envelope"][k] = {"regret": m.tolist(), "excess_over_envelope": (m - env).tolist(), "on_envelope_within_0.005_all_N": bool(np.all(m - env <= 0.005))}
         # paired excess CI for hybrids vs the envelope's per-N best method
-        for k in ["HYB_BLEND", "HYB_PRIOR_EM", "NEURAL_COUNT133K"]:
+        for k in ["HYB_BLEND", "HYB_PRIOR_EM", "HYB_PRIOR_EM_S0", "HYB_ENSREC", "HYB_PRIOR_EM_889K", "NEURAL_COUNT133K"]:
             if k in names:
                 best_per_N = [base[int(np.argmin([np.nanmean(names[b], 0)[j] for b in base]))] for j in range(len(N_BUDGETS))]
                 Rbest = np.stack([names[best_per_N[j]][:, j] for j in range(len(N_BUDGETS))], 1)
                 m, lo, hi, _ = paired_bootstrap_diff(names[k], Rbest, rng)
                 res["envelope"][k]["excess_ci"] = {"mean": m.tolist(), "lo": lo.tolist(), "hi": hi.tolist(), "best_per_N": best_per_N}
+    res["paired"] = {}
+    for a, b in [("HYB_PRIOR_EM", "TABULAR_EM_UNIFORM"), ("HYB_PRIOR_EM", "BANK_POSTERIOR"), ("HYB_PRIOR_EM", "NEURAL_DEC133K"), ("HYB_PRIOR_EM", "HYB_PRIOR_EM_S0"),
+                 ("HYB_ENSREC", "HYB_PRIOR_EM"), ("HYB_BLEND", "NEURAL_DEC133K"), ("HYB_BLEND", "TABULAR_EM_UNIFORM"), ("NEURAL_COUNT133K", "NEURAL_DEC133K"), ("HYB_PRIOR_EM_889K", "HYB_PRIOR_EM")]:
+        if a in names and b in names:
+            m, lo, hi, _ = paired_bootstrap_diff(names[a], names[b], rng)
+            e = {"diff_mean": m.tolist(), "diff_lo": lo.tolist(), "diff_hi": hi.tolist(), "by_family": {}}
+            for f, fn in enumerate(FAMS):
+                sel = ed.family == f; mf, lof, hif, _ = paired_bootstrap_diff(names[a][sel], names[b][sel], rng, n_boot=1000)
+                e["by_family"][fn] = {"diff_mean": mf.tolist(), "diff_lo": lof.tolist(), "diff_hi": hif.tolist()}
+            res["paired"][f"{a}_minus_{b}"] = e
     save_json(res, OUT / "v3_t5_analysis.json")
     return res
 

@@ -14,7 +14,7 @@ STYLE = {"NEURAL_DEC133K": ("C0", "-", "o", "DECISION 133k"), "NEURAL_RECON": ("
          "TABULAR_EM_NASH": ("silver", "-.", "+", "tabular EM (Nash prior)"),
          "NEURAL_SPO0_133K": ("C3", "-", "^", "SPO+ only 133k"), "NEURAL_SPO1_133K": ("C2", "-", "v", "MSE + 1.0·SPO+ 133k"), "NEURAL_SPO03_133K": ("C5", "-", "<", "MSE + 0.3·SPO+ 133k"),
          "NEURAL_COUNT133K": ("C6", "-", "p", "DECISION + count features 133k"), "HYB_BLEND": ("C8", "-", "*", "BLEND λ_N ĝ_net + (1−λ_N) ĝ_EM"),
-         "HYB_PRIOR_EM": ("C9", "-", "h", "LEARNED-PRIOR EM"), "NEURAL_DEC133K3K": ("C0", ":", "o", "DECISION 133k @3000 steps"), "NEURAL_REC131K3K": ("C1", ":", "s", "RECON 131k @3000 steps")}
+         "HYB_PRIOR_EM": ("C9", "-", "h", "LEARNED-PRIOR EM (3-seed q̂ prior)"), "HYB_PRIOR_EM_S0": ("C9", "--", "h", "LEARNED-PRIOR EM (single-seed prior)"), "HYB_ENSREC": ("C1", ":", "s", "3-seed RECON ensemble, no EM"), "HYB_PRIOR_EM_889K": ("C9", "-.", "H", "LEARNED-PRIOR EM (RECON-889k prior)"), "NEURAL_DEC133K3K": ("C0", ":", "o", "DECISION 133k @3000 steps"), "NEURAL_REC131K3K": ("C1", ":", "s", "RECON 131k @3000 steps")}
 
 
 def _curve(ax, name, c, fill=True):
