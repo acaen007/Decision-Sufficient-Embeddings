@@ -16,39 +16,59 @@ def train(method, seed, out, extra):
     return PY + ["leduc_decision_repr.train", "--method", method, "--seed", str(seed), "--out", str(R / out)] + COMMON + extra
 
 JOBS = [
-    # ---- T1 round B / C
+    # priority order (re-ordered 22:45 UTC after the T3/T5c results; per-task headline arms first, tail seeds last)
+    # ---- T1 headline: RECON-889k seeds 1, 2
     ("rec889k_s1",     train("recon", 1, "rec889k_s1", ["--steps", "6000", "--recon_hidden", "834", "--save_at", "3000"])),
     ("rec889k_s2",     train("recon", 2, "rec889k_s2", ["--steps", "6000", "--recon_hidden", "834", "--save_at", "3000"])),
+    # ---- T4 seed 0 of every arm (lambda decision on validation)
+    ("spo0_133k_s0",   train("decision", 0, "spo0_133k_s0", ["--steps", "6000", "--decision_hidden", "100", "--spo_lambda", "0", "--spo_subset", "8"])),
+    ("spo1_133k_s0",   train("decision", 0, "spo1_133k_s0", ["--steps", "6000", "--decision_hidden", "100", "--spo_lambda", "1.0", "--spo_subset", "8"])),
+    ("spo03_133k_s0",  train("decision", 0, "spo03_133k_s0", ["--steps", "6000", "--decision_hidden", "100", "--spo_lambda", "0.3", "--spo_subset", "8"])),
+    # ---- T1 Jacobian-weighted reconstruction, seed 0
     ("recjac889k_s0",  train("recon", 0, "recjac889k_s0", ["--steps", "6000", "--recon_hidden", "834", "--recon_weights", "jacobian"])),
-    ("recjac889k_s1",  train("recon", 1, "recjac889k_s1", ["--steps", "6000", "--recon_hidden", "834", "--recon_weights", "jacobian"])),
-    ("recjac889k_s2",  train("recon", 2, "recjac889k_s2", ["--steps", "6000", "--recon_hidden", "834", "--recon_weights", "jacobian"])),
-    ("recreach889k_s0", train("recon", 0, "recreach889k_s0", ["--steps", "6000", "--recon_hidden", "834", "--recon_weights", "reach"])),
     # ---- T2 censoring toggle (3000 steps) + uncensored 131k recon at 3000 steps for the budget-matched comparison
     ("censdec133k_s0", train("decision", 0, "censdec133k_s0", ["--steps", "3000", "--decision_hidden", "100", "--dataset_tag", "revealed"])),
     ("censrec131k_s0", train("recon", 0, "censrec131k_s0", ["--steps", "3000", "--recon_hidden", "256", "--dataset_tag", "revealed"])),
+    ("rec131k3k_s0",   train("recon", 0, "rec131k3k_s0", ["--steps", "3000", "--recon_hidden", "256"])),
     ("censdec133k_s1", train("decision", 1, "censdec133k_s1", ["--steps", "3000", "--decision_hidden", "100", "--dataset_tag", "revealed"])),
     ("censrec131k_s1", train("recon", 1, "censrec131k_s1", ["--steps", "3000", "--recon_hidden", "256", "--dataset_tag", "revealed"])),
+    ("rec131k3k_s1",   train("recon", 1, "rec131k3k_s1", ["--steps", "3000", "--recon_hidden", "256"])),
     ("censdec133k_s2", train("decision", 2, "censdec133k_s2", ["--steps", "3000", "--decision_hidden", "100", "--dataset_tag", "revealed"])),
     ("censrec131k_s2", train("recon", 2, "censrec131k_s2", ["--steps", "3000", "--recon_hidden", "256", "--dataset_tag", "revealed"])),
-    ("rec131k3k_s0",   train("recon", 0, "rec131k3k_s0", ["--steps", "3000", "--recon_hidden", "256"])),
-    ("rec131k3k_s1",   train("recon", 1, "rec131k3k_s1", ["--steps", "3000", "--recon_hidden", "256"])),
     ("rec131k3k_s2",   train("recon", 2, "rec131k3k_s2", ["--steps", "3000", "--recon_hidden", "256"])),
-    # ---- T4 SPO+ (DEC-133k architecture, eps_train 0.1, exact SPO+ on 8 of 32 samples)
-    ("spo0_133k_s0",   train("decision", 0, "spo0_133k_s0", ["--steps", "6000", "--decision_hidden", "100", "--spo_lambda", "0", "--spo_subset", "8"])),
-    ("spo0_133k_s1",   train("decision", 1, "spo0_133k_s1", ["--steps", "6000", "--decision_hidden", "100", "--spo_lambda", "0", "--spo_subset", "8"])),
-    ("spo0_133k_s2",   train("decision", 2, "spo0_133k_s2", ["--steps", "6000", "--decision_hidden", "100", "--spo_lambda", "0", "--spo_subset", "8"])),
-    ("spo1_133k_s0",   train("decision", 0, "spo1_133k_s0", ["--steps", "6000", "--decision_hidden", "100", "--spo_lambda", "1.0", "--spo_subset", "8"])),
-    ("spo03_133k_s0",  train("decision", 0, "spo03_133k_s0", ["--steps", "6000", "--decision_hidden", "100", "--spo_lambda", "0.3", "--spo_subset", "8"])),
+    # ---- T5b count features, seed 0 (gated on the T5B_READY marker)
+    ("count133k_s0",   train("decision", 0, "count133k_s0", ["--steps", "6000", "--decision_hidden", "100", "--extra_features", "1"])),
+    # ---- T4 remaining seeds (the mixed arm's lambda is switched to 0.3 if validation prefers it; see T4_LAMBDA marker)
     ("spo1_133k_s1",   train("decision", 1, "spo1_133k_s1", ["--steps", "6000", "--decision_hidden", "100", "--spo_lambda", "1.0", "--spo_subset", "8"])),
     ("spo1_133k_s2",   train("decision", 2, "spo1_133k_s2", ["--steps", "6000", "--decision_hidden", "100", "--spo_lambda", "1.0", "--spo_subset", "8"])),
-    # ---- T5b count features (gated on the T5B_READY marker)
-    ("count133k_s0",   train("decision", 0, "count133k_s0", ["--steps", "6000", "--decision_hidden", "100", "--extra_features", "1"])),
+    ("spo0_133k_s1",   train("decision", 1, "spo0_133k_s1", ["--steps", "6000", "--decision_hidden", "100", "--spo_lambda", "0", "--spo_subset", "8"])),
+    ("spo0_133k_s2",   train("decision", 2, "spo0_133k_s2", ["--steps", "6000", "--decision_hidden", "100", "--spo_lambda", "0", "--spo_subset", "8"])),
+    # ---- T5b remaining seeds
     ("count133k_s1",   train("decision", 1, "count133k_s1", ["--steps", "6000", "--decision_hidden", "100", "--extra_features", "1"])),
     ("count133k_s2",   train("decision", 2, "count133k_s2", ["--steps", "6000", "--decision_hidden", "100", "--extra_features", "1"])),
+    # ---- T1 tail: reach-weighted seed 0, Jacobian seeds 1-2, reach seeds 1-2
+    ("recreach889k_s0", train("recon", 0, "recreach889k_s0", ["--steps", "6000", "--recon_hidden", "834", "--recon_weights", "reach"])),
+    ("recjac889k_s1",  train("recon", 1, "recjac889k_s1", ["--steps", "6000", "--recon_hidden", "834", "--recon_weights", "jacobian"])),
+    ("recjac889k_s2",  train("recon", 2, "recjac889k_s2", ["--steps", "6000", "--recon_hidden", "834", "--recon_weights", "jacobian"])),
     ("recreach889k_s1", train("recon", 1, "recreach889k_s1", ["--steps", "6000", "--recon_hidden", "834", "--recon_weights", "reach"])),
     ("recreach889k_s2", train("recon", 2, "recreach889k_s2", ["--steps", "6000", "--recon_hidden", "834", "--recon_weights", "reach"])),
 ]
 GATES = {"count133k_s0": O / "T5B_READY", "count133k_s1": O / "T5B_READY", "count133k_s2": O / "T5B_READY"}
+
+
+def apply_lambda_marker(jobs):
+    """T4: the validation-selected lambda for the mixed arm is written to outputs/T4_LAMBDA ("1.0" or "0.3")."""
+    m = O / "T4_LAMBDA"
+    if m.exists() and m.read_text().strip() == "0.3":
+        out = []
+        for name, cmd in jobs:
+            if name.startswith("spo1_133k_s") and name[-1] in "12":
+                nn = name.replace("spo1_", "spo03_"); cmd = [c.replace("spo1_133k", "spo03_133k") for c in cmd]
+                cmd[cmd.index("--spo_lambda") + 1] = "0.3"; out.append((nn, cmd))
+            else:
+                out.append((name, cmd))
+        return out
+    return jobs
 
 # evaluation config per run-name prefix: (eval subdir, dataset_tag, eps_idx, extra ckpts)
 def eval_cfg(name):
@@ -89,6 +109,7 @@ def main():
     while pending or running or any((R / n).exists() and (R / n / "result.json").exists() and not (R / n / "EVALUATED").exists() for n in os.listdir(R) if (R / n).is_dir()):
         # launch
         while pending and n_training() < 4:
+            pending = apply_lambda_marker(pending)
             name, cmd = pending[0]
             if name in GATES and not GATES[name].exists():
                 break
