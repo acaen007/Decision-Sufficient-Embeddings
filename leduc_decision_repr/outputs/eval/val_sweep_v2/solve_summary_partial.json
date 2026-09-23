@@ -22,5 +22,17 @@
    2,
    3
   ]
+ },
+ "SR_t0.10": {
+  "lp_failures": 0,
+  "max_violation_os": 1.5985407442187238e-11,
+  "n_violations_1e-7": 0,
+  "max_abs_fast_vs_os": 3.608224830031759e-16,
+  "runtime_s": 131.94608402252197,
+  "eps_idx": [
+   1,
+   2,
+   3
+  ]
  }
 }
