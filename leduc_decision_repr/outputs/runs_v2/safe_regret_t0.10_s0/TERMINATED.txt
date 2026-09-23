@@ -1,0 +1,1 @@
+terminated at step 4250 after divergence (val regret 0.36 rising, g-NMSE ~1e10); best checkpoint step 1000 retained
