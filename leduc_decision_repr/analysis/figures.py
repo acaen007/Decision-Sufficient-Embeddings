@@ -212,7 +212,8 @@ def fig7_geometry(geom, raw, fig_dir):
         c = COLORS.get(m.rsplit("_s", 1)[0], "#5c5c5c")
         ax.plot(N_BUDGETS, [e[str(N)]["rho_z_resp"] for N in N_BUDGETS], "-o", ms=3, color=c, label=f"{m}: ρ(d_z,d_resp)")
         ax.plot(N_BUDGETS, [e[str(N)]["rho_z_beh"] for N in N_BUDGETS], "--s", ms=3, color=c, label=f"{m}: ρ(d_z,d_beh)")
-    ax.set_xscale("log"); ax.set_xlabel("hands observed N"); ax.set_ylabel("Spearman ρ"); ax.legend(fontsize=5)
+    ax.set_xscale("log"); ax.set_xlabel("hands observed N"); ax.set_ylabel("Spearman ρ")
+    ax.legend(fontsize=4.5, loc="upper left", bbox_to_anchor=(1.01, 1.0), frameon=False)
     ax.set_title("(c) latent-distance correlations vs N", fontsize=8)
     fig.suptitle("Figure 7: strategic geometry diagnostics on held-out opponents", y=1.03)
     _save(fig, fig_dir, "fig7_geometry", data)
@@ -292,8 +293,9 @@ def fig11_training_curves(run_dirs, fig_dir):
     axes[0].set_title("(a) G_MSE: val NMSE(g)", fontsize=8); axes[1].set_title("(b) RECON: val CE(q)", fontsize=8)
     axes[2].set_title("(c) val g-NMSE (solid N=500, dotted N=20)", fontsize=8)
     axes[3].set_title("(d) SAFE_REGRET: val exact-LP regret (subset, ε=0.1)", fontsize=8)
-    for ax in axes:
-        ax.set_xlabel("training step"); ax.legend(fontsize=5)
+    for i, ax in enumerate(axes):
+        ax.set_xlabel("training step")
+        ax.legend(fontsize=4.5, loc="upper right" if i != 2 else "upper left", bbox_to_anchor=None if i != 2 else (1.01, 1.0), frameon=False)
     fig.suptitle("Figure 11: training curves (validation opponents; 3 seeds per objective)", y=1.03)
     _save(fig, fig_dir, "fig11_training_curves", data)
 
@@ -338,5 +340,6 @@ def fig12_annealing(run_dirs, fig_dir):
     axes[1, 2].set_title("(f) val regret: exact LP (solid), regularized QP (dotted)", fontsize=8)
     for ax in axes.ravel():
         ax.set_xlabel("training step"); ax.legend(fontsize=5)
-    fig.suptitle("Figure 12: SAFE_REGRET annealing diagnostics (validation-only sweep)", y=1.01)
+    fig.subplots_adjust(hspace=0.5, wspace=0.3)
+    fig.suptitle("Figure 12: SAFE_REGRET annealing diagnostics (validation-only sweep)", y=1.0)
     _save(fig, fig_dir, "fig12_annealing", data)
