@@ -32,6 +32,14 @@ DEFAULT_CFG = dict(
     # SAFE_REGRET only: regularization schedule tau_t (linear from tau_start to tau_end; "const" keeps tau_start)
     tau_start=0.05, tau_end=1e-4, tau_schedule="linear", train_eps="0.05,0.1,0.2", val_subset_streams=1,
     g_norm_fixed=0,     # SAFE_REGRET diagnostic variant: 1 = rescale g_hat to the mean training ||g|| before the solver
+    patience=0,         # early stopping: stop after this many validations without improvement (0 = off)
+    save_at=0,          # also save a fixed checkpoint at this step (0 = off)
+    recon_weights="none",   # reconstruction infoset weighting: none | jacobian | reach (files in outputs/weights_v3)
+    dataset_tag="",     # "" = V1 datasets; "revealed" = censoring-toggle datasets (opponent card revealed every hand)
+    extra_features=0,   # 1 = add per-infoset observed-count features to the history encoder (T5b)
+    spo_lambda=-1.0,    # T4: <0 = MSE only; 0 = SPO+ only; >0 = MSE + lambda * SPO+
+    spo_subset=8,       # T4: number of samples per batch receiving the exact SPO+ loss
+    spo_eps=0.1,
 )
 TRAIN_EPS_INDEX = {0.05: 1, 0.1: 2, 0.2: 3}       # index into the population's V_oracle columns
 
@@ -62,8 +70,9 @@ class Trainer:
         torch.manual_seed(seed); np.random.seed(seed)
         torch.set_num_threads(cfg["threads"])
         self.rng = np.random.default_rng([seed, 11])
-        self.tree = get_tree(); self.sf = get_sequence_form(); self.sym = get_symmetry(); self.tab = get_token_table()
-        self.pop = load_population(); ds = find_dataset_dir()
+        self.tree = get_tree(); self.sf = get_sequence_form(); self.sym = get_symmetry()
+        self.tab = get_token_table(reveal_all=(cfg.get("dataset_tag", "") == "revealed"))
+        self.pop = load_population(); ds = find_dataset_dir(cfg.get("dataset_tag", ""))
         self.train = load_split(ds, "train"); self.val = load_split(ds, "val")
         self.G = self.pop["G"]; self.Q = self.pop["rank_policies"]
         self.g_stats = g_stats_from_train(self.G[self.train["opp_ids"]], cfg["g_std_rel_threshold"])
@@ -74,6 +83,7 @@ class Trainer:
         params = list(self.enc.parameters()) + list(self.head.parameters())
         self.opt = torch.optim.AdamW(params, lr=cfg["lr"], weight_decay=cfg["weight_decay"])
         self.n_params = sum(p.numel() for p in params)
+        self.n_params_enc = sum(p.numel() for p in self.enc.parameters()); self.n_params_head = sum(p.numel() for p in self.head.parameters())
         self.Gt = torch.as_tensor(self.G, dtype=torch.float32)
         self.Qt = torch.as_tensor(self.Q, dtype=torch.float32)
         self.g_mean = torch.as_tensor(self.g_stats["mean"], dtype=torch.float32)
@@ -81,6 +91,10 @@ class Trainer:
         self.g_valid = torch.as_tensor(self.g_stats["valid"])
         self.log = []
         self.Vt = torch.as_tensor(self.pop["V_oracle"], dtype=torch.float32)      # (K, 4) oracle values
+        self.recon_w = None
+        if method == "recon" and cfg.get("recon_weights", "none") != "none":
+            w = np.load(OUT / "weights_v3" / f"recon_weights_{cfg['recon_weights']}.npy")
+            self.recon_w = torch.as_tensor(w / w.mean(), dtype=torch.float32)
         if method == "safe_regret":
             from .game.safe_lp import get_solver
             from .game.safe_qp import SafeQP, make_torch_layer
@@ -94,6 +108,19 @@ class Trainer:
             self.val_sub = {"N": [5, 20, 100, 500], "streams": list(range(cfg["val_subset_streams"])), "eps": 0.1}
             self.probe = {"opp": vr.choice(n_val, 32, replace=False), "N": 100, "eps": 0.1, "prev_active": None, "prev_support": None}
         self.last_tau = None
+        if method == "decision" and cfg.get("spo_lambda", -1.0) >= 0:
+            from .game.safe_lp import get_solver
+            from .game.spo_plus import SPOPlus
+            self.L = get_solver(); self.spo = SPOPlus(self.L, cfg["spo_eps"]); self.spo_fn = self.spo.torch_function()
+            cache = OUT / "weights_v3" / f"xstar_train_eps{cfg['spo_eps']}.npy"
+            if cache.exists():
+                X = np.load(cache)
+            else:
+                X = np.zeros((len(self.G), self.sf.n_seq[0]))
+                for k in self.train["opp_ids"]:
+                    X[k] = self.L.solve_safe(self.G[k], cfg["spo_eps"])[2]
+                np.save(cache, X)
+            self.Xstar = torch.as_tensor(X, dtype=torch.float32)
 
     def lr_at(self, step):
         cfg = self.cfg
@@ -124,9 +151,24 @@ class Trainer:
             collect["x_hat"] = x_hat.detach().numpy()
         return loss
 
+    def spo_loss(self, z, opp_ids):
+        """MSE on the whole batch (if lambda > 0) plus exact SPO+ on a random subset of spo_subset samples."""
+        cfg = self.cfg; lam = cfg["spo_lambda"]; k = min(cfg["spo_subset"], len(opp_ids))
+        idx = torch.as_tensor(self.rng.choice(len(opp_ids), k, replace=False))
+        g_hat = self.head(z)
+        spo = self.spo_fn.apply(g_hat[idx], self.Gt[opp_ids[idx]], self.Xstar[opp_ids[idx]]).mean()
+        self._last_spo = float(spo)
+        if lam == 0:
+            return spo
+        return self.head.loss(z, self.targets(opp_ids)) + lam * spo
+
     def loss_fn(self, z, opp_ids, eps_vec=None, tau=None, collect=None):
         if self.method == "safe_regret":
             return self.regret_loss(z, opp_ids, eps_vec, tau, collect)
+        if self.method == "recon":
+            return self.head.loss(z, self.targets(opp_ids), self.recon_w)
+        if self.method == "decision" and self.cfg.get("spo_lambda", -1.0) >= 0:
+            return self.spo_loss(z, opp_ids)
         return self.head.loss(z, self.targets(opp_ids))
 
     def g_nmse(self, z, opp_ids):
@@ -227,6 +269,7 @@ class Trainer:
     def run(self):
         cfg = self.cfg; t0 = time.time(); best = np.inf; best_step = -1
         save_json({"method": self.method, "seed": self.seed, "cfg": cfg, "n_params": self.n_params,
+                   "n_params_encoder": self.n_params_enc, "n_params_head": self.n_params_head,
                    "g_stats_n_valid": self.g_stats["n_valid"], "env": environment_info()}, self.out / "config.json")
         for step in range(cfg["steps"]):
             for grp in self.opt.param_groups:
@@ -244,6 +287,8 @@ class Trainer:
             gn = torch.nn.utils.clip_grad_norm_(list(self.enc.parameters()) + list(self.head.parameters()), cfg["grad_clip"])
             self.opt.step()
             rec = {"step": step, "N": N, "loss": loss.item(), "grad_norm": float(gn), "lr": self.lr_at(step), "t": time.time() - t0}
+            if getattr(self, "_last_spo", None) is not None:
+                rec["spo_loss"] = self._last_spo; rec["n_lp"] = self.spo.n_lp
             if self.method == "safe_regret":
                 rec["tau"] = tau
                 rec["grad_norm_z"] = float(z.grad.norm(dim=1).mean()) if z.grad is not None else None
@@ -256,8 +301,12 @@ class Trainer:
             if (step + 1) % cfg["val_every"] == 0 or step == cfg["steps"] - 1:
                 vl, per_N = self.validate()
                 rec["val_loss"] = vl; rec["val_per_N"] = per_N
-                if vl < best:
-                    best, best_step = vl, step
+                if vl < best - 1e-6:
+                    best, best_step = vl, step; self._no_improve = 0
+                else:
+                    self._no_improve = getattr(self, "_no_improve", 0) + 1
+                if vl < best + 1e-12 and best_step == step:
+                    pass
                     torch.save({"enc": self.enc.state_dict(), "head": self.head.state_dict(), "step": step,
                                 "val_loss": vl, "cfg": cfg, "method": self.method, "seed": self.seed,
                                 "fixed_norm": getattr(self.head, "fixed_norm", None),
@@ -270,6 +319,15 @@ class Trainer:
                 print(f"[{self.method} s{self.seed}] step {step+1} loss {loss.item():.4f} val {vl:.4f} "
                       f"(best {best:.4f} @ {best_step+1}) gN={gN}{extra} t={time.time()-t0:.0f}s", flush=True)
             self.log.append(rec)
+            if cfg.get("save_at", 0) and step + 1 == cfg["save_at"]:
+                torch.save({"enc": self.enc.state_dict(), "head": self.head.state_dict(), "step": step, "cfg": cfg,
+                            "method": self.method, "seed": self.seed, "fixed_norm": getattr(self.head, "fixed_norm", None),
+                            "g_stats": {k: (v.tolist() if hasattr(v, "tolist") else v) for k, v in self.g_stats.items()}},
+                           self.out / f"step{cfg['save_at']}.pt")
+            if cfg.get("patience", 0) and getattr(self, "_no_improve", 0) >= cfg["patience"]:
+                print(f"[{self.method} s{self.seed}] early stop at step {step+1} (no improvement for {cfg['patience']} validations)", flush=True)
+                self.stopped_early = step + 1
+                break
             if (step + 1) % 50 == 0:
                 with open(self.out / "log.jsonl", "w") as f:
                     for r in self.log:
@@ -278,14 +336,21 @@ class Trainer:
         with open(self.out / "log.jsonl", "w") as f:
             for r in self.log:
                 f.write(json.dumps(r) + "\n")
-        save_json({"best_val_loss": best, "best_step": best_step, "runtime_s": time.time() - t0}, self.out / "result.json")
+        vals = [r for r in self.log if "val_loss" in r]
+        plateau = None
+        if len(vals) >= 7:
+            plateau = {"val_loss_last": vals[-1]["val_loss"], "val_loss_6_validations_earlier": vals[-7]["val_loss"],
+                       "relative_change_last_1500_steps": (vals[-7]["val_loss"] - vals[-1]["val_loss"]) / max(abs(vals[-7]["val_loss"]), 1e-9)}
+        save_json({"best_val_loss": best, "best_step": best_step, "runtime_s": time.time() - t0, "steps_run": len(self.log),
+                   "stopped_early_at": getattr(self, "stopped_early", None), "plateau": plateau,
+                   "n_params_head": self.n_params_head, "n_params_encoder": self.n_params_enc}, self.out / "result.json")
         return best
 
 
-def load_trained(run_dir):
+def load_trained(run_dir, ckpt_name=None):
     """Load the best checkpoint of a run; returns (enc, head, ckpt)."""
-    ck = torch.load(Path(run_dir) / "best.pt", weights_only=False)
-    tree, sym, tab = get_tree(), get_symmetry(), get_token_table()
+    ck = torch.load(Path(run_dir) / (ckpt_name if ckpt_name else "best.pt"), weights_only=False)
+    tree, sym = get_tree(), get_symmetry(); tab = get_token_table(reveal_all=(ck["cfg"].get("dataset_tag", "") == "revealed"))
     gs = {k: np.array(v) if isinstance(v, list) else v for k, v in ck["g_stats"].items()}
     enc, head = build_model(ck["method"], ck["cfg"], tab, sym, tree, gs)
     enc.load_state_dict(ck["enc"]); head.load_state_dict(ck["head"])

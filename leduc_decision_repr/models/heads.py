@@ -29,11 +29,14 @@ class ReconstructionHead(nn.Module):
     def forward(self, z):
         return F.softmax(self.logits(z), dim=-1)                                # (B, I, 3), zeros at illegal
 
-    def loss(self, z, q_true):
-        """Soft-target cross-entropy averaged over batch and infosets."""
+    def loss(self, z, q_true, infoset_weights=None):
+        """Soft-target cross-entropy averaged over batch and infosets (optionally infoset-weighted)."""
         logp = F.log_softmax(self.logits(z), dim=-1)
         logp = torch.where(self.mask[None], logp, torch.zeros_like(logp))
-        return -(q_true * logp).sum(-1).mean()
+        ce = -(q_true * logp).sum(-1)                                          # (B, I)
+        if infoset_weights is not None:
+            return (ce * infoset_weights[None]).sum(1).mean() / infoset_weights.sum()
+        return ce.mean()
 
 
 class DecisionHead(nn.Module):

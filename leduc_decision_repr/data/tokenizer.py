@@ -79,8 +79,11 @@ class HandObservation:
     final_contrib: Tuple[int, int]
 
 
-def observe_terminal(tree: LeducTree, z: int) -> HandObservation:
-    """Extract player 0's observation of the hand that ended at terminal node z."""
+def observe_terminal(tree: LeducTree, z: int, reveal_all: bool = False) -> HandObservation:
+    """Extract player 0's observation of the hand that ended at terminal node z.
+
+    reveal_all=True is the T2 censoring toggle: the opponent's private rank is revealed at the end of
+    EVERY hand (also after folds); it is emitted in a SHOWDOWN-type token before HAND_END."""
     assert tree.node_type[z] == TERMINAL
     path = tree.path_actions[z]
     node = 0
@@ -109,7 +112,7 @@ def observe_terminal(tree: LeducTree, z: int) -> HandObservation:
         node = int(tree.child_table[node, a])
     assert node == z
     tt = int(tree.terminal_type[z])
-    revealed = card_rank(int(tree.card[z, 1])) if tt == TERM_SHOWDOWN else None   # gated read
+    revealed = card_rank(int(tree.card[z, 1])) if (tt == TERM_SHOWDOWN or reveal_all) else None   # gated read
     return HandObservation(our_rank=our_rank, public_rank=public_rank, actions=actions,
                            public_card_event_index=pub_idx, terminal_type=tt, revealed_opp_rank=revealed,
                            payoff=float(tree.returns0[z]),
@@ -146,7 +149,7 @@ def tokenize(obs: HandObservation):
             c_self=obs.final_contrib[0], c_opp=obs.final_contrib[1])
     final_pot = sum(obs.final_contrib)
     rnd_final = 2 if obs.public_rank is not None else 1
-    if obs.terminal_type == TERM_SHOWDOWN:
+    if obs.revealed_opp_rank is not None:
         add(EV_SHOWDOWN, actor=ACTOR_CHANCE, rnd=rnd_final, opp_rank=obs.revealed_opp_rank + 1,
             pot=final_pot, c_self=obs.final_contrib[0], c_opp=obs.final_contrib[1])
     add(EV_HAND_END, rnd=rnd_final, term=obs.terminal_type, pot=final_pot,
@@ -161,13 +164,14 @@ def tokenize(obs: HandObservation):
 class HandTokenTable:
     """Tokenization of every terminal history, deduplicated into observation types."""
 
-    def __init__(self, tree: LeducTree):
+    def __init__(self, tree: LeducTree, reveal_all: bool = False):
         self.tree = tree
+        self.reveal_all = reveal_all
         keys = {}
         self.obs_type_of_terminal = np.full(tree.n_nodes, -1, dtype=np.int32)
         cats, nums, lens, reps = [], [], [], []
         for z in tree.terminals:
-            cat, num, n = tokenize(observe_terminal(tree, z))
+            cat, num, n = tokenize(observe_terminal(tree, z, reveal_all))
             key = (cat.tobytes(), num.tobytes())
             if key not in keys:
                 keys[key] = len(cats)
@@ -196,12 +200,11 @@ def render_tokens(cat, num, n) -> str:
     return "\n".join(lines)
 
 
-_TABLE = None
+_TABLE = {}
 
 
-def get_token_table() -> HandTokenTable:
-    global _TABLE
-    if _TABLE is None:
+def get_token_table(reveal_all: bool = False) -> HandTokenTable:
+    if reveal_all not in _TABLE:
         from ..game.leduc_tree import get_tree
-        _TABLE = HandTokenTable(get_tree())
-    return _TABLE
+        _TABLE[reveal_all] = HandTokenTable(get_tree(), reveal_all)
+    return _TABLE[reveal_all]

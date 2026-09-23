@@ -62,10 +62,23 @@ def load_split(ds_dir: Path, split: str) -> dict:
     return d
 
 
-def find_dataset_dir() -> Path:
-    dirs = sorted(glob.glob(str(OUT / "datasets_*")))
-    assert len(dirs) == 1, f"expected exactly one dataset dir, found {dirs}"
+def find_dataset_dir(tag: str = "") -> Path:
+    dirs = [d for d in sorted(glob.glob(str(OUT / "datasets_*"))) if (d.endswith("_" + tag) if tag else "_revealed" not in d)]
+    assert len(dirs) == 1, f"expected exactly one dataset dir for tag '{tag}', found {dirs}"
     return Path(dirs[0])
+
+
+def make_revealed_datasets() -> Path:
+    """T2 censoring toggle: same streams (terminal indices), tokens with the opponent card revealed every hand."""
+    from .tokenizer import get_token_table
+    src = find_dataset_dir(); tab = get_token_table(reveal_all=True)
+    out = Path(str(src) + "_revealed"); out.mkdir(exist_ok=True)
+    for split in SPLIT_ID:
+        d = load_split(src, split)
+        obs = tab.obs_type_of_terminal[d["terminals"].astype(np.int64)].astype(np.int16)
+        np.savez_compressed(out / f"streams_{split}.npz", opp_ids=d["opp_ids"], terminals=d["terminals"], obs_types=obs)
+    save_json({"source": src.name, "variant": "revealed", "n_obs_types": tab.n_types}, out / "meta.json")
+    return out
 
 
 if __name__ == "__main__":

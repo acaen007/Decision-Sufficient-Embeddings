@@ -31,15 +31,15 @@ EVAL_DIR = OUT / "eval"
 
 
 def predict(split: str, runs: dict, out_dir: Path, em_alpha: float = 1.0, em_iter: int = 200,
-            skip_classical: bool = False, threads: int = 4):
+            skip_classical: bool = False, threads: int = 4, dataset_tag: str = ""):
     """runs: {method_name: run_dir} for neural runs.  Incremental: merges into an existing predict_meta."""
     import torch
     torch.set_num_threads(threads)
     t0 = time.time()
     out_dir.mkdir(parents=True, exist_ok=True)
     prev_meta = load_json(out_dir / "predict_meta.json") if (out_dir / "predict_meta.json").exists() else None
-    tree, sf, sym, tab = get_tree(), get_sequence_form(), get_symmetry(), get_token_table()
-    pop = load_population(); ds = find_dataset_dir(); data = load_split(ds, split)
+    tree, sf, sym = get_tree(), get_sequence_form(), get_symmetry(); tab = get_token_table(reveal_all=(dataset_tag == "revealed"))
+    pop = load_population(); ds = find_dataset_dir(dataset_tag); data = load_split(ds, split)
     opp_ids = data["opp_ids"]; obs = data["obs_types"]
     n_opp, n_streams, _ = obs.shape
     H = n_opp * n_streams
@@ -111,7 +111,10 @@ def predict(split: str, runs: dict, out_dir: Path, em_alpha: float = 1.0, em_ite
     from .models.torch_g import TorchRankPolicyToG
     tg = TorchRankPolicyToG(r2g)
     for name, run_dir in runs.items():
-        enc, head, ck = load_trained(run_dir)
+        ckpt = None
+        if ":" in str(run_dir):
+            run_dir, ckpt = str(run_dir).split(":", 1)
+        enc, head, ck = load_trained(run_dir, ckpt)
         method = ck["method"]
         ghat = np.zeros((H, len(N_BUDGETS), G_true.shape[1]), dtype=np.float32)
         Z = np.zeros((H, len(N_BUDGETS), enc.history.proj.out_features), dtype=np.float32)
@@ -134,7 +137,8 @@ def predict(split: str, runs: dict, out_dir: Path, em_alpha: float = 1.0, em_ite
                 print(f"{name} N={N} done ({time.time()-t0:.0f}s)", flush=True)
         np.save(out_dir / f"ghat_{name}.npy", ghat)
         np.savez(out_dir / f"pred_{name}.npz", g_nmse=gn, g_raw=gr, q_err=qe, z=Z)
-        meta["methods"][name] = {"kind": "neural", "objective": method, "run_dir": str(run_dir), "best_step": int(ck["step"])}
+        meta["methods"][name] = {"kind": "neural", "objective": method, "run_dir": str(run_dir), "best_step": int(ck["step"]), "ckpt": ckpt or "best.pt",
+                                 "group": name.rsplit("_s", 1)[0] if "_s" in name else name}
     meta["predict_runtime_s"] = (prev_meta.get("predict_runtime_s", 0) if prev_meta else 0) + time.time() - t0
     save_json(meta, out_dir / "predict_meta.json")
     print("predict stage done", time.time() - t0)
@@ -218,11 +222,12 @@ if __name__ == "__main__":
     ap.add_argument("--skip_classical", action="store_true")
     ap.add_argument("--threads", type=int, default=4)
     ap.add_argument("--eps_idx", default="", help="comma list of epsilon indices to solve (default all)")
+    ap.add_argument("--dataset_tag", default="")
     args = ap.parse_args()
     out_dir = Path(args.out) if args.out else EVAL_DIR / args.split
     if args.stage == "predict":
         runs = dict(kv.split("=") for kv in args.runs.split(",") if kv)
-        predict(args.split, runs, out_dir, skip_classical=args.skip_classical, threads=args.threads)
+        predict(args.split, runs, out_dir, skip_classical=args.skip_classical, threads=args.threads, dataset_tag=args.dataset_tag)
     else:
         meta = load_json(out_dir / "predict_meta.json")
         methods = args.methods.split(",") if args.methods else list(meta["methods"].keys())

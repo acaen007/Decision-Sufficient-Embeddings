@@ -74,7 +74,7 @@ class EvalData:
         groups = {}
         for m, info in self.meta["methods"].items():
             if info["kind"] == "neural" and m in self.methods:
-                groups.setdefault("NEURAL_" + info["objective"].upper(), []).append(m)
+                groups.setdefault(info.get("group", "NEURAL_" + info["objective"].upper()), []).append(m)
         return groups
 
     def method_curves(self):
