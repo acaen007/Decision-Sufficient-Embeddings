@@ -212,6 +212,100 @@ Safety: every deployed strategy of every arm audited; max Expl − ε = 6.7e−1
 seven V3 T1 runs (table in §6).  Time: 1.6–3.0 h per run, 4 in parallel; the T1 box (2.5 h) was exceeded
 because the RECON-889k seeds 1–2 and the weighted arms had to queue behind round A (declared in §8).
 
+## 2. T2 — covariance gap and censoring
+
+**Unit-test gate.**  `tests/test_t2_factorization.py` passes: for a factorized Dirichlet posterior over the
+opponent's rank-level policy, the exact sequence-form expectation A E[y] equals A y_{E[q]} to < 1e−12 (and a
+2 000-sample Monte-Carlo estimate agrees to 5e−3).  So a covariance gap between E[g] and g(E[q]) can only
+arise from posterior dependence between infosets — which the hidden-card marginalization creates.
+
+**Gap magnitudes (train-bank posterior on the 2 400 held-out traces; ε = 0.10; 15 min).**
+
+| N | 5 | 10 | 20 | 50 | 100 | 200 | 500 |
+|---|---|---|---|---|---|---|---|
+| posterior entropy over the 1 200-policy bank (nats) | 5.59 | 4.67 | 3.64 | 2.38 | 1.66 | 1.10 | 0.58 |
+| gap_g = ‖A(E[y] − y_{E[q]})‖₂ (chips) | 0.113 | 0.087 | 0.065 | 0.040 | 0.028 | 0.018 | 0.009 |
+| gap_reg = E[g]ᵀ(x*(E[g]) − x*(g(E[q]))) (chips) | 0.0075 | 0.0041 | 0.0024 | 0.0011 | 0.0007 | 0.0004 | 0.0002 |
+| decision advantage, RECON-889k − DEC-889k (3 seeds each, §1) | 0.0094 | 0.0064 | 0.0044 | 0.0030 | 0.0059 | 0.0055 | 0.0065 |
+
+gap_reg is the value a Bayesian who deploys the posterior-mean *policy* forgoes relative to one who deploys
+the posterior-mean *value vector*.  It is 80 % of the observed decision advantage at N = 5, 64 % at N = 10,
+55 % at N = 20 — and 3–12 % at N ≥ 100, where the advantage is as large as at N = 20.  The mechanism can
+therefore account for the small-N part of the advantage in size but not for its persistence.
+
+**Correlation with the per-opponent advantage (Spearman ρ, 300 opponents).**
+
+| N | 5 | 10 | 20 | 50 | 100 | 200 | 500 | all N pooled |
+|---|---|---|---|---|---|---|---|---|
+| ρ(gap_g, advantage), pooled | 0.07 | 0.15 | 0.13 | 0.05 | 0.04 | 0.14 | 0.08 | 0.125 |
+| ρ(gap_reg, advantage), pooled | −0.04 | 0.00 | −0.01 | 0.03 | 0.00 | 0.12 | 0.04 | 0.093 |
+| ρ(gap_g, adv.) NASH_LOGIT_PERTURB | 0.29 | 0.43 | 0.40 | 0.16 | 0.12 | −0.04 | −0.01 | |
+| NASH_RANDOM_MIX | −0.04 | −0.11 | −0.13 | −0.06 | −0.07 | 0.18 | 0.23 | |
+| STRUCTURED_CORRELATED | 0.00 | 0.20 | 0.20 | 0.05 | −0.07 | 0.07 | −0.11 | |
+| UNSTRUCTURED_DIRICHLET | −0.08 | −0.01 | −0.14 | −0.18 | −0.11 | 0.10 | 0.11 | |
+
+Mean gap_g by family at N = 5 / 20 / 100: NASH_LOGIT 0.097 / 0.037 / 0.014, NASH_RANDOM 0.102 / 0.052 / 0.022,
+STRUCTURED 0.143 / 0.089 / 0.031, DIRICHLET 0.108 / 0.082 / 0.043 — the largest gaps are on
+STRUCTURED_CORRELATED for N ≤ 20 and on the Dirichlet family after that.  Figure V3-T2(a,b).
+
+**Censoring toggle (opponent's card revealed after every hand; new tokenizer with 1 116 observation types,
+new datasets, bank posterior and EM unchanged).**  Six revealed runs (DEC-133k × 3, RECON-131k × 3, 3 000
+steps, 1.2–1.5 h each) vs the budget-matched censored pair (DEC-133k step-3000 checkpoints from T1 and
+three fresh RECON-131k runs stopped at 3 000 steps, 0.9–1.3 h each).  All 3 000-step runs had their best
+checkpoint at or within 250 steps of the cap.  Regret at ε = 0.10, seeds averaged:
+
+| condition | arm | N=5 | 10 | 20 | 50 | 100 | 200 | 500 |
+|---|---|---|---|---|---|---|---|---|
+| censored (standard) | DEC-133k @3000 | 0.1736 | 0.1586 | 0.1469 | 0.1354 | 0.1313 | 0.1293 | 0.1274 |
+| | RECON-131k @3000 | 0.1768 | 0.1607 | 0.1496 | 0.1399 | 0.1370 | 0.1347 | 0.1323 |
+| | advantage (rec − dec) | +0.003 [−0.000, 0.007] | +0.002 [−0.001, 0.006] | +0.003 [−0.002, 0.007] | +0.005 [−0.001, 0.011] | +0.006 [−0.000, 0.012] | +0.005 [−0.001, 0.013] | +0.005 [−0.001, 0.012] |
+| revealed | DEC-133k @3000 | 0.1709 | 0.1570 | 0.1448 | 0.1347 | 0.1314 | 0.1301 | 0.1292 |
+| | RECON-131k @3000 | 0.1707 | 0.1552 | 0.1425 | 0.1340 | 0.1317 | 0.1302 | 0.1283 |
+| | advantage (rec − dec) | −0.000 [−0.004, 0.003] | −0.002 [−0.005, 0.002] | −0.002 [−0.006, 0.002] | −0.001 [−0.006, 0.005] | +0.000 [−0.006, 0.007] | +0.000 [−0.006, 0.006] | −0.001 [−0.007, 0.006] |
+| | censored − revealed advantage (paired) | +0.003 [0.001, 0.006] | +0.004 [0.001, 0.007] | +0.005 [0.002, 0.008] | +0.005 [0.002, 0.009] | +0.006 [0.002, 0.009] | +0.005 [0.002, 0.009] | +0.006 [0.002, 0.010] |
+
+Per family (advantage = recon − decision, positive = decision better; N = 5 / 50 / 500):
+
+| family | censored | revealed |
+|---|---|---|
+| NASH_LOGIT_PERTURB | +0.007 [0.004, 0.010] / −0.004 [−0.009, 0.002] / −0.005 [−0.015, 0.006] | +0.002 [−0.003, 0.006] / −0.011 [−0.019, −0.002] / −0.016 [−0.025, −0.006] |
+| NASH_RANDOM_MIX | −0.009 [−0.013, −0.004] / −0.005 [−0.010, −0.001] / −0.005 [−0.010, 0.001] | −0.007 [−0.011, −0.002] / −0.004 [−0.009, −0.000] / −0.004 [−0.008, 0.001] |
+| STRUCTURED_CORRELATED | +0.017 [0.007, 0.026] / +0.022 [0.005, 0.041] / +0.022 [0.004, 0.043] | +0.005 [−0.005, 0.016] / +0.010 [−0.006, 0.029] / +0.010 [−0.007, 0.030] |
+| UNSTRUCTURED_DIRICHLET | −0.003 [−0.009, 0.004] / +0.005 [−0.005, 0.019] / +0.008 [−0.004, 0.023] | −0.001 [−0.007, 0.005] / +0.002 [−0.007, 0.013] / +0.007 [−0.003, 0.017] |
+
+Revealing the card also improves both arms in absolute terms only marginally at this budget (≈ 0.002–0.006
+at N ≤ 20, nothing at N ≥ 100): with the card visible the count statistics become sufficient and the amortized
+nets gain little.  Every revealed-set strategy audited: 6 × 16 800 LPs, max Expl − ε = 1.6e−9.
+
+**Verdict against the pre-registration.**
+* P2.1 (ρ > 0.2 pooled; largest gaps on STRUCTURED_CORRELATED): **falsified on the correlation** — pooled ρ
+  is 0.04–0.15 per N (0.125 over all N) for gap_g and ≈ 0 (0.093 pooled) for gap_reg; the only family where
+  the gap tracks the advantage is NASH_LOGIT_PERTURB at N ≤ 20 (ρ 0.29–0.43).  The "largest gaps on
+  STRUCTURED_CORRELATED" part holds for N ≤ 20.
+* P2.2 (under full revelation the Dirichlet-family advantage collapses to |Δ| < 0.005 with CIs covering 0 at
+  every N; the STRUCTURED_CORRELATED advantage stays > 0): **directionally confirmed, underpowered.**  The
+  revealed Dirichlet advantage is −0.001 … +0.007 with every CI covering 0 (|Δ| < 0.005 at N ≤ 50, 0.005–0.007
+  at N ≥ 100), but its censored counterpart at this 3 000-step budget is itself only −0.003 … +0.008 with
+  CIs covering 0, so the family-level collapse cannot be resolved.  The STRUCTURED_CORRELATED advantage stays
+  positive in mean under revelation (+0.005 … +0.012) but loses significance and halves.  What *is*
+  resolved is the pooled effect: the censored-minus-revealed difference is +0.003 … +0.006 at every N with
+  every CI excluding 0, i.e. **hiding the card is the source of the whole (small) decision advantage at this
+  scale**, and with the card revealed the two routes are indistinguishable.
+* Falsification criterion (ρ ≤ 0, or a Dirichlet advantage that persists under revelation): not met on the
+  second clause (nothing persists); the first is met marginally for gap_reg at N ≤ 20 (ρ ≈ 0).
+
+**Reading.**  The hidden information is what the decision route exploits — but not through the specific
+bank-posterior covariance gap that was hypothesized: that gap is the right order of magnitude only at
+N ≤ 20 and does not predict which opponents benefit.  With 3 000-step 133k models the effect is ≈ 0.005
+chips (2–3 % of the oracle gain), matching the near-null 131k result of §1; §1 and §4 locate the
+larger effects in head capacity (DEC-889k) and in decision-relevance weighting (RECON-JAC, SPO+), not in
+the posterior-mean-vs-mean-value distinction.
+
+Figure: `figures/figV3_T2_covariance.{png,pdf}` — (a) per-opponent gap_g vs advantage at N = 10, (b) ρ vs N
+pooled and per family, (c) censored vs revealed advantage per family at N = 50.  Time: the T2 box (2 h)
+covers the gap computation (15 min) and the analysis; the twelve 3 000-step training runs (0.9–1.5 h each,
+4-way parallel) pushed the task to ≈ 5 h of wall-clock inside the shared queue (recorded in §8).
+
 ## 3. T3 — ε-rank oracle curve, Nash-hull component split, κ (oracle only; 33 min of the 1 h box)
 
 **What was run.** PCA basis of g fitted on the 1 200 training opponents' true g (the centred training g
