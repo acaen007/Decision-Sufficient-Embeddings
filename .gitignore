@@ -12,3 +12,4 @@ leduc_decision_repr/outputs/*.log
 leduc_decision_repr/outputs/*.stdout
 leduc_decision_repr/outputs/runs_v3/*/EVALUATING
 leduc_decision_repr/outputs/runs_v3/*/EVALUATED
+leduc_decision_repr/outputs/geometry/M.npz
