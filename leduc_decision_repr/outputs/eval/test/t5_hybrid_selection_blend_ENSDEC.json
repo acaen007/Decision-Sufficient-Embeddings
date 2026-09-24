@@ -1,0 +1,53 @@
+{
+ "net_runs": [
+  "leduc_decision_repr/outputs/runs_v3/dec133k_s0",
+  "leduc_decision_repr/outputs/runs_v3/dec133k_s1",
+  "leduc_decision_repr/outputs/runs_v3/dec133k_s2"
+ ],
+ "recon_runs": [],
+ "blend": {
+  "5": {
+   "val_regret_by_lambda": {
+    "1.0": 0.1686729318042193
+   },
+   "selected": 1.0
+  },
+  "10": {
+   "val_regret_by_lambda": {
+    "1.0": 0.15524084744987737
+   },
+   "selected": 1.0
+  },
+  "20": {
+   "val_regret_by_lambda": {
+    "1.0": 0.140488256812833
+   },
+   "selected": 1.0
+  },
+  "50": {
+   "val_regret_by_lambda": {
+    "1.0": 0.12899338321063697
+   },
+   "selected": 1.0
+  },
+  "100": {
+   "val_regret_by_lambda": {
+    "1.0": 0.12900501692341085
+   },
+   "selected": 1.0
+  },
+  "200": {
+   "val_regret_by_lambda": {
+    "1.0": 0.12428794505737417
+   },
+   "selected": 1.0
+  },
+  "500": {
+   "val_regret_by_lambda": {
+    "1.0": 0.12372743517204896
+   },
+   "selected": 1.0
+  }
+ },
+ "prior_em": {}
+}
