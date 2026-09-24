@@ -1,10 +1,10 @@
 {
- "NEURAL_REC889K3K_s2": {
+ "HYB_PRIOR_EM_889K": {
   "lp_failures": 0,
-  "max_violation_os": 3.434837136939706e-11,
+  "max_violation_os": 2.5141486115209943e-11,
   "n_violations_1e-7": 0,
-  "max_abs_fast_vs_os": 3.885780586188048e-16,
-  "runtime_s": 413.93484711647034,
+  "max_abs_fast_vs_os": 4.718447854656915e-16,
+  "runtime_s": 508.8130397796631,
   "eps_idx": [
    2
   ]

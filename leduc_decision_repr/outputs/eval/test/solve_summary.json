@@ -1,17 +1,17 @@
 {
  "summary": {
-  "NEURAL_REC889K3K_s2": {
+  "HYB_PRIOR_EM_889K": {
    "lp_failures": 0,
-   "max_violation_os": 3.434837136939706e-11,
+   "max_violation_os": 2.5141486115209943e-11,
    "n_violations_1e-7": 0,
-   "max_abs_fast_vs_os": 3.885780586188048e-16,
-   "runtime_s": 413.93484711647034,
+   "max_abs_fast_vs_os": 4.718447854656915e-16,
+   "runtime_s": 508.8130397796631,
    "eps_idx": [
     2
    ]
   }
  },
- "runtime_s": 413.93581652641296,
+ "runtime_s": 508.8164782524109,
  "env": {
   "python": "3.11.15 (main, Mar  3 2026, 09:26:23) [GCC 13.3.0]",
   "platform": "Linux-6.18.44-fc-v37-x86_64-with-glibc2.39",
@@ -20,7 +20,7 @@
   "scipy": "1.17.1",
   "torch": "2.14.0+cu130",
   "open_spiel": "2.0.2",
-  "git": "edb021c5f349b9f009fa556eb5d632cef1d9f6db",
-  "time": "2026-09-24 04:08:13"
+  "git": "7bb8ec876b565c32c46118ba0002d63f529d563c",
+  "time": "2026-09-24 04:30:32"
  }
 }
