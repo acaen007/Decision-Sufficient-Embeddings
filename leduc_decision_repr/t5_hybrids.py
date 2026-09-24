@@ -132,6 +132,7 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--net_runs", default=""); ap.add_argument("--recon_runs", default="")
     ap.add_argument("--out", default=str(OUT / "eval" / "test"))
-    ap.add_argument("--suffix", default=""); ap.add_argument("--ensemble_only", action="store_true")
+    ap.add_argument("--suffix", default=""); ap.add_argument("--ensemble_only", action="store_true"); ap.add_argument("--lams", default="", help="comma list; overrides the blend grid (e.g. 1.0 = ensemble of nets, no EM)")
     a = ap.parse_args()
-    main([r for r in a.net_runs.split(",") if r], [r for r in a.recon_runs.split(",") if r], Path(a.out), suffix=a.suffix, ensemble_only=a.ensemble_only)
+    main([r for r in a.net_runs.split(",") if r], [r for r in a.recon_runs.split(",") if r], Path(a.out), suffix=a.suffix, ensemble_only=a.ensemble_only,
+         lams=[float(x) for x in a.lams.split(",")] if a.lams else None)
