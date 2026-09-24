@@ -1,10 +1,10 @@
 {
- "NEURAL_CENSREC131K_s0": {
+ "NEURAL_CENSREC131K_s1": {
   "lp_failures": 0,
-  "max_violation_os": 8.16441775297605e-11,
+  "max_violation_os": 3.075438931299246e-10,
   "n_violations_1e-7": 0,
-  "max_abs_fast_vs_os": 4.440892098500626e-16,
-  "runtime_s": 1274.47278881073,
+  "max_abs_fast_vs_os": 4.163336342344337e-16,
+  "runtime_s": 795.284707069397,
   "eps_idx": [
    2
   ]
