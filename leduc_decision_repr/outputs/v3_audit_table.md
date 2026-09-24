@@ -37,6 +37,9 @@
 | test | NEURAL_DECISION_s2 | 0.05 | 16800 | 8.0e-11 | 0 | 0 |
 | test | NEURAL_DECISION_s2 | 0.1 | 16800 | 1.0e-11 | 0 | 0 |
 | test | NEURAL_DECISION_s2 | 0.2 | 16800 | 1.7e-11 | 0 | 0 |
+| test | NEURAL_REC131K3K_s0 | 0.1 | 16800 | 3.6e-11 | 0 | 0 |
+| test | NEURAL_REC131K3K_s1 | 0.1 | 16800 | 8.9e-10 | 0 | 0 |
+| test | NEURAL_REC131K3K_s2 | 0.1 | 16800 | 2.9e-11 | 0 | 0 |
 | test | NEURAL_REC889K3K_s0 | 0.1 | 16800 | 1.2e-10 | 0 | 0 |
 | test | NEURAL_REC889K3K_s1 | 0.1 | 16800 | 3.1e-10 | 0 | 0 |
 | test | NEURAL_REC889K3K_s2 | 0.1 | 16800 | 3.4e-11 | 0 | 0 |
@@ -49,7 +52,9 @@
 | test | NEURAL_REC889K_s2 | 0.05 | 16800 | 5.2e-11 | 0 | 0 |
 | test | NEURAL_REC889K_s2 | 0.1 | 16800 | 2.7e-10 | 0 | 0 |
 | test | NEURAL_REC889K_s2 | 0.2 | 16800 | 6.6e-10 | 0 | 0 |
+| test | NEURAL_RECJAC889K_s0 | 0.05 | 16800 | 9.8e-11 | 0 | 0 |
 | test | NEURAL_RECJAC889K_s0 | 0.1 | 16800 | 5.6e-10 | 0 | 0 |
+| test | NEURAL_RECJAC889K_s0 | 0.2 | 16800 | 8.5e-11 | 0 | 0 |
 | test | NEURAL_RECON_s0 | 0.0 | 16800 | 1.9e-10 | 0 | 0 |
 | test | NEURAL_RECON_s0 | 0.05 | 16800 | 1.0e-10 | 0 | 0 |
 | test | NEURAL_RECON_s0 | 0.1 | 16800 | 1.3e-10 | 0 | 0 |
@@ -74,6 +79,9 @@
 | test | NEURAL_SAFE_REGRET_s2 | 0.05 | 16800 | 8.3e-11 | 0 | 0 |
 | test | NEURAL_SAFE_REGRET_s2 | 0.1 | 16800 | 5.8e-11 | 0 | 0 |
 | test | NEURAL_SAFE_REGRET_s2 | 0.2 | 16800 | 5.7e-12 | 0 | 0 |
+| test | NEURAL_SPO03_133K_s0 | 0.1 | 16800 | 9.0e-11 | 0 | 0 |
+| test | NEURAL_SPO0_133K_s0 | 0.1 | 16800 | 2.1e-10 | 0 | 0 |
+| test | NEURAL_SPO1_133K_s0 | 0.1 | 16800 | 4.9e-11 | 0 | 0 |
 | test | TABULAR_EM_NASH | 0.0 | 16800 | 1.4e-11 | 0 | 0 |
 | test | TABULAR_EM_NASH | 0.05 | 16800 | 3.0e-11 | 0 | 0 |
 | test | TABULAR_EM_NASH | 0.1 | 16800 | 7.3e-10 | 0 | 0 |
@@ -83,7 +91,11 @@
 | test | TABULAR_EM_UNIFORM | 0.1 | 16800 | 1.3e-10 | 0 | 0 |
 | test | TABULAR_EM_UNIFORM | 0.2 | 16800 | 5.4e-11 | 0 | 0 |
 | test_revealed | NEURAL_CENSDEC133K_s0 | 0.1 | 16800 | 3.5e-11 | 0 | 0 |
+| test_revealed | NEURAL_CENSDEC133K_s1 | 0.1 | 16800 | 4.4e-11 | 0 | 0 |
+| test_revealed | NEURAL_CENSDEC133K_s2 | 0.1 | 16800 | 3.2e-11 | 0 | 0 |
 | test_revealed | NEURAL_CENSREC131K_s0 | 0.1 | 16800 | 8.2e-11 | 0 | 0 |
+| test_revealed | NEURAL_CENSREC131K_s1 | 0.1 | 16800 | 3.1e-10 | 0 | 0 |
+| test_revealed | NEURAL_CENSREC131K_s2 | 0.1 | 16800 | 1.5e-09 | 0 | 0 |
 | — | T3 oracle (rank-k, hull, components, kappa) | mixed | 40767 | 1.1e-09 | 0 | 0 |
 | — | T2 covariance gap (subsample) | mixed | 84 | 1.3e-13 | 0 | 0 |
-| **total** | | | **1452051** | **1.1e-09** | **0** | **0** |
+| **total** | | | **1653651** | **1.5e-09** | **0** | **0** |

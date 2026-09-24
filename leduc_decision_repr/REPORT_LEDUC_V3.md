@@ -5,6 +5,30 @@ same OpenSpiel audit, same train bank / bank posterior / tabular EM).  Nothing b
 evaluation opponents; the 150 validation opponents (carved from the training population in V1) are used for
 every selection.*
 
+## Summary (one paragraph; written 07:30 UTC at the end of the 10 h box — tail arms still running, see §7)
+
+The V1 decision-over-reconstruction advantage was mostly a capacity confound and, where it survives, it is a
+statement about *what the loss weights*, not about the decision objective: at matched ≈ 131k-parameter heads
+the two routes are indistinguishable (DEC-133k − RECON-131k = +0.000 … +0.003 chips at N ≥ 20, CIs cover 0);
+at matched ≈ 889k heads a weakened advantage remains (−0.003 … −0.009 at ε = 0.10, one fifth to one third of
+V1's); and a reconstruction head whose per-infoset cross-entropy is weighted by the Jacobian norm of g
+overtakes the decision head at N ≥ 20 at every ε (one seed, two more running) while also fitting g best.
+The strongest new method of the run is not a representation at all but an empirical-Bayes hybrid: tabular
+EM with the reconstruction network's q̂ as a κ = 3 Dirichlet prior sits *below* the envelope of {bank
+posterior, decision net, tabular EM} at every N ≥ 20 (by 0.014–0.031 chips, all CIs exclude 0; 0.0525 at
+N = 500 vs 0.075 for EM and 0.105 for DEC-889k), with controls showing the gain is the Bayesian update, not
+ensembling or head size.  The oracle analysis inverted the pre-registered ε-rank signature — the rank of g
+needed to retain 90 % of the safe gain is 128 for ε ≤ 0.10 and *falls* to 96 at ε ≥ 0.20, so the value lives
+in the low-variance directions of g — and found a clean √ε law for the safe gain (0.65·ε^0.50, R² 0.997)
+with a 43-dimensional Nash hull whose directions are worthless once ε > 0.  SPO+ mixed at the
+validation-selected λ = 0.3 lowers regret by 0.004–0.009 at N ≥ 20 with a slightly *worse* g-NMSE (the
+pre-registered signature; one seed), while SPO+ alone collapses.  Hiding the opponent's card is the source
+of the whole (small) decision advantage at 133k/3 000 steps (censored − revealed advantage = +0.003 … +0.006,
+CIs exclude 0), but the bank-posterior covariance gap does not predict which opponents benefit (ρ ≤ 0.15).
+Every one of the 1.65 million deployed strategies was audited with the OpenSpiel best response: max
+Expl − ε = 1.5e−9, zero violations, zero LP failures.  The run overran its 10 h budget: all pre-registered arms
+were started, but seeds 1–2 of four tail arms were still training or queued at the box (§7).
+
 ## 0. Pre-registration (written before any task was run; not edited afterwards)
 
 Common protocol: primary ε = 0.10; N ∈ {5, 10, 20, 50, 100, 200, 500}; ≥ 3 seeds per headline arm; paired
@@ -580,3 +604,93 @@ Figure: `figures/figV3_T5_hybrids.{png,pdf}` — (a) regret vs N for the hybrids
 envelope methods, (b) paired excess over the per-N best baseline.  Compute: 11 min per hybrid fit
 (validation grid + test predictions, single core) and 7–11 min per test solve (16 800 LPs, 2 workers); the
 T5 box was not exceeded by (a)/(c); (b) is charged to the queue overrun in §8.
+
+## 6. Safety audit across tasks
+
+Every deployed strategy in V1–V3 (every method × history × N × ε that was solved) was checked with
+OpenSpiel's C++ tabular best response; requirement Expl(x) ≤ ε + 1e−7.  Full per-method table:
+`outputs/v3_audit_table.md` (`v3_audit_table.py`).  Condensed (seeds pooled; ε = 0.10 unless stated):
+
+| task / arm | strategies | max Expl − ε | violations | LP failures |
+|---|---|---|---|---|
+| V1 DEC-889k, RECON-131k (4 ε each, 3 seeds) | 403 200 | 5.5e−10 | 0 | 0 |
+| V2 SAFE_REGRET (4 ε, 3 seeds) | 201 600 | 9.4e−11 | 0 | 0 |
+| classical: bank posterior, EM uniform, EM Nash (4 ε) | 201 600 | 7.3e−10 | 0 | 0 |
+| T1 DEC-133k (3 ε, 3 seeds) + step-3000 ckpts | 235 200 | 3.4e−10 | 0 | 0 |
+| T1 RECON-889k (3 ε, 3 seeds) + step-3000 ckpts | 201 600 | 6.6e−10 | 0 | 0 |
+| T1 RECON-JAC-889k seed 0 (3 ε) | 50 400 | 5.6e−10 | 0 | 0 |
+| T2 revealed DEC-133k / RECON-131k (3 seeds each) | 100 800 | 1.5e−9 | 0 | 0 |
+| T2 uncensored RECON-131k @3000 (3 seeds) | 50 400 | 8.9e−10 | 0 | 0 |
+| T2 gap computation (subsample of the 2 × 16 800 LPs) | 84 | 1.3e−13 | 0 | 0 |
+| T3 oracle: rank-k, hull, components, κ (7 ε) | 40 767 | 1.1e−9 | 0 | 0 |
+| T4 SPO+ only / MSE+1.0 / MSE+0.3 (seed 0) | 50 400 | 2.1e−10 | 0 | 0 |
+| T5 hybrids and controls (8 methods) | 134 400 | 7.6e−10 | 0 | 0 |
+| **total (as of 07:22 UTC)** | **1 653 651** | **1.5e−9** | **0** | **0** |
+
+The table is regenerated at the end of the run; arms that finish after the box are appended to
+`v3_audit_table.md` and never change the zero counts unless a violation occurs (none has, in three runs of
+the pipeline).
+
+## 7. Tasks not completed or cut short
+
+Time box: 10 h total from 21:17 UTC; the box closed at 07:17 UTC.  Status at the box:
+
+| task | done inside the box | still running / queued at the box (kept running; sections are updated in place) |
+|---|---|---|
+| T1 | DEC-133k × 3, RECON-889k × 3 evaluated at ε ∈ {0.05, 0.10, 0.20}; RECON-JAC-889k seed 0 at 3 ε; training curves; §1 | RECON-JAC-889k seeds 1–2 (training, step ≈ 3 500 / 2 000 of 6 000); RECON-REACH-889k seeds 0–2 (queued last, not started) |
+| T2 | everything: unit test, gaps, correlations, censoring toggle with 3 seeds per arm; §2 | — |
+| T3 | everything (33 min); §3 | — |
+| T4 | gate checks, LP timing, batch treatment, all three seed-0 arms evaluated, λ selected on validation; §4 | MSE+0.3·SPO+ seeds 1–2 (seed 1 training, seed 2 queued); SPO+-only seeds 1–2 (queued; low value after the seed-0 collapse) |
+| T5 | (a) BLEND with single-seed and no-EM controls; (c) learned-prior EM with single-seed, no-EM and RECON-889k-prior controls; envelope figure; §5 | (b) COUNT FEATURES seed 0 (training, step ≈ 3 500) and seeds 1–2 (queued) |
+
+Not run at all: the literal "network outputs Dirichlet concentrations" version of T5(c) (replaced by the
+declared κ_N-from-validation simplification); SPO+ with a fixed validation subset (would remove the noise that
+early-stopped two arms); RECON-REACH-889k (queued; if it does not finish it is reported as not run).
+
+## 8. Declared deviations from the pre-registration and the protocol
+
+1. **Compute overrun.**  All training shared one 4-slot queue; per-task boxes were exceeded by queueing, not
+   by any single arm, except MSE+0.3·SPO+ (4.1 h alone).  No pre-registered arm was dropped; the only arm
+   replaced is MSE+1.0·SPO+ seeds 1–2 → MSE+0.3·SPO+ seeds 1–2, per the pre-registered validation rule.
+   The queue was re-ordered twice on the basis of results (RECON-JAC seeds 1–2 promoted ahead of the T4/T5
+   tail after seed 0 beat DEC-889k; T4 seed-0 arms moved before the T2 runs so λ could be chosen early).
+   Re-ordering changes which arms have 3 seeds at the box, not any reported number.
+2. **λ selection** used exact-LP validation regret at N ∈ {20, 100, 500} (1 stream, 150 opponents) rather than
+   all seven N, to keep it at ≈ 900 LPs; the choice (0.3 over 1.0) is not close (0.130 vs 0.143).
+3. **SPO+ arms' validation loss** is computed with the same 8-of-batch exact-SPO+ subset as training and is
+   therefore noisy; the pre-registered early-stopping rule was left in place and stopped SPO+-only at 2 000
+   and MSE+1.0·SPO+ at 3 500 steps.  This is recorded, not corrected.
+4. **Evaluation scope.**  Step-3000 checkpoints (T2 only) were solved at ε = 0.10 only; non-headline V3 arms
+   (SPO+, censoring, hybrids) at ε = 0.10 only; RECON-JAC/REACH were added to the {0.05, 0.10, 0.20} set after
+   seed 0's result (seed 0 extended by a separate solve; an incremental-solve option was added to
+   `evaluate.py` for this, which leaves existing ε untouched).
+5. **T5 hybrids** use the mean over the three available network seeds as ĝ_net / q̂ (an ensemble); this was
+   not pre-registered, so single-seed and no-EM controls were added post hoc and are reported alongside
+   (§5).  The RECON-889k-prior variant and the 3-seed no-EM ensembles are likewise post hoc controls.
+6. **T5(c) simplification** (κ_N from validation instead of network-predicted concentrations) as declared
+   in §0.
+7. **T3 storage/figure**: the PCA spectrum saved in `t3_results.json` is truncated to 64 entries (storage
+   only); panel (d) of the T3 figure was re-drawn on log-log axes after the first render.
+8. **Bookkeeping incidents with no effect on results**: the scheduler was restarted three times (to run
+   evaluations in a separate process, to add a restart-safe marker, and to re-order the queue); a few
+   evaluations were run manually in parallel with the scheduler's; the ensemble-only hybrid control briefly
+   overwrote the 3-seed prior-EM selection file, which was restored from git (its contents are also stored
+   inside `hyb_meta.json`).  Every evaluation writes its own solve file and audit line; none was lost.
+9. **Post hoc pilot** (§9): a learned-prior EM using the RECON-JAC-889k seed-0 q̂ was run after the box as a
+   first data point for the recommended next experiment; it is labelled as such and not used in any verdict.
+
+## 9. Recommended next experiment
+
+Combine the two things that worked, and test them against the one thing that did not.  Concretely:
+**decision-relevance-weighted reconstruction as the prior of an exact-likelihood update.**  Train RECON-JAC-889k
+(3 seeds, done or in progress), use its q̂(H) as the Dirichlet prior mean of the tabular EM (κ_N from
+validation; then the amortized version where the network also outputs κ(H) per infoset, i.e. the T5(c) arm
+as originally worded), and compare, on the same 300 opponents, against (i) the RECON-131k-prior EM of §5,
+(ii) DEC-889k, (iii) the bank posterior at N ≤ 10.  Pre-registrable predictions: the JAC-prior EM is below
+the RECON-131k-prior EM at every N ≥ 20 (the Jacobian weighting improved deployed regret by 0.003–0.020
+when used directly; whether that survives the EM update is the question), and an amortized κ(H) closes the
+N = 5 gap to the bank posterior (+0.009).  Two smaller items belong in the same run: a fixed-subset (or full)
+SPO+ validation estimator so that the SPO+ arms are early-stopped on signal rather than noise, and SPO+ with
+λ = 0.3 on top of the Jacobian-weighted head, since §1 and §4 both point at *what the loss weights* as the
+lever.  The cheapest first data point (RECON-JAC seed-0 prior, κ from validation) takes ≈ 20 min and is
+reported below when it finishes.
