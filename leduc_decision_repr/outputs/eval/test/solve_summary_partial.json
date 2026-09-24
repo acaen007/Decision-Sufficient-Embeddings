@@ -1,10 +1,10 @@
 {
- "NEURAL_REC131K3K_s1": {
+ "NEURAL_SPO1_133K_s0": {
   "lp_failures": 0,
-  "max_violation_os": 8.882154317602087e-10,
+  "max_violation_os": 4.9224860299013073e-11,
   "n_violations_1e-7": 0,
-  "max_abs_fast_vs_os": 3.885780586188048e-16,
-  "runtime_s": 1111.9165527820587,
+  "max_abs_fast_vs_os": 4.163336342344337e-16,
+  "runtime_s": 396.65437626838684,
   "eps_idx": [
    2
   ]
