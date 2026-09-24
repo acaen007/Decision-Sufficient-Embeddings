@@ -191,10 +191,15 @@ def solve(out_dir: Path, methods, workers: int = 4, max_hist: int | None = None,
     chunks = np.linspace(0, H, workers + 1).astype(int)
     summary = {}
     for method in methods:
+        prev = None; this_eps = list(eps_idx)
         if (out_dir / f"solve_{method}.npz").exists():
-            print(f"{method}: already solved, skipping"); continue
+            prev = dict(np.load(out_dir / f"solve_{method}.npz"))
+            this_eps = [k for k in eps_idx if not prev["ok"][:, :, k].any()]        # extend an existing solve with new eps indices only
+            if not this_eps:
+                print(f"{method}: already solved, skipping"); continue
+            print(f"{method}: extending existing solve with eps indices {this_eps}", flush=True)
         tm = time.time()
-        jobs = [(str(out_dir), method, int(chunks[w]), int(chunks[w + 1]), w, eps_idx) for w in range(workers)]
+        jobs = [(str(out_dir), method, int(chunks[w]), int(chunks[w + 1]), w, this_eps) for w in range(workers)]
         with mp.get_context("spawn").Pool(workers) as pool:
             res = pool.map(_solve_worker, jobs)
         nN, nE = len(N_BUDGETS), len(EPSILONS)
@@ -203,12 +208,16 @@ def solve(out_dir: Path, methods, workers: int = 4, max_hist: int | None = None,
         for h_lo, uu, ff, oo, kk, nf in res:
             n = uu.shape[0]
             u[h_lo:h_lo + n] = uu; ef[h_lo:h_lo + n] = ff; eo[h_lo:h_lo + n] = oo; ok[h_lo:h_lo + n] = kk; fails += nf
+        if prev is not None:                                                  # merge: keep the previously solved eps indices
+            keep = np.ones(nE, bool); keep[this_eps] = False
+            u[:, :, keep] = prev["u"][:, :, keep]; ef[:, :, keep] = prev["e_fast"][:, :, keep]; eo[:, :, keep] = prev["e_os"][:, :, keep]
+            ok[:, :, keep] = prev["ok"][:, :, keep]; fails += int(prev["lp_failures"])
         np.savez(out_dir / f"solve_{method}.npz", u=u, e_fast=ef, e_os=eo, ok=ok, lp_failures=fails)
-        viol = (eo - np.array(EPSILONS)[None, None])[:, :, eps_idx]
+        viol = (eo - np.array(EPSILONS)[None, None])[:, :, this_eps]
         summary[method] = {"lp_failures": int(fails), "max_violation_os": float(np.nanmax(viol)),
                            "n_violations_1e-7": int((viol > 1e-7).sum()), "max_abs_fast_vs_os": float(np.nanmax(np.abs(ef - eo))),
-                           "runtime_s": time.time() - tm, "eps_idx": eps_idx}
-        print(f"{method}: solved {H*nN*len(eps_idx)} LPs in {time.time()-tm:.0f}s; max OpenSpiel violation {np.nanmax(viol):.2e}; "
+                           "runtime_s": time.time() - tm, "eps_idx": this_eps}
+        print(f"{method}: solved {H*nN*len(this_eps)} LPs in {time.time()-tm:.0f}s; max OpenSpiel violation {np.nanmax(viol):.2e}; "
               f"LP failures {fails}", flush=True)
         save_json(summary, out_dir / "solve_summary_partial.json")
     save_json({"summary": summary, "runtime_s": time.time() - t0, "env": environment_info()}, out_dir / "solve_summary.json")

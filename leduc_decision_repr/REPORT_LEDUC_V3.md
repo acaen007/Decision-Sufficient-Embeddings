@@ -79,9 +79,9 @@ cores, ≈ 10 h; each task has a time box and is cut at the box with partial res
 
 ## 1. T1 — confound fixes: parameter matching, convergence, reach-weighted reconstruction
 
-*Status: DEC-133k (3 seeds) and RECON-889k (3 seeds) evaluated at 04:09 UTC; RECON-JAC-889k seed 0 is trained
-and queued for evaluation; RECON-REACH-889k is queued for training.  Those two arms are appended to this
-section when they land; the verdicts on P1.1 and P1.3 do not depend on them.*
+*Status: DEC-133k (3 seeds), RECON-889k (3 seeds) and RECON-JAC-889k (seed 0; seeds 1–2 promoted in the
+queue after its result) evaluated by 05:16 UTC; RECON-REACH-889k is queued.  Seeds 1–2 of the Jacobian arm
+and the reach-weighted arm are appended when they land.*
 
 **Headline.**  The pre-registered falsification clause fires on one of the two matched pairs.  At ≈ 131k head
 parameters the decision route has **no advantage** over reconstruction: DEC-133k − RECON-131k is −0.006
@@ -93,7 +93,11 @@ parameters the advantage **survives, weakened**: DEC-889k − RECON-889k is −0
 capacity confound.  What remains is an *interaction*: both routes gain from head capacity, but the decision
 route gains about twice as much (DEC-889k over DEC-133k: 0.004 … 0.015, growing with N; RECON-889k over
 RECON-131k: 0.001 … 0.007), while the reconstruction cross-entropy floor is the same for both head sizes
-(0.634–0.635 vs 0.635–0.637).
+(0.634–0.635 vs 0.635–0.637).  **The weighted-reconstruction arm then removes the remaining advantage**: with
+the per-infoset cross-entropy weighted by the Jacobian norm of g with respect to that infoset's policy,
+RECON-JAC-889k (seed 0) is *better* than DEC-889k at every N ≥ 20 (−0.004 … −0.013, CIs exclude 0) and
+worse only at N = 5 (+0.008); it beats unweighted RECON-889k by 0.003 … 0.020 (CIs exclude 0 at N ≥ 10)
+and has the lowest test g-NMSE of any arm (0.36 at N = 500).  One seed so far; seeds 1–2 are queued.
 
 **Exact parameter counts** (encoder shared by every arm: 618 752).
 
@@ -103,7 +107,7 @@ RECON-131k: 0.001 … 0.007), while the reconstruction cross-entropy floor is th
 | RECON-131k | infoset-conditioned softmax, hidden 256 | 131 331 | 750 083 | 3 | V1 |
 | DEC-889k | MLP hidden 512 | 889 413 | 1 508 165 | 3 | V1 |
 | RECON-889k | hidden 834 | 889 089 | 1 507 841 | 3 | V3 |
-| RECON-JAC-889k | hidden 834, Jacobian-norm infoset weights | 889 089 | 1 507 841 | 1 (evaluation queued) | V3 |
+| RECON-JAC-889k | hidden 834, Jacobian-norm infoset weights | 889 089 | 1 507 841 | 1 (2 more queued) | V3 |
 | RECON-REACH-889k | hidden 834, chance × reach weights | 889 089 | 1 507 841 | queued | V3 |
 
 **Training to convergence.**  Every V3 run hit the 6 000-step cap; none triggered the patience rule (6
@@ -125,6 +129,7 @@ rescue the reconstruction route.  Validation curves: figure V3-T1(c).
 | RECON-131k (V1, 3 seeds) | 0.1771 | 0.1574 | 0.1424 | 0.1284 | 0.1241 | 0.1203 | 0.1180 |
 | DEC-889k (V1, 3 seeds) | 0.1669 | 0.1488 | 0.1346 | 0.1201 | 0.1118 | 0.1079 | 0.1051 |
 | RECON-889k (3 seeds) | 0.1763 | 0.1552 | 0.1389 | 0.1231 | 0.1177 | 0.1134 | 0.1116 |
+| RECON-JAC-889k (seed 0) | 0.1749 | 0.1518 | 0.1304 | 0.1108 | 0.1022 | 0.0970 | 0.0920 |
 | train-bank posterior | 0.1583 | 0.1436 | 0.1361 | 0.1282 | 0.1269 | 0.1233 | 0.1217 |
 | tabular EM (uniform prior) | 0.1960 | 0.1800 | 0.1654 | 0.1348 | 0.1138 | 0.0935 | 0.0748 |
 
@@ -145,6 +150,8 @@ is of the same size as its difference to DEC-889k.  AUC over log N at ε = 0.10:
 | | 0.20 | −0.012 [−0.019, −0.006] | −0.010 [−0.015, −0.006] | −0.008 [−0.013, −0.003] | −0.008 [−0.014, −0.002] | −0.011 [−0.019, −0.004] | −0.011 [−0.019, −0.003] | −0.012 [−0.020, −0.003] |
 | DEC-133k − DEC-889k | 0.10 | +0.004 [0.002, 0.006] | +0.006 [0.004, 0.009] | +0.008 [0.006, 0.011] | +0.012 [0.008, 0.015] | +0.014 [0.010, 0.019] | +0.015 [0.011, 0.020] | +0.015 [0.011, 0.020] |
 | RECON-889k − RECON-131k | 0.10 | −0.001 [−0.003, 0.001] | −0.002 [−0.004, −0.001] | −0.004 [−0.006, −0.002] | −0.005 [−0.008, −0.003] | −0.006 [−0.009, −0.004] | −0.007 [−0.010, −0.004] | −0.007 [−0.010, −0.004] |
+| RECON-JAC-889k − RECON-889k | 0.10 | −0.001 [−0.004, 0.001] | −0.003 [−0.006, −0.001] | −0.009 [−0.012, −0.006] | −0.012 [−0.016, −0.008] | −0.016 [−0.020, −0.011] | −0.016 [−0.021, −0.012] | −0.020 [−0.025, −0.014] |
+| RECON-JAC-889k − DEC-889k | 0.10 | +0.008 [0.003, 0.013] | +0.003 [−0.001, 0.007] | −0.004 [−0.008, −0.001] | −0.009 [−0.013, −0.006] | −0.010 [−0.013, −0.006] | −0.011 [−0.015, −0.007] | −0.013 [−0.018, −0.009] |
 
 **Per family (ε = 0.10; diff [95 % CI]).**
 
@@ -158,6 +165,10 @@ is of the same size as its difference to DEC-889k.  AUC over log N at ε = 0.10:
 | | NASH_RANDOM_MIX | +0.006 [−0.001, 0.014] | +0.006 [0.002, 0.011] | +0.003 [−0.001, 0.007] | +0.003 [−0.004, 0.008] |
 | | STRUCTURED_CORRELATED | −0.019 [−0.033, −0.004] | −0.011 [−0.018, −0.003] | −0.007 [−0.018, 0.002] | −0.008 [−0.018, 0.002] |
 | | UNSTRUCTURED_DIRICHLET | −0.012 [−0.022, −0.001] | −0.008 [−0.016, −0.000] | −0.018 [−0.033, −0.005] | −0.022 [−0.040, −0.004] |
+| RECON-JAC-889k − DEC-889k | NASH_LOGIT_PERTURB | +0.016 [0.009, 0.025] | +0.001 [−0.005, 0.006] | −0.014 [−0.021, −0.008] | −0.022 [−0.031, −0.014] |
+| | NASH_RANDOM_MIX | −0.007 [−0.013, −0.000] | −0.007 [−0.012, −0.002] | −0.005 [−0.009, −0.002] | −0.009 [−0.014, −0.004] |
+| | STRUCTURED_CORRELATED | +0.020 [0.007, 0.033] | −0.009 [−0.016, −0.003] | −0.021 [−0.030, −0.013] | −0.021 [−0.031, −0.012] |
+| | UNSTRUCTURED_DIRICHLET | +0.003 [−0.010, 0.013] | −0.002 [−0.010, 0.006] | +0.002 [−0.005, 0.009] | −0.000 [−0.009, 0.009] |
 
 The pooled null result at 131k is a cancellation: the decision head is *worse* on the two near-Nash families
 at N ≥ 20 (up to +0.019 on NASH_LOGIT_PERTURB at N = 500) and *better* on STRUCTURED_CORRELATED at small N and
@@ -166,13 +177,16 @@ N ≥ 100 and the whole surviving advantage comes from the two families that are
 with N on the Dirichlet family (−0.022 at N = 500).  This is the same family pattern as V1 and V2.
 
 **g accuracy is not what separates the routes.**  Test g-NMSE at N = 5 … 500: DEC-133k 0.79 → 0.42, RECON-131k
-0.82 → 0.50, DEC-889k 0.79 → 0.38, RECON-889k 0.81 → 0.46.  DEC-133k predicts g *more* accurately than
+0.82 → 0.50, DEC-889k 0.79 → 0.38, RECON-889k 0.81 → 0.46, RECON-JAC-889k 0.79 → 0.36.  DEC-133k predicts g *more* accurately than
 RECON-889k at every N (0.42 vs 0.46 at N = 500) yet deploys *worse* (0.120 vs 0.112), and it matches
 RECON-131k in regret while beating it by 0.08 in NMSE.  A reconstruction ĝ = A y_{q̂} is always the value
 vector of some legal opponent policy; the decision head's ĝ is not, and the ε-safe LP appears to penalize
 unrealizable errors more than realizable ones of larger norm.  Combined with T3 (value concentrated in
 low-variance directions of g) this says the decision route's edge, where it exists, comes from what the extra
-capacity is spent on, not from a smaller g error.
+capacity is spent on, not from a smaller g error.  The Jacobian-weighted arm makes the same point from the
+other side: telling the reconstruction loss *which infosets matter for g* (weights range 0.03–1.13, median
+0.16, so most infosets are down-weighted ~6×) is enough to make a realizable-ĝ model beat the direct
+decision head.  Decision relevance, not the decision objective, is what the V1 advantage was measuring.
 
 **Verdict against the pre-registration.**
 * P1.1 (advantage shrinks but survives matching in both directions, CIs excluding 0 at every N ≥ 20):
@@ -181,17 +195,19 @@ capacity is spent on, not from a smaller g error.
   RECON-889k at every N and ε; at ε = 0.10 the CI excludes 0 at 6 of 7 N but not at N = 50; at ε = 0.05 it
   excludes 0 only at N ≤ 10; at ε = 0.20 at every N).  The falsification clause names this the headline of
   the run.
-* P1.2 (Jacobian-weighted reconstruction closes part of the gap): pending (RECON-JAC-889k seed 0 trained;
-  validation g-NMSE at N = 500 0.40 vs 0.53 for unweighted RECON-889k at the same step — the weighting does
-  make ĝ more accurate; whether it deploys better is the open question).
+* P1.2 (Jacobian-weighted reconstruction closes part of the gap but does not reach the decision route):
+  **falsified in the favourable direction** (1 seed): RECON-JAC-889k closes the whole gap and overtakes
+  DEC-889k at N ≥ 20 (−0.004 … −0.013, CIs exclude 0), losing only at N = 5.  Per family it beats
+  DEC-889k on the three structured families at N ≥ 100 and ties on the Dirichlet family; the N = 5 loss is
+  on NASH_LOGIT_PERTURB and STRUCTURED_CORRELATED.  Seeds 1–2 were promoted in the queue to confirm this.
 * P1.3 (RECON-889k still improving at 6 000 steps, decision arms plateau): **falsified in direction** — the
   reconstruction arms plateaued (0.2–0.45 % over the last 1 500 steps) and the decision arms were still
   improving (1.7–2.4 %).
 
 **Deliverable figure.**  `figures/figV3_T1_matched.{png,pdf}`: (a) regret vs N for the matched arms with the
 bank posterior and tabular EM; (b) paired differences with CIs; (c) validation curves of the V3 runs.
-Safety: every deployed strategy of every arm audited; max Expl − ε = 6.7e−10 over the 403 200 LPs of the
-six V3 T1 runs (table in §6).  Time: 1.6–3.0 h per run, 4 in parallel; the T1 box (2.5 h) was exceeded
+Safety: every deployed strategy of every arm audited; max Expl − ε = 6.7e−10 over the 420 000 LPs of the
+seven V3 T1 runs (table in §6).  Time: 1.6–3.0 h per run, 4 in parallel; the T1 box (2.5 h) was exceeded
 because the RECON-889k seeds 1–2 and the weighted arms had to queue behind round A (declared in §8).
 
 ## 3. T3 — ε-rank oracle curve, Nash-hull component split, κ (oracle only; 33 min of the 1 h box)
