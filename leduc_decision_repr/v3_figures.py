@@ -45,7 +45,7 @@ def t1():
     ax.axhline(0, color="k", lw=0.8); ax.set_xscale("log"); ax.set_xlabel("N hands"); ax.set_ylabel("paired regret difference (neg = first better)"); ax.legend(fontsize=6); ax.set_title("(b) matched-pair differences, 95% paired bootstrap", fontsize=8)
     ax = axes[2]
     for r, info in d["runs"].items():
-        if r.startswith("V1_"): continue
+        if not r.startswith(("dec133k", "rec889k", "recjac", "recreach")): continue
         vc = np.array(info["val_curve"]); ax.plot(vc[:, 0], vc[:, 1], lw=1, label=f"{r} (stop {info['steps_run']})")
     ax.set_xlabel("step"); ax.set_ylabel("validation loss (head objective)"); ax.set_yscale("log"); ax.legend(fontsize=5, ncol=2); ax.set_title("(c) validation curves of V3 runs", fontsize=8)
     fig.suptitle("Figure V3-T1: confound fixes (parameter matching, convergence, reach-weighted reconstruction)", y=1.03)
