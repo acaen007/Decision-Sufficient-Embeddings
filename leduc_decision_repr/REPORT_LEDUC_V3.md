@@ -624,7 +624,7 @@ OpenSpiel's C++ tabular best response; requirement Expl(x) ≤ ε + 1e−7.  Ful
 | T2 gap computation (subsample of the 2 × 16 800 LPs) | 84 | 1.3e−13 | 0 | 0 |
 | T3 oracle: rank-k, hull, components, κ (7 ε) | 40 767 | 1.1e−9 | 0 | 0 |
 | T4 SPO+ only / MSE+1.0 / MSE+0.3 (seed 0) | 50 400 | 2.1e−10 | 0 | 0 |
-| T5 hybrids and controls (8 methods) | 134 400 | 7.6e−10 | 0 | 0 |
+| T5 hybrids and controls (8 methods) + post hoc JAC-prior pilot | 151 200 | 7.6e−10 | 0 | 0 |
 | **total (as of 07:22 UTC)** | **1 653 651** | **1.5e−9** | **0** | **0** |
 
 The table is regenerated at the end of the run; arms that finish after the box are appended to
@@ -677,7 +677,8 @@ early-stopped two arms); RECON-REACH-889k (queued; if it does not finish it is r
    overwrote the 3-seed prior-EM selection file, which was restored from git (its contents are also stored
    inside `hyb_meta.json`).  Every evaluation writes its own solve file and audit line; none was lost.
 9. **Post hoc pilot** (§9): a learned-prior EM using the RECON-JAC-889k seed-0 q̂ was run after the box as a
-   first data point for the recommended next experiment; it is labelled as such and not used in any verdict.
+   first data point for the recommended next experiment; it is labelled as such and not used in any verdict
+   (it came out negative for the simplest form of the recommendation, and §9 says so).
 
 ## 9. Recommended next experiment
 
@@ -692,5 +693,17 @@ when used directly; whether that survives the EM update is the question), and an
 N = 5 gap to the bank posterior (+0.009).  Two smaller items belong in the same run: a fixed-subset (or full)
 SPO+ validation estimator so that the SPO+ arms are early-stopped on signal rather than noise, and SPO+ with
 λ = 0.3 on top of the Jacobian-weighted head, since §1 and §4 both point at *what the loss weights* as the
-lever.  The cheapest first data point (RECON-JAC seed-0 prior, κ from validation) takes ≈ 20 min and is
-reported below when it finishes.
+lever.  The cheapest first data point was run after the box (post hoc, one seed, not used in any verdict):
+**learned-prior EM with the RECON-JAC-889k seed-0 q̂**, κ_N from validation (10, 10, 3, 10, 3, 3, 3), test regret
+at ε = 0.10: 0.1731, 0.1481, 0.1247, 0.1008, 0.0832, 0.0690, 0.0522 — i.e. **not better** than the
+RECON-131k-prior EM (+0.006 [0.003, 0.008], +0.004 [0.001, 0.006], +0.002 [0.000, 0.004], +0.004 [0.001, 0.007]
+at N = 5 … 50 against the 3-seed prior; within ±0.003 of the single-seed control; identical at N ≥ 100), even
+though the same network deployed directly beats every other amortized model (§1).  Audit: 16 800 LPs,
+max Expl − ε 3.2e−11.  So the prediction above is already falsified in its simplest form: the exact
+likelihood update saturates what the prior can contribute at N ≥ 20 (131k, 889k and Jacobian-weighted q̂ all
+give the same curve), and the Jacobian weighting, which helps *deployment*, slightly hurts the *prior* at
+small N.  The next experiment should therefore split into the two places where headroom demonstrably
+remains: (i) the N ≤ 10 gap of the hybrid to the bank posterior (+0.009 at N = 5), via an amortized κ(H) and a
+per-family / per-infoset concentration, which is the T5(c) arm as originally worded; and (ii) the
+deployed-network route, where §1 and §4 both locate the lever in what the loss weights — RECON-JAC with
+3 seeds (running), then SPO+ (λ = 0.3, fixed validation subset) on top of the Jacobian-weighted head.
