@@ -1,10 +1,10 @@
 {
- "NEURAL_RECREACH889K_s1": {
+ "NEURAL_RECREACH889K_s2": {
   "lp_failures": 0,
-  "max_violation_os": 1.206223565475284e-09,
+  "max_violation_os": 1.6839998562279135e-09,
   "n_violations_1e-7": 0,
-  "max_abs_fast_vs_os": 4.996003610813204e-16,
-  "runtime_s": 1249.4751431941986,
+  "max_abs_fast_vs_os": 6.661338147750939e-16,
+  "runtime_s": 1315.3880920410156,
   "eps_idx": [
    1,
    2,
