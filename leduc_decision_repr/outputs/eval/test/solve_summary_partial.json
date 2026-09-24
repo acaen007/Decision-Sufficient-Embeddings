@@ -1,10 +1,10 @@
 {
- "NEURAL_RECJAC889K_s2": {
+ "NEURAL_RECJAC889K_s1": {
   "lp_failures": 0,
-  "max_violation_os": 1.529058546445583e-10,
+  "max_violation_os": 1.1438447411471486e-09,
   "n_violations_1e-7": 0,
-  "max_abs_fast_vs_os": 5.551115123125783e-16,
-  "runtime_s": 1191.4195358753204,
+  "max_abs_fast_vs_os": 4.996003610813204e-16,
+  "runtime_s": 3047.832321882248,
   "eps_idx": [
    1,
    2,
