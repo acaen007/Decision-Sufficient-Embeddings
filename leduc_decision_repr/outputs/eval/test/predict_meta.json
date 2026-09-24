@@ -3303,8 +3303,16 @@
    "best_step": 249,
    "ckpt": "best.pt",
    "group": "NEURAL_SPO0_133K"
+  },
+  "NEURAL_COUNT133K_s1": {
+   "kind": "neural",
+   "objective": "decision",
+   "run_dir": "/home/user/Decision-Sufficient-Embeddings/leduc_decision_repr/outputs/runs_v3/count133k_s1",
+   "best_step": 5749,
+   "ckpt": "best.pt",
+   "group": "NEURAL_COUNT133K"
   }
  },
  "g_valid_dims": 1074,
- "predict_runtime_s": 6360.2519154548645
+ "predict_runtime_s": 6603.320495843887
 }
