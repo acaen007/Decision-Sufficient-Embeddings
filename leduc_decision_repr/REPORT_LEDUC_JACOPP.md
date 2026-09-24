@@ -162,7 +162,7 @@ typically share about half of their top 20 (Jaccard 0.34 ≈ 10 of 20 in common)
 **c. Coefficient of variation across opponents, per infoset:**
 * Median 1.18 [0.91, 1.78].
 * Mass-weighted mean 0.72.
-* Over the 20 heaviest infosets, median 0.62.  The root infosets vary least (0.25–0.34); the round-2
+* Over the 20 heaviest infosets, median 0.62.  The root infosets vary least (0.25–0.35); the round-2
   raise-facing nodes vary most (0.6–1.1).
 
 **d. Effectively zero weights** (< 1e−4 of the opponent's total):

@@ -3383,8 +3383,24 @@
    "best_step": 500,
    "ckpt": "best.pt",
    "group": "NEURAL_FTJACSPO"
+  },
+  "NEURAL_FTJACSPO_s1": {
+   "kind": "neural",
+   "objective": "recon",
+   "run_dir": "/home/user/Decision-Sufficient-Embeddings/leduc_decision_repr/outputs/runs_ft/jac_spo0.1_s1",
+   "best_step": 1500,
+   "ckpt": "best.pt",
+   "group": "NEURAL_FTJACSPO"
+  },
+  "NEURAL_FTJACSPO_s2": {
+   "kind": "neural",
+   "objective": "recon",
+   "run_dir": "/home/user/Decision-Sufficient-Embeddings/leduc_decision_repr/outputs/runs_ft/jac_spo0.1_s2",
+   "best_step": 1250,
+   "ckpt": "best.pt",
+   "group": "NEURAL_FTJACSPO"
   }
  },
  "g_valid_dims": 1074,
- "predict_runtime_s": 7505.232679605484
+ "predict_runtime_s": 7645.888551950455
 }
