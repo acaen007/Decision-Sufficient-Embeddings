@@ -1,17 +1,17 @@
 {
  "summary": {
-  "NEURAL_DEC133K3K_s2": {
+  "HYB_BLEND": {
    "lp_failures": 0,
-   "max_violation_os": 1.0277147188819669e-10,
+   "max_violation_os": 4.709210660314156e-10,
    "n_violations_1e-7": 0,
-   "max_abs_fast_vs_os": 4.163336342344337e-16,
-   "runtime_s": 916.8024218082428,
+   "max_abs_fast_vs_os": 3.885780586188048e-16,
+   "runtime_s": 467.385125875473,
    "eps_idx": [
     2
    ]
   }
  },
- "runtime_s": 916.8034551143646,
+ "runtime_s": 467.38784527778625,
  "env": {
   "python": "3.11.15 (main, Mar  3 2026, 09:26:23) [GCC 13.3.0]",
   "platform": "Linux-6.18.44-fc-v37-x86_64-with-glibc2.39",
@@ -20,7 +20,7 @@
   "scipy": "1.17.1",
   "torch": "2.14.0+cu130",
   "open_spiel": "2.0.2",
-  "git": "5f08071b6cc5bbd2a97085eceb0c2f1291a032a8",
-  "time": "2026-09-24 02:20:36"
+  "git": "878d2c92ad64f61bfb731d46e7d49321b005c939",
+  "time": "2026-09-24 02:46:06"
  }
 }
