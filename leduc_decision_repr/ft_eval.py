@@ -12,6 +12,11 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser(); ap.add_argument("--name", required=True); ap.add_argument("--run", required=True)
     ap.add_argument("--eps_idx", default="1,2,3"); ap.add_argument("--workers", type=int, default=2)
     a = ap.parse_args(); out = OUT / "eval" / "test"; t0 = time.time()
+    import json, shutil
+    cfg = Path(a.run) / "config.json"
+    if not cfg.exists():                                   # predict reads the run's config.json; use the base run's
+        base = Path(json.loads((Path(a.run) / "ft_config.json").read_text())["base_dir"])
+        shutil.copy(base / "config.json", cfg)
     with open(out / "predict.lock", "w") as lk:
         fcntl.flock(lk, fcntl.LOCK_EX)
         predict("test", {a.name: a.run}, out, skip_classical=True, threads=2)

@@ -1,0 +1,9 @@
+{
+ "val_regret_by_lambda": {
+  "0.1": 0.112139570532835,
+  "0.3": 0.11230422234927985,
+  "1.0": 0.11310394067498196
+ },
+ "lambda_star": 0.1,
+ "rule": "lowest mean exact validation regret (450 points) at the selected checkpoint; ties -> smaller"
+}
