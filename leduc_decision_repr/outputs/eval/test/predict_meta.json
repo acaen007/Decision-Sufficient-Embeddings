@@ -3343,8 +3343,16 @@
    "best_step": 5999,
    "ckpt": "best.pt",
    "group": "NEURAL_RECREACH889K"
+  },
+  "NEURAL_RECREACH889K_s2": {
+   "kind": "neural",
+   "objective": "recon",
+   "run_dir": "/home/user/Decision-Sufficient-Embeddings/leduc_decision_repr/outputs/runs_v3/recreach889k_s2",
+   "best_step": 5749,
+   "ckpt": "best.pt",
+   "group": "NEURAL_RECREACH889K"
   }
  },
  "g_valid_dims": 1074,
- "predict_runtime_s": 7160.414485692978
+ "predict_runtime_s": 7229.830730438232
 }
