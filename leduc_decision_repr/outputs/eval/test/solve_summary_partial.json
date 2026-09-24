@@ -1,10 +1,10 @@
 {
- "HYB_PRIOR_EM_JAC": {
+ "NEURAL_COUNT133K_s0": {
   "lp_failures": 0,
-  "max_violation_os": 3.220547439841681e-11,
+  "max_violation_os": 3.905471779308556e-11,
   "n_violations_1e-7": 0,
   "max_abs_fast_vs_os": 4.440892098500626e-16,
-  "runtime_s": 498.09614539146423,
+  "runtime_s": 864.1176760196686,
   "eps_idx": [
    2
   ]
