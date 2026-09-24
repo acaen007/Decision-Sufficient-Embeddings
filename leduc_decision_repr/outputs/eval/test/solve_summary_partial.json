@@ -1,10 +1,10 @@
 {
- "NEURAL_REC131K3K_s2": {
+ "HYB_PRIOR_EM_JAC": {
   "lp_failures": 0,
-  "max_violation_os": 2.9137539603318885e-11,
+  "max_violation_os": 3.220547439841681e-11,
   "n_violations_1e-7": 0,
-  "max_abs_fast_vs_os": 4.163336342344337e-16,
-  "runtime_s": 408.63417649269104,
+  "max_abs_fast_vs_os": 4.440892098500626e-16,
+  "runtime_s": 498.09614539146423,
   "eps_idx": [
    2
   ]
