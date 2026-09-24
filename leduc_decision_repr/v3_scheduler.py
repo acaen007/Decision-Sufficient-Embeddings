@@ -36,6 +36,9 @@ JOBS = [
     ("censdec133k_s2", train("decision", 2, "censdec133k_s2", ["--steps", "3000", "--decision_hidden", "100", "--dataset_tag", "revealed"])),
     ("censrec131k_s2", train("recon", 2, "censrec131k_s2", ["--steps", "3000", "--recon_hidden", "256", "--dataset_tag", "revealed"])),
     ("rec131k3k_s2",   train("recon", 2, "rec131k3k_s2", ["--steps", "3000", "--recon_hidden", "256"])),
+    # ---- T1: Jacobian-weighted seeds 1-2 (promoted 05:20 UTC after seed 0 beat DEC-889k at N >= 20)
+    ("recjac889k_s1",  train("recon", 1, "recjac889k_s1", ["--steps", "6000", "--recon_hidden", "834", "--recon_weights", "jacobian"])),
+    ("recjac889k_s2",  train("recon", 2, "recjac889k_s2", ["--steps", "6000", "--recon_hidden", "834", "--recon_weights", "jacobian"])),
     # ---- T5b count features, seed 0 (gated on the T5B_READY marker)
     ("count133k_s0",   train("decision", 0, "count133k_s0", ["--steps", "6000", "--decision_hidden", "100", "--extra_features", "1"])),
     # ---- T4 remaining seeds (the mixed arm's lambda is switched to 0.3 if validation prefers it; see T4_LAMBDA marker)
@@ -48,8 +51,6 @@ JOBS = [
     ("count133k_s2",   train("decision", 2, "count133k_s2", ["--steps", "6000", "--decision_hidden", "100", "--extra_features", "1"])),
     # ---- T1 tail: reach-weighted seed 0, Jacobian seeds 1-2, reach seeds 1-2
     ("recreach889k_s0", train("recon", 0, "recreach889k_s0", ["--steps", "6000", "--recon_hidden", "834", "--recon_weights", "reach"])),
-    ("recjac889k_s1",  train("recon", 1, "recjac889k_s1", ["--steps", "6000", "--recon_hidden", "834", "--recon_weights", "jacobian"])),
-    ("recjac889k_s2",  train("recon", 2, "recjac889k_s2", ["--steps", "6000", "--recon_hidden", "834", "--recon_weights", "jacobian"])),
     ("recreach889k_s1", train("recon", 1, "recreach889k_s1", ["--steps", "6000", "--recon_hidden", "834", "--recon_weights", "reach"])),
     ("recreach889k_s2", train("recon", 2, "recreach889k_s2", ["--steps", "6000", "--recon_hidden", "834", "--recon_weights", "reach"])),
 ]
@@ -77,6 +78,8 @@ def eval_cfg(name):
         return ("test_revealed", "revealed", "2", [])
     if base in ("dec133k", "rec889k"):
         return ("test", "", "1,2,3", ["step3000.pt"])
+    if base in ("recjac889k", "recreach889k"):
+        return ("test", "", "1,2,3", [])
     return ("test", "", "2", [])
 
 
