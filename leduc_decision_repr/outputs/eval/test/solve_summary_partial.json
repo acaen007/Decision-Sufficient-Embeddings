@@ -1,10 +1,10 @@
 {
- "NEURAL_SPO03_133K_s1": {
+ "NEURAL_SPO0_133K_s1": {
   "lp_failures": 0,
-  "max_violation_os": 1.9107646020977143e-11,
+  "max_violation_os": 4.0970407622076266e-11,
   "n_violations_1e-7": 0,
-  "max_abs_fast_vs_os": 5.273559366969494e-16,
-  "runtime_s": 830.521232843399,
+  "max_abs_fast_vs_os": 3.608224830031759e-16,
+  "runtime_s": 452.9960083961487,
   "eps_idx": [
    2
   ]
