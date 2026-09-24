@@ -1,22 +1,14 @@
 {
- "HYB_PRIOR_EM_S0": {
+ "NEURAL_DEC133K_s1": {
   "lp_failures": 0,
-  "max_violation_os": 1.975457297742622e-11,
+  "max_violation_os": 4.8563014720670594e-11,
   "n_violations_1e-7": 0,
-  "max_abs_fast_vs_os": 4.163336342344337e-16,
-  "runtime_s": 504.6259255409241,
+  "max_abs_fast_vs_os": 4.440892098500626e-16,
+  "runtime_s": 2913.383077144623,
   "eps_idx": [
-   2
-  ]
- },
- "HYB_ENSREC": {
-  "lp_failures": 0,
-  "max_violation_os": 1.5051611346184046e-10,
-  "n_violations_1e-7": 0,
-  "max_abs_fast_vs_os": 3.885780586188048e-16,
-  "runtime_s": 401.68983149528503,
-  "eps_idx": [
-   2
+   1,
+   2,
+   3
   ]
  }
 }
