@@ -1,12 +1,14 @@
 {
- "NEURAL_COUNT133K_s0": {
+ "NEURAL_RECJAC889K_s2": {
   "lp_failures": 0,
-  "max_violation_os": 3.905471779308556e-11,
+  "max_violation_os": 1.529058546445583e-10,
   "n_violations_1e-7": 0,
-  "max_abs_fast_vs_os": 4.440892098500626e-16,
-  "runtime_s": 864.1176760196686,
+  "max_abs_fast_vs_os": 5.551115123125783e-16,
+  "runtime_s": 1191.4195358753204,
   "eps_idx": [
-   2
+   1,
+   2,
+   3
   ]
  }
 }
