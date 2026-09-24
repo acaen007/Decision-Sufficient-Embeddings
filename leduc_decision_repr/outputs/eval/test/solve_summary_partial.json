@@ -1,20 +1,10 @@
 {
- "HYB_BLEND_S0": {
+ "NEURAL_RECJAC889K_s0": {
   "lp_failures": 0,
-  "max_violation_os": 2.4954219246531295e-11,
+  "max_violation_os": 5.629017391095559e-10,
   "n_violations_1e-7": 0,
-  "max_abs_fast_vs_os": 3.608224830031759e-16,
-  "runtime_s": 495.8670291900635,
-  "eps_idx": [
-   2
-  ]
- },
- "HYB_BLEND_ENSDEC": {
-  "lp_failures": 0,
-  "max_violation_os": 2.6822280507765583e-11,
-  "n_violations_1e-7": 0,
-  "max_abs_fast_vs_os": 4.996003610813204e-16,
-  "runtime_s": 408.9731402397156,
+  "max_abs_fast_vs_os": 4.163336342344337e-16,
+  "runtime_s": 1359.1759839057922,
   "eps_idx": [
    2
   ]

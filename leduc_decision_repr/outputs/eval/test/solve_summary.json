@@ -1,27 +1,17 @@
 {
  "summary": {
-  "HYB_BLEND_S0": {
+  "NEURAL_RECJAC889K_s0": {
    "lp_failures": 0,
-   "max_violation_os": 2.4954219246531295e-11,
+   "max_violation_os": 5.629017391095559e-10,
    "n_violations_1e-7": 0,
-   "max_abs_fast_vs_os": 3.608224830031759e-16,
-   "runtime_s": 495.8670291900635,
-   "eps_idx": [
-    2
-   ]
-  },
-  "HYB_BLEND_ENSDEC": {
-   "lp_failures": 0,
-   "max_violation_os": 2.6822280507765583e-11,
-   "n_violations_1e-7": 0,
-   "max_abs_fast_vs_os": 4.996003610813204e-16,
-   "runtime_s": 408.9731402397156,
+   "max_abs_fast_vs_os": 4.163336342344337e-16,
+   "runtime_s": 1359.1759839057922,
    "eps_idx": [
     2
    ]
   }
  },
- "runtime_s": 904.8417601585388,
+ "runtime_s": 1359.1823313236237,
  "env": {
   "python": "3.11.15 (main, Mar  3 2026, 09:26:23) [GCC 13.3.0]",
   "platform": "Linux-6.18.44-fc-v37-x86_64-with-glibc2.39",
@@ -30,7 +20,7 @@
   "scipy": "1.17.1",
   "torch": "2.14.0+cu130",
   "open_spiel": "2.0.2",
-  "git": "e787ee4fa500fe39f904eb1707ad16f64e5bfb8d",
-  "time": "2026-09-24 05:07:49"
+  "git": "997664d949bcdf5bb75c4355fadb5f6b25ec168c",
+  "time": "2026-09-24 05:15:12"
  }
 }
