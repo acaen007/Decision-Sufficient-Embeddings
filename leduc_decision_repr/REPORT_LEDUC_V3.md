@@ -521,8 +521,8 @@ exceeded by the seed-0 λ = 0.3 run alone (4.1 h under contention); recorded in 
 
 ## 5. T5 — empirical-Bayes hybrids
 
-*Status (08:20 UTC): (a) BLEND and (c) LEARNED PRIOR evaluated on the test split with their controls;
-(b) COUNT FEATURES seed 0 evaluated (seeds 1–2 queued; appended when they land).*
+*Status (11:15 UTC): every T5 arm evaluated — (a) BLEND and (c) LEARNED PRIOR with their controls, (b) COUNT
+FEATURES with 3 seeds.*
 
 **Arms as run.**
 * (a) **BLEND**: ĝ = λ_N ĝ_net + (1 − λ_N) ĝ_EM, with ĝ_net the mean over the three DEC-133k seeds (a
@@ -533,8 +533,8 @@ exceeded by the seed-0 λ = 0.3 run alone (4.1 h under contention); recorded in 
 * (b) **COUNT FEATURES**: the DEC-133k architecture with a 1 158-dimensional count vector (per-public-state
   opponent action counts over all hands, per rank-infoset counts over showdown hands, showdown/fold
   counts; each as frequency ⊕ log1p count / log1p N) added to the history-level CLS input through a linear
-  layer; same loss, schedule and early-stopping rule as DEC-133k; 6 000 steps, best checkpoint at 6 000,
-  validation loss 0.572 vs 0.592–0.597 for DEC-133k; seed 0 (1.7 h).
+  layer; same loss, schedule and early-stopping rule as DEC-133k; 3 seeds, all to the 6 000-step cap (best
+  checkpoints at 6 000 / 5 750 / 5 750), validation loss 0.570–0.572 vs 0.592–0.597 for DEC-133k; 1.6–1.7 h each.
 * (c) **LEARNED PRIOR** (declared simplification of "network outputs Dirichlet concentrations"): tabular EM
   in which the Dirichlet prior at every rank-level opponent infoset has mean q̂(H) = the reconstruction
   network's output for that history (mean over the three V1 RECON-131k seeds) and concentration κ_N chosen
@@ -553,7 +553,7 @@ exceeded by the seed-0 λ = 0.3 run alone (4.1 h under contention); recorded in 
 | DEC-133k (3 seeds, seed-averaged) | 0.1710 | 0.1552 | 0.1428 | 0.1316 | 0.1260 | 0.1228 | 0.1203 |
 | tabular EM (uniform prior) | 0.1960 | 0.1800 | 0.1654 | 0.1348 | 0.1138 | 0.0935 | 0.0748 |
 | lower envelope of the three | 0.1583 | 0.1436 | 0.1361 | 0.1282 | 0.1138 | 0.0935 | 0.0748 |
-| (b) DEC-133k + COUNT FEATURES (seed 0) | 0.1692 | 0.1500 | 0.1362 | 0.1241 | 0.1193 | 0.1162 | 0.1127 |
+| (b) DEC-133k + COUNT FEATURES (3 seeds) | 0.1690 | 0.1507 | 0.1367 | 0.1243 | 0.1192 | 0.1161 | 0.1128 |
 | (a) BLEND λ_N, 3-seed ĝ_net | 0.1652 | 0.1469 | 0.1294 | 0.1100 | 0.0978 | 0.0849 | 0.0696 |
 | (a) single-seed ĝ_net (λ_N = 0.6, 0.9, 0.6, 0.7, 0.6, 0.4, 0.5) | 0.1693 | 0.1504 | 0.1334 | 0.1118 | 0.0984 | 0.0852 | 0.0702 |
 | control: 3-seed DEC-133k ensemble, no EM (λ = 1) | 0.1664 | 0.1508 | 0.1380 | 0.1270 | 0.1211 | 0.1180 | 0.1154 |
@@ -569,7 +569,7 @@ exceeded by the seed-0 λ = 0.3 run alone (4.1 h under contention); recorded in 
 | BLEND | +0.007 [0.004, 0.010] | +0.003 [−0.001, 0.008] | −0.007 [−0.012, −0.002] | −0.018 [−0.024, −0.012] | −0.016 [−0.021, −0.011] | −0.009 [−0.012, −0.006] | −0.005 [−0.009, −0.002] |
 | LEARNED-PRIOR EM | +0.009 [0.004, 0.014] | +0.001 [−0.003, 0.005] | −0.014 [−0.019, −0.009] | −0.031 [−0.039, −0.025] | −0.031 [−0.036, −0.026] | −0.024 [−0.029, −0.020] | −0.022 [−0.026, −0.018] |
 | RECON ensemble, no EM | +0.017 [0.011, 0.022] | +0.012 [0.008, 0.017] | +0.004 [−0.002, 0.009] | −0.002 [−0.008, 0.004] | +0.008 [−0.003, 0.020] | +0.025 [0.014, 0.037] | +0.042 [0.030, 0.056] |
-| COUNT FEATURES (seed 0) | +0.011 [0.008, 0.014] | +0.006 [0.003, 0.010] | +0.000 [−0.005, 0.005] | −0.004 [−0.010, 0.002] | +0.006 [−0.004, 0.015] | +0.023 [0.013, 0.033] | +0.038 [0.027, 0.049] |
+| COUNT FEATURES (3 seeds) | +0.011 [0.008, 0.014] | +0.007 [0.004, 0.011] | +0.001 [−0.004, 0.005] | −0.004 [−0.009, 0.002] | +0.005 [−0.004, 0.015] | +0.023 [0.013, 0.033] | +0.038 [0.028, 0.049] |
 
 (The per-N best is the bank posterior for N ≤ 50 and tabular EM for N ≥ 100.)
 
@@ -593,9 +593,9 @@ better everywhere from N = 20 on, by up to −0.145 on the Dirichlet family at N
 Dirichlet family BLEND is slightly *worse* than EM (+0.002 … +0.013).
 
 **Count features.**  Giving the decision network the sufficient statistics of the count models improves it
-at every N ≥ 10: COUNT − DEC-133k = −0.002 [−0.004, 0.001], −0.005 [−0.007, −0.003], −0.007 [−0.009, −0.004],
-−0.008 [−0.010, −0.005], −0.007 [−0.010, −0.004], −0.007 [−0.010, −0.004], −0.008 [−0.011, −0.004] at
-N = 5 … 500 (one seed).  It reaches the envelope at N = 20–50 (excess +0.000 / −0.004, CIs cover 0) but stays
+at every N ≥ 10: COUNT − DEC-133k = −0.002 [−0.004, −0.000], −0.005 [−0.006, −0.003], −0.006 [−0.008, −0.004],
+−0.007 [−0.010, −0.005], −0.007 [−0.009, −0.004], −0.007 [−0.010, −0.004], −0.008 [−0.011, −0.004] at
+N = 5 … 500 (3 seeds; seed spread ≤ 0.002).  It reaches the envelope at N = 20–50 (excess +0.000 / −0.004, CIs cover 0) but stays
 an amortized model with the amortized floor: 0.113 at N = 500 against 0.075 for tabular EM and 0.053 for
 the learned-prior EM.  The network uses the counts to sharpen its fit (g-NMSE and validation loss both
 improve), not to become a count-based estimator.
@@ -615,7 +615,7 @@ with §1 (both heads sit at the same cross-entropy floor).
 **Verdict against the pre-registration.**
 * P5.1(a) — BLEND on or below the envelope at every N (within CI): **confirmed for N ≥ 10** (within the CI at
   N = 10, strictly below at N ≥ 20), **falsified at N = 5** (+0.007 [0.004, 0.010] above the bank posterior).
-* P5.1(b) — count features improve the decision net at N ≥ 100: **confirmed** (one seed; improvement at every
+* P5.1(b) — count features improve the decision net at N ≥ 100: **confirmed** (3 seeds; improvement at every
   N ≥ 10 with CIs excluding 0, 0.005–0.008 chips), though the improved net is still far above the envelope at
   N ≥ 200.
 * P5.1(c) — learned-prior EM at least as good as tabular EM at every N and better at N ≤ 50: **confirmed and
@@ -667,7 +667,7 @@ OpenSpiel's C++ tabular best response; requirement Expl(x) ≤ ε + 1e−7.  Ful
 | T2 gap computation (subsample of the 2 × 16 800 LPs) | 84 | 1.3e−13 | 0 | 0 |
 | T3 oracle: rank-k, hull, components, κ (7 ε) | 40 767 | 1.1e−9 | 0 | 0 |
 | T4 SPO+ only (3 seeds) / MSE+1.0 (seed 0) / MSE+0.3 (3 seeds) | 117 600 | 2.5e−10 | 0 | 0 |
-| T5 hybrids and controls (8 methods) + post hoc JAC-prior pilot | 151 200 | 7.6e−10 | 0 | 0 |
+| T5 hybrids and controls (8 methods), count features (3 seeds), post hoc JAC-prior pilot | 201 600 | 7.6e−10 | 0 | 0 |
 | **total (as of 07:22 UTC)** | **1 653 651** | **1.5e−9** | **0** | **0** |
 
 The table is regenerated at the end of the run; arms that finish after the box are appended to
@@ -684,7 +684,7 @@ Time box: 10 h total from 21:17 UTC; the box closed at 07:17 UTC.  Status at the
 | T2 | everything: unit test, gaps, correlations, censoring toggle with 3 seeds per arm; §2 | — |
 | T3 | everything (33 min); §3 | — |
 | T4 | gate checks, LP timing, batch treatment, all three seed-0 arms evaluated, λ selected on validation; §4 | MSE+0.3·SPO+ seeds 1–2 and SPO+-only seeds 1–2 (all finished and evaluated by 11:00, after the box; §4 rewritten: the seed-0 gain did not replicate) |
-| T5 | (a) BLEND with single-seed and no-EM controls; (c) learned-prior EM with single-seed, no-EM and RECON-889k-prior controls; envelope figure; §5 | (b) COUNT FEATURES seed 0 finished and evaluated at 08:20 (after the box); seeds 1–2 queued |
+| T5 | (a) BLEND with single-seed and no-EM controls; (c) learned-prior EM with single-seed, no-EM and RECON-889k-prior controls; envelope figure; §5 | (b) COUNT FEATURES: all 3 seeds finished and evaluated after the box (08:20–11:11); §5 updated |
 
 Not run at all: the literal "network outputs Dirichlet concentrations" version of T5(c) (replaced by the
 declared κ_N-from-validation simplification); SPO+ with a fixed validation subset (would remove the noise that
