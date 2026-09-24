@@ -87,3 +87,125 @@ only arms 0–1 and report that as the headline.  Otherwise run all arms.
   reported.
 * **No test tuning:** nothing is tuned on test opponents.
 * **Instability:** if per-opponent weights make training unstable, it is reported with the fix used.
+
+## 1. Step 0 — how V3 built the RECON-JAC weights
+
+The weights (`outputs/weights_v3/recon_weights_jacobian.npy`) were produced by an inline script that was never
+committed as a module.  It was recovered verbatim from the session transcript.  For each of the 1 200 training
+opponents it took `torch.autograd.functional.jacobian` of the float64 rank-policy → g map at the true q.  The
+Jacobian has shape (1093, 144, 3).  The script added `sqrt((J**2).sum over the 1093 g coordinates and all 3
+action slots)` per rank infoset, then divided by 1 200.  `train.py` rescales the vector to mean 1, and the loss
+per sample is Σ_I w_I CE_I / Σ_I w_I.
+
+* **Not projected.** J is taken with respect to the raw per-action coordinates q(a|I), not the simplex
+  tangent space; there is no P.  Illegal slots have exactly zero columns (checked: max |J| on illegal slots =
+  0), so in effect the sum runs over legal actions only.
+* **Unsquared.** The per-opponent quantity is ‖J_I‖_F, not ‖J_I‖_F².
+* **Averaged without per-opponent normalization.** The weight is the mean of the norms over opponents.  An
+  opponent with a larger overall g-sensitivity contributes more.
+* g is in raw chips (not standardized); the unit is the rank infoset (144).
+* **Exact reproduction.** The analytic Jacobian used in Step 1 (J = A·D, D the sparse leave-one-out product
+  matrix of the realization plan) reproduces the V3 file to a maximum relative error of 2.1e−8.
+
+Consequence for P3: arm 1 differs from arm 0 in **three** ways at once — projection, squaring, and
+per-opponent normalization before averaging.  The two global vectors have cosine 0.88 (Spearman 0.94).
+* **Concentration.** Arm 1's vector is far more concentrated: coefficient of variation 2.12 vs 0.90, max/min
+  ratio 1 390 vs 33.
+* **Where the mass sits.** Arm 1 moves mass onto the six round-1 first decisions (43% vs 19%) and away from
+  round 2 (52% vs 76%).  Squaring amplifies the infosets whose reach is 1 for everybody.
+
+## 2. Step 1 — the gate (no training; `jacopp_gate.py`, 41 s on one core)
+
+Computed for all 1 200 training opponents and all 144 opponent rank infosets:
+* w_I(q) = ‖J_I(q) P_I‖_F²;
+* u_I(q) = ‖J_I(q)‖_F² (unprojected);
+* reach²_I = r_I(q)²;
+* the consequence-only term ‖C_I(q) P_I‖_F², where J_I = r_I·C_I.
+
+Each is normalized to sum 1 per opponent (w̃).  Outputs are `outputs/jacopp/gate.json` and
+`outputs/jacopp/gate_mass.png`.
+
+**Checks** (5 random training opponents):
+* Coordinate central differences vs J: median relative error 5.2e−11, maximum 2.4e−7 (200 coordinates).
+* Random tangent (sum-zero) directions vs J_I P: median 1.8e−10, maximum 8.3e−8 (50 directions).
+* The factorization J_I = r_I · C_I holds to 2.6e−16.
+* Opponent reach is identical across the suit-isomorphic members of every rank class (spread 0).
+* No training opponent has zero total weight, and no (opponent, infoset) pair has zero reach.
+
+**Gate: run all arms.**  The gate fails decisively on overlap and narrowly on cosine:
+
+| statistic | value | threshold |
+|---|---|---|
+| median cosine of w̃ to the population mean | 0.942 | ≥ 0.95 |
+| mean top-20 Jaccard overlap between opponents | 0.423 | ≥ 0.9 |
+
+The cosine is inflated by the six round-1 first-decision infosets.  Their reach is 1 for every opponent and
+they carry 35–48% of each opponent's mass.  Dropping them lowers the median cosine to 0.81, and to 0.64 and
+0.67 for the STRUCTURED and DIRICHLET families.
+
+**a. Cosine to the population average** (median [IQR]):
+* all: 0.942 [0.913, 0.955]
+* NASH-LOGIT: 0.945; NASH-MIX: 0.963; STRUCTURED: 0.898 (5th percentile 0.81); DIRICHLET: 0.929.
+
+**b. Top-k overlap (mean Jaccard).**  Top-10: 0.55, top-20: 0.42 over all pairs.
+
+| top-20 | NASH-LOGIT | NASH-MIX | STRUCTURED | DIRICHLET |
+|---|---|---|---|---|
+| NASH-LOGIT | 0.73 | 0.63 | 0.34 | 0.36 |
+| NASH-MIX | | 0.58 | 0.35 | 0.37 |
+| STRUCTURED | | | 0.34 | 0.33 |
+| DIRICHLET | | | | 0.36 |
+
+Only the Nash-perturbation families share their top infosets.  Within STRUCTURED and DIRICHLET, two opponents
+typically share about half of their top 20 (Jaccard 0.34 ≈ 10 of 20 in common).
+
+**c. Coefficient of variation across opponents, per infoset:**
+* Median 1.18 [0.91, 1.78].
+* Mass-weighted mean 0.72.
+* Over the 20 heaviest infosets, median 0.62.  The root infosets vary least (0.25–0.34); the round-2
+  raise-facing nodes vary most (0.6–1.1).
+
+**d. Effectively zero weights** (< 1e−4 of the opponent's total):
+* 25.7% of (opponent, infoset) pairs overall.
+* By family: NASH-MIX 13.8%, NASH-LOGIT 25.9%, DIRICHLET 24.4%, STRUCTURED 38.7%.
+* Per opponent, median 22.9% (5th–95th percentile 8–54%).
+* A typical opponent puts 90% of its mass on 46 of the 144 infosets; the top 10 hold 54% and the top 20
+  hold 70%.
+
+**e. Mass by round and depth** (figure `outputs/jacopp/gate_mass.png`; mean share per opponent):
+
+| family | r1 first decision | r1 second decision | r2 depth 1 | r2 depth 2 | r2 depth 3 | round-2 total |
+|---|---|---|---|---|---|---|
+| NASH-LOGIT | 0.35 | 0.06 | 0.29 | 0.26 | 0.04 | 0.59 |
+| NASH-MIX | 0.40 | 0.05 | 0.33 | 0.20 | 0.02 | 0.55 |
+| STRUCTURED | 0.48 | 0.06 | 0.36 | 0.10 | 0.01 | 0.47 |
+| DIRICHLET | 0.48 | 0.05 | 0.36 | 0.11 | 0.01 | 0.47 |
+| V3 global vector | 0.19 | 0.05 | 0.46 | 0.26 | 0.04 | 0.76 |
+
+Yes — tight opponents concentrate mass early, and aggressive ones shift it to deep round-2 nodes:
+* Per opponent, the round-2 share falls with round-1 tightness: Spearman −0.67 with the mean fold probability
+  facing a raise.
+* The deep round-2 share (own depth ≥ 2) rises with aggression: Spearman +0.45 with the mean raise frequency.
+* Near-Nash opponents keep the most round-2 weight and put the most weight on the K holdings (47% vs 33% for
+  DIRICHLET).
+
+**f. Reach alone explains most of the opponent-specificity:**
+* **Within an opponent**, Spearman(w̃_I, reach²_I) has median 0.93 [0.89, 0.95] (NASH-MIX lowest, 0.89).
+  Against the consequence factor alone it is 0.58.
+* **Across opponents at a fixed infoset**, log reach² explains a median R² of 0.997 of the variation of
+  log w̃_I (5th percentile 0.97).
+* **The consequence factor is almost the same for every opponent:** its normalized per-opponent vector has
+  median cosine 0.99 to its population mean, against 0.86 for reach² alone.
+
+So within this population, "which infosets matter for this opponent" = (global consequence profile) ×
+(this opponent's reach²).  Prediction for P4: OPP-REACH differs from JAC-opp mainly in missing the global
+consequence profile, which JAC-global already carries.
+
+**g. Projected vs unprojected** (both squared, normalized per opponent):
+* Per-opponent Spearman 0.98 (Pearson 0.99).
+* P keeps a median 60% of an infoset's squared norm: 53% at 2-action and 67% at 3-action infosets.
+* **Largest cuts (to 6–7%):** round-2 fold/call decisions facing a re-raise while holding an unpaired card
+  (e.g. Q|J, J|K after …/crr).  Fold and call have nearly parallel payoff consequences there, so the tangent
+  direction carries little.
+* **Relative gains (×1.6–1.7):** the same nodes when holding a pair (J|J, Q|Q, K|K after …/crr).  Fold and
+  call have opposite consequences there, and P keeps 95–97%.
