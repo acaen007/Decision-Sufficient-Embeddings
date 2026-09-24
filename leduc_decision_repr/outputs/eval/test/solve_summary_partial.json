@@ -1,12 +1,14 @@
 {
- "NEURAL_DEC133K3K_s1": {
+ "NEURAL_REC889K_s0": {
   "lp_failures": 0,
-  "max_violation_os": 1.9906211401465868e-10,
+  "max_violation_os": 3.094583339580126e-10,
   "n_violations_1e-7": 0,
-  "max_abs_fast_vs_os": 3.3306690738754696e-16,
-  "runtime_s": 1385.9767668247223,
+  "max_abs_fast_vs_os": 4.996003610813204e-16,
+  "runtime_s": 1848.2736282348633,
   "eps_idx": [
-   2
+   1,
+   2,
+   3
   ]
  }
 }
