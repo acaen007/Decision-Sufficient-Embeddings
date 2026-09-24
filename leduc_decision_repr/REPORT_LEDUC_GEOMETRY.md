@@ -68,6 +68,14 @@ error barely predicts (ρ = 0.27) but W predicts moderately (0.57).  The covaria
 stand-in for S_ε.  It needs an inflation of 2.4 million to contain fresh support points, so the ellipsoid
 bound is about 1 500× loose.
 
+| pre-registered item | result | outcome |
+|---|---|---|
+| P1: ρ(M_support) − ρ(‖δ‖₂) ≥ 0.15 | 0.705 − 0.689 = +0.016 | falsified |
+| P2: M_support orders DEC-133k worse than RECON-889k at N = 100, 500, ‖δ‖₂ the other way | M_support ties them (Δ ≈ 0.0000); ‖δ‖₂ reversed as predicted | fails |
+| P3: ρ(W) ≥ ρ(M_support) | 0.730 ≥ 0.705 | holds |
+| P4: controls do not beat ‖δ‖₂ | M_rand 0.630, M_gvar 0.469 < 0.689 | holds |
+| NO-GO rule: best S_ε metric beats ‖δ‖₂ by < 0.05 and P2 fails | +0.041 (W); P2 fails | **NO-GO** |
+
 ## 2. Step 1 — the metrics
 
 | matrix | rank (tol 1e−10) | condition no. (non-zero) | participation ratio | eigenvalues for 90 % of trace | trace share in the 192-dim span of training g |
@@ -195,15 +203,15 @@ subtracting that intercept the excess gain still scales as ε^0.5–0.6 between 
 opponent the safe value is a concave piecewise-linear function of ε (a parametric right-hand side), so
 it must be linear below that opponent's first breakpoint.  The population mean stays sub-linear down to
 1e−4, so those breakpoints are spread over several decades below 0.01.  The mean initial slope is at least
-43 chips per unit ε.  All 2 404 strategies audited, max Expl − ε = 1.3e−10.
+43 chips per unit ε.  All 2 400 strategies audited, max Expl − ε = 1.3e−10.
 
 ## 5. What surprised me
 
 * **Weighting errors by g-variance is actively harmful.**  ρ = 0.47 against 0.69 for plain Euclidean error,
   losing in all 36 cells.  This is the metric a variance-oriented (PCA, reconstruction-MSE) view implicitly
   optimizes.  It agrees with T3: the decision value lives in low-variance directions of g.
-* **For tabular EM, Euclidean error is almost uninformative** (within-cell ρ 0.03–0.28).  Every S_ε metric
-  roughly doubles that (W: 0.40–0.58).  EM's errors sit where S_ε is wide, and they still cost little
+* **For tabular EM, Euclidean error is almost uninformative** (within-cell ρ 0.03–0.28).  The S_ε metrics
+  raise it to 0.30–0.58 (W: 0.40–0.58).  EM's errors sit where S_ε is wide, and they still cost little
   on average.  It is the method whose regret level the geometry fails to explain.
 * **For the decision-trained heads at N ≥ 100, W does not beat Euclidean error.**  These are six of the
   eight cells where W loses.  Whatever these heads learned, their residual errors are not shaped the way
@@ -221,8 +229,8 @@ it must be linear below that opponent's first breakpoint.  The population mean s
   `M.npz` (37 MB) is regenerated deterministically by `build` (seed 0) and is not committed.
 * Compute: build 1.3 min; scoring 22 min (21 600 LPs and audits on 4 cores); stretch 2 min.  About 40 min
   of wall-clock including analysis, well inside the 2 h budget.  No training.
-* Audits: every LP solution in this diagnostic was checked with OpenSpiel's best response, 25 804 in total
-  (1 200 support, 21 600 width, 600 projection re-solves, 2 404 small-ε).  Max Expl − ε = 1.9e−10,
+* Audits: every LP solution in this diagnostic was checked with OpenSpiel's best response, 25 800 in total
+  (1 200 support, 21 600 width, 600 projection re-solves, 2 400 small-ε).  Max Expl − ε = 1.9e−10,
   0 violations, 0 LP failures.
 * Deviation: the stretch stage's realizability audit stored Expl instead of Expl − ε while running and
   printed a spurious "300 violations".  The saved fields were corrected post hoc (true max excess 6.8e−13;
