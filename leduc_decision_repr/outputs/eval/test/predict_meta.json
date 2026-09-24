@@ -3128,8 +3128,16 @@
      "selected": 1.0
     }
    }
+  },
+  "NEURAL_REC131K3K_s0": {
+   "kind": "neural",
+   "objective": "recon",
+   "run_dir": "/home/user/Decision-Sufficient-Embeddings/leduc_decision_repr/outputs/runs_v3/rec131k3k_s0",
+   "best_step": 2999,
+   "ckpt": "best.pt",
+   "group": "NEURAL_REC131K3K"
   }
  },
  "g_valid_dims": 1074,
- "predict_runtime_s": 4400.509234428406
+ "predict_runtime_s": 4447.60488653183
 }

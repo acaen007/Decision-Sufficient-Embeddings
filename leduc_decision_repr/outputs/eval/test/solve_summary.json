@@ -1,17 +1,6 @@
 {
- "summary": {
-  "NEURAL_RECJAC889K_s0": {
-   "lp_failures": 0,
-   "max_violation_os": 5.629017391095559e-10,
-   "n_violations_1e-7": 0,
-   "max_abs_fast_vs_os": 4.163336342344337e-16,
-   "runtime_s": 1359.1759839057922,
-   "eps_idx": [
-    2
-   ]
-  }
- },
- "runtime_s": 1359.1823313236237,
+ "summary": {},
+ "runtime_s": 0.0034112930297851562,
  "env": {
   "python": "3.11.15 (main, Mar  3 2026, 09:26:23) [GCC 13.3.0]",
   "platform": "Linux-6.18.44-fc-v37-x86_64-with-glibc2.39",
@@ -20,7 +9,7 @@
   "scipy": "1.17.1",
   "torch": "2.14.0+cu130",
   "open_spiel": "2.0.2",
-  "git": "997664d949bcdf5bb75c4355fadb5f6b25ec168c",
-  "time": "2026-09-24 05:15:12"
+  "git": "d590c0c5173eb1d3fee7a4ceed0650a22fdc67a5",
+  "time": "2026-09-24 05:17:50"
  }
 }
