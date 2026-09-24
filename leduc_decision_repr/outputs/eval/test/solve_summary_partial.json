@@ -1,12 +1,14 @@
 {
- "NEURAL_REC889K3K_s1": {
+ "NEURAL_REC889K_s2": {
   "lp_failures": 0,
-  "max_violation_os": 3.060374315078107e-10,
+  "max_violation_os": 6.647587480479444e-10,
   "n_violations_1e-7": 0,
-  "max_abs_fast_vs_os": 3.885780586188048e-16,
-  "runtime_s": 805.9348657131195,
+  "max_abs_fast_vs_os": 5.551115123125783e-16,
+  "runtime_s": 1199.3872542381287,
   "eps_idx": [
-   2
+   1,
+   2,
+   3
   ]
  }
 }
