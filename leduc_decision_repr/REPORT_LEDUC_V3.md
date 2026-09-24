@@ -294,6 +294,88 @@ sets the scale for every later comparison: at ε = 0.10 the whole oracle gain is
 computations used the full 192-dimensional basis).  Panel (d) of the figure was switched to log-log axes
 after the first render because the fitted κ_dist line hid the points; nothing else was changed.
 
+## 4. T4 — SPO+ loss on the matched DEC-133k head
+
+*Status (06:45 UTC): all three seed-0 arms evaluated; seeds 1–2 of the validation-selected mixed arm
+(λ = 0.3) are training and are appended here when evaluated.*
+
+**Gate (numerical checks, `outputs/weights_v3/t4_spo_checks.json`).**  With ℓ(ĝ, g) = max_{x ∈ S_ε}
+(2ĝ − g)ᵀx − 2ĝᵀx*(g) + gᵀx*(g) at ε = 0.10: ℓ(g, g) = −1.5e−16; ℓ ≥ 0 on every random (ĝ, g) pair tested;
+midpoint convexity held on every random segment; the subgradient 2x*(2ĝ − g) − 2x*(g) matched central
+finite differences with median relative error 1.2e−10 (six sampled coordinates agree to 10 digits); and
+ℓ(ĝ, g) ≥ gᵀx*(g) − gᵀx*(ĝ) (SPO+ upper-bounds the safe regret) held on every pair.  One exact safe LP costs
+41.3 ms (HiGHS, warm start).
+
+**Batch treatment.**  x*(g) was cached once for the 1 200 training opponents at ε_train = 0.10.  Per
+training step the MSE term uses the whole batch of 32 histories; the exact SPO+ term (one LP for
+x*(2ĝ − g) per sample) is applied to a random subset of 8 of the 32, i.e. ≈ 0.33 s of LP time per step.
+Wall-clock: 2.4 s/step for the SPO+ arms vs 1.1 s/step for MSE-only under the same 4-way contention (4.1 h
+vs 1.8 h for 6 000 steps).  The same subset rule is applied inside the validation loss of these arms, which
+makes that loss a noisy estimate; early stopping was nevertheless left on the pre-registered rule.
+
+**Arms (DEC-133k architecture, 133 393-parameter head; seed 0).**
+
+| arm | loss | best step | stopped | best val loss (own objective) | train time |
+|---|---|---|---|---|---|
+| MSE only (= T1 DEC-133k) | standardized-g MSE | 6000 / 5750 / 6000 | cap (3 seeds) | 0.592–0.597 | 1.7–1.8 h |
+| SPO+ only | SPO+ | 500 | early, step 2000 | 0.777 | 1.9 h |
+| MSE + 1.0·SPO+ | MSE + SPO+ | 2000 | early, step 3500 | 1.52 | 2.5 h |
+| MSE + 0.3·SPO+ | MSE + 0.3·SPO+ | 6000 | cap | 0.860 | 4.1 h |
+
+SPO+-only diverged in the sense that matters: its validation SPO+ loss rose from step 500 on and its g-NMSE
+never left ≈ 1.05 (worse than predicting the population mean g), so the patience rule stopped it at 2 000
+steps.  MSE + 1.0·SPO+ also stopped early (best at 2 000) with g-NMSE plateauing at 0.56.  Only the λ = 0.3
+mix trained to the cap with its best checkpoint at the end.
+
+**λ selection (validation only; 150 validation opponents, 1 stream, exact-LP regret at ε = 0.10 averaged over
+N ∈ {20, 100, 500}).**  SPO+-only 0.198, MSE + 1.0·SPO+ 0.143, MSE only 0.138, MSE + 0.3·SPO+ 0.130 →
+λ = 0.3 (`outputs/t4_val_select.json`; marker `outputs/T4_LAMBDA` steered seeds 1–2 to λ = 0.3).
+
+**Test results at ε = 0.10 (300 held-out opponents; MSE-only averaged over 3 seeds, others seed 0).**
+
+| arm | N=5 | 10 | 20 | 50 | 100 | 200 | 500 |
+|---|---|---|---|---|---|---|---|
+| MSE only — regret | 0.1710 | 0.1552 | 0.1428 | 0.1316 | 0.1260 | 0.1228 | 0.1203 |
+| MSE only — g-NMSE | 0.787 | 0.673 | 0.573 | 0.488 | 0.453 | 0.432 | 0.418 |
+| MSE + 0.3·SPO+ — regret | 0.1723 | 0.1537 | 0.1391 | 0.1232 | 0.1180 | 0.1150 | 0.1113 |
+| MSE + 0.3·SPO+ — g-NMSE | 0.786 | 0.667 | 0.571 | 0.490 | 0.455 | 0.435 | 0.422 |
+| MSE + 1.0·SPO+ — regret | 0.1844 | 0.1678 | 0.1530 | 0.1387 | 0.1344 | 0.1317 | 0.1288 |
+| MSE + 1.0·SPO+ — g-NMSE | 0.840 | 0.746 | 0.669 | 0.605 | 0.582 | 0.573 | 0.565 |
+| SPO+ only — regret | 0.2211 | 0.2079 | 0.2001 | 0.1955 | 0.1960 | 0.1948 | 0.1910 |
+| SPO+ only — g-NMSE | 1.048 | 1.047 | 1.048 | 1.047 | 1.048 | 1.048 | 1.047 |
+
+Paired differences vs MSE only (negative = SPO+ arm better; 95 % paired bootstrap):
+
+| arm | N=5 | 10 | 20 | 50 | 100 | 200 | 500 |
+|---|---|---|---|---|---|---|---|
+| MSE + 0.3·SPO+ | +0.001 [−0.002, 0.005] | −0.002 [−0.004, 0.001] | −0.004 [−0.006, −0.001] | −0.008 [−0.011, −0.005] | −0.008 [−0.011, −0.005] | −0.008 [−0.011, −0.004] | −0.009 [−0.013, −0.005] |
+| MSE + 1.0·SPO+ | +0.013 [0.008, 0.019] | +0.013 [0.007, 0.018] | +0.010 [0.005, 0.015] | +0.007 [0.002, 0.013] | +0.008 [0.003, 0.015] | +0.009 [0.003, 0.016] | +0.009 [0.002, 0.015] |
+| SPO+ only | +0.050 [0.038, 0.062] | +0.053 [0.041, 0.065] | +0.057 [0.045, 0.070] | +0.064 [0.051, 0.078] | +0.070 [0.056, 0.085] | +0.072 [0.058, 0.087] | +0.071 [0.057, 0.085] |
+
+Per family, MSE + 0.3·SPO+ vs MSE only at N = 5 / 50 / 500: NASH_LOGIT_PERTURB −0.005 / −0.008 / −0.009 (CIs
+exclude 0 at N = 50), NASH_RANDOM_MIX +0.002 / −0.006 / −0.006 (exclude 0 at N ≥ 20), STRUCTURED_CORRELATED
++0.001 / −0.013 / −0.016 (exclude 0 at N ≥ 20), UNSTRUCTURED_DIRICHLET +0.008 / −0.005 / −0.005 (worse at
+N ≤ 10, CIs exclude 0; better at N ≥ 50, CIs just include 0).
+
+**Verdict against the pre-registration.**
+* P4.1 (SPO+, alone or mixed, lowers safe regret at N ≥ 20 relative to MSE only with the CI excluding 0,
+  while g-NMSE is equal or worse): **confirmed for the mixed arm at the validation-selected λ = 0.3**, one
+  seed: regret is lower by 0.004 (N = 20) to 0.009 (N = 500) chips with every CI at N ≥ 20 excluding 0, and
+  its g-NMSE is *worse* by 0.002–0.004 at N ≥ 50 and equal at N ≤ 20.  The two other SPO+ arms are worse
+  than MSE only in regret *and* in g-NMSE, so they neither confirm nor falsify the mechanism; they show that
+  the exact SPO+ gradient on 8 samples per step is too noisy to carry the training on its own.
+* Falsification criterion (no regret improvement, or improvement only with improved g-NMSE): **not met**.
+
+**Point of the task.**  At the same architecture, the same data and a *slightly worse* g fit, adding a
+decision-aware term lowers deployed safe regret by ≈ 0.008 chips at N ≥ 50 — 4 % of the oracle-safe gain at
+ε = 0.10 and about the size of the whole DEC-889k vs RECON-889k gap in §1.  It is the cleanest evidence in
+V1–V3 that regret and g accuracy are separable objectives; it is also small.  Seeds 1–2 will tell whether
+0.008 is stable (the DEC-133k seed spread is 0.001–0.004).
+
+Figure: `figures/figV3_T4_spo.{png,pdf}` — (a) regret vs N, (b) g-NMSE vs N for the four arms.  Safety:
+3 × 16 800 LPs, max Expl − ε = 2.1e−10, 0 failures.  Time: the T4 box (2.5 h) was exceeded by the λ = 0.3 run
+alone (4.1 h under contention); recorded in §8.
+
 ## 5. T5 — empirical-Bayes hybrids
 
 *Status (04:40 UTC): (a) BLEND and (c) LEARNED PRIOR evaluated on the test split with their controls;
