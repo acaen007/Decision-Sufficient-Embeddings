@@ -3271,8 +3271,16 @@
    "best_step": 5999,
    "ckpt": "best.pt",
    "group": "NEURAL_RECJAC889K"
+  },
+  "NEURAL_RECJAC889K_s2": {
+   "kind": "neural",
+   "objective": "recon",
+   "run_dir": "/home/user/Decision-Sufficient-Embeddings/leduc_decision_repr/outputs/runs_v3/recjac889k_s2",
+   "best_step": 5749,
+   "ckpt": "best.pt",
+   "group": "NEURAL_RECJAC889K"
   }
  },
  "g_valid_dims": 1074,
- "predict_runtime_s": 5584.9231569767
+ "predict_runtime_s": 5669.590435266495
 }
