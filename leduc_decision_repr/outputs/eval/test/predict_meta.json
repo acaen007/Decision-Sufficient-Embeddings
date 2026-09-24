@@ -3359,8 +3359,16 @@
    "best_step": 1000,
    "ckpt": "best.pt",
    "group": "NEURAL_FTJACCTRL"
+  },
+  "NEURAL_FTJACCTRL_s0": {
+   "kind": "neural",
+   "objective": "recon",
+   "run_dir": "/home/user/Decision-Sufficient-Embeddings/leduc_decision_repr/outputs/runs_ft/jac_ctrl_s0",
+   "best_step": 500,
+   "ckpt": "best.pt",
+   "group": "NEURAL_FTJACCTRL"
   }
  },
  "g_valid_dims": 1074,
- "predict_runtime_s": 7299.435571908951
+ "predict_runtime_s": 7369.041976213455
 }
