@@ -97,7 +97,9 @@ RECON-131k: 0.001 … 0.007), while the reconstruction cross-entropy floor is th
 the per-infoset cross-entropy weighted by the Jacobian norm of g with respect to that infoset's policy,
 RECON-JAC-889k (seed 0) is *better* than DEC-889k at every N ≥ 20 (−0.004 … −0.013, CIs exclude 0) and
 worse only at N = 5 (+0.008); it beats unweighted RECON-889k by 0.003 … 0.020 (CIs exclude 0 at N ≥ 10)
-and has the lowest test g-NMSE of any arm (0.36 at N = 500).  One seed so far; seeds 1–2 are queued.
+and has the lowest test g-NMSE of any arm (0.36 at N = 500).  The same holds at ε = 0.05 (−0.004 … −0.010
+vs DEC-889k at N ≥ 20) and ε = 0.20 (−0.005 … −0.016), with the N = 5 loss (+0.005 / +0.010) in both.  One
+seed so far; seeds 1–2 are queued.
 
 **Exact parameter counts** (encoder shared by every arm: 618 752).
 
