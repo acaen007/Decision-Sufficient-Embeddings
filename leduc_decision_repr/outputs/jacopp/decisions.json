@@ -4,5 +4,11 @@
   0.11221243162726241,
   0.11374359424842055
  ],
- "rule": "lowest seed-0 selected validation regret (eps 0.10, 450 fixed LPs); ties -> smaller lambda / arm 1"
+ "rule": "lowest seed-0 selected validation regret (eps 0.10, 450 fixed LPs); ties -> smaller lambda / arm 1",
+ "lambda_star": 0.3,
+ "val_regret_by_lambda": {
+  "0.1": 0.11464321725596452,
+  "0.3": 0.11344130853686797,
+  "1.0": 0.11381839518546988
+ }
 }

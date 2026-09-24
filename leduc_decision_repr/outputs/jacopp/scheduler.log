@@ -12,3 +12,12 @@
 20:25:36 launched a4l1_s0 (w=1)
 20:26:17 finished a3_s0 rc=0
 20:26:17 launched a3_s1 (w=1)
+22:21:23 finished a3_s1 rc=0
+22:21:23 launched a3_s2 (w=1)
+22:46:08 finished a4l0.3_s0 rc=0
+22:46:08 launched a1_s1 (w=1)
+22:46:28 finished a4l0.1_s0 rc=0
+22:46:28 launched a1_s2 (w=1)
+22:48:49 lambda* = 0.3 ({0.1: 0.11464321725596452, 0.3: 0.11344130853686797, 1.0: 0.11381839518546988})
+22:48:49 finished a4l1_s0 rc=0
+22:48:49 launched a4l0.3_s1 (w=1)
