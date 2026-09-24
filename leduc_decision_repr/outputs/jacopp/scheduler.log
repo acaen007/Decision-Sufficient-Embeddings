@@ -5,3 +5,10 @@
 18:26:30 launched a3_s0 (w=1)
 20:23:56 finished a0_s0 rc=0
 20:23:56 launched a4l0.1_s0 (w=1)
+20:24:36 finished a2_s0 rc=0
+20:24:36 launched a4l0.3_s0 (w=1)
+20:25:36 better of arms 1/2 = a1 (0.11221 vs 0.11374)
+20:25:36 finished a1_s0 rc=0
+20:25:36 launched a4l1_s0 (w=1)
+20:26:17 finished a3_s0 rc=0
+20:26:17 launched a3_s1 (w=1)

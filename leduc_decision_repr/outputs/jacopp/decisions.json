@@ -1,0 +1,8 @@
+{
+ "better_12": "a1",
+ "val_regret_a1_a2_seed0": [
+  0.11221243162726241,
+  0.11374359424842055
+ ],
+ "rule": "lowest seed-0 selected validation regret (eps 0.10, 450 fixed LPs); ties -> smaller lambda / arm 1"
+}
