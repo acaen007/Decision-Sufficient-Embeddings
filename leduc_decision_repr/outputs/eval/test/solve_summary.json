@@ -1,11 +1,11 @@
 {
  "summary": {
-  "NEURAL_FTJACSPO_s0": {
+  "NEURAL_FTJACSPO_s2": {
    "lp_failures": 0,
-   "max_violation_os": 1.1079216988285623e-09,
+   "max_violation_os": 1.5638198652689894e-09,
    "n_violations_1e-7": 0,
    "max_abs_fast_vs_os": 4.440892098500626e-16,
-   "runtime_s": 1238.2089173793793,
+   "runtime_s": 1278.923156261444,
    "eps_idx": [
     1,
     2,
@@ -13,7 +13,7 @@
    ]
   }
  },
- "runtime_s": 1238.2102086544037,
+ "runtime_s": 1278.924815416336,
  "env": {
   "python": "3.11.15 (main, Mar  3 2026, 09:26:23) [GCC 13.3.0]",
   "platform": "Linux-6.18.44-fc-v37-x86_64-with-glibc2.39",
@@ -22,7 +22,7 @@
   "scipy": "1.17.1",
   "torch": "2.14.0+cu130",
   "open_spiel": "2.0.2",
-  "git": "391c4ca39b24110d7a72225d9d66993858c349da",
-  "time": "2026-09-24 17:56:06"
+  "git": "259ed0829bc999a1321d1475720a1863e54ded24",
+  "time": "2026-09-24 18:18:53"
  }
 }

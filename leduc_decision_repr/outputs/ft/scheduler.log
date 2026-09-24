@@ -30,3 +30,6 @@
 17:53:21 launched eval_jac_spo0.1_s1 (w=2)
 17:56:22 finished eval_jac_spo0.1_s0 rc=0
 17:56:22 launched eval_jac_spo0.1_s2 (w=2)
+18:16:24 finished eval_jac_spo0.1_s1 rc=0
+18:19:04 finished eval_jac_spo0.1_s2 rc=0
+18:19:04 scheduler done (3.26 h)
