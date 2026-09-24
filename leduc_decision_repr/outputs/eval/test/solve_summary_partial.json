@@ -1,10 +1,10 @@
 {
- "NEURAL_FTJACCTRL_s0": {
-  "lp_failures": 0,
-  "max_violation_os": 2.5351722110489305e-10,
+ "NEURAL_FTJACCTRL_s1": {
+  "lp_failures": 1,
+  "max_violation_os": 9.69196015110363e-10,
   "n_violations_1e-7": 0,
-  "max_abs_fast_vs_os": 4.440892098500626e-16,
-  "runtime_s": 1248.2601299285889,
+  "max_abs_fast_vs_os": 6.106226635438361e-16,
+  "runtime_s": 1253.224445104599,
   "eps_idx": [
    1,
    2,
