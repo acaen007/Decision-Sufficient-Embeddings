@@ -3136,8 +3136,16 @@
    "best_step": 2999,
    "ckpt": "best.pt",
    "group": "NEURAL_REC131K3K"
+  },
+  "NEURAL_SPO03_133K_s0": {
+   "kind": "neural",
+   "objective": "decision",
+   "run_dir": "/home/user/Decision-Sufficient-Embeddings/leduc_decision_repr/outputs/runs_v3/spo03_133k_s0",
+   "best_step": 5999,
+   "ckpt": "best.pt",
+   "group": "NEURAL_SPO03_133K"
   }
  },
  "g_valid_dims": 1074,
- "predict_runtime_s": 4447.60488653183
+ "predict_runtime_s": 4555.808127164841
 }
