@@ -1,17 +1,27 @@
 {
  "summary": {
-  "HYB_PRIOR_EM_889K": {
+  "HYB_BLEND_S0": {
    "lp_failures": 0,
-   "max_violation_os": 2.5141486115209943e-11,
+   "max_violation_os": 2.4954219246531295e-11,
    "n_violations_1e-7": 0,
-   "max_abs_fast_vs_os": 4.718447854656915e-16,
-   "runtime_s": 508.8130397796631,
+   "max_abs_fast_vs_os": 3.608224830031759e-16,
+   "runtime_s": 495.8670291900635,
+   "eps_idx": [
+    2
+   ]
+  },
+  "HYB_BLEND_ENSDEC": {
+   "lp_failures": 0,
+   "max_violation_os": 2.6822280507765583e-11,
+   "n_violations_1e-7": 0,
+   "max_abs_fast_vs_os": 4.996003610813204e-16,
+   "runtime_s": 408.9731402397156,
    "eps_idx": [
     2
    ]
   }
  },
- "runtime_s": 508.8164782524109,
+ "runtime_s": 904.8417601585388,
  "env": {
   "python": "3.11.15 (main, Mar  3 2026, 09:26:23) [GCC 13.3.0]",
   "platform": "Linux-6.18.44-fc-v37-x86_64-with-glibc2.39",
@@ -20,7 +30,7 @@
   "scipy": "1.17.1",
   "torch": "2.14.0+cu130",
   "open_spiel": "2.0.2",
-  "git": "7bb8ec876b565c32c46118ba0002d63f529d563c",
-  "time": "2026-09-24 04:30:32"
+  "git": "e787ee4fa500fe39f904eb1707ad16f64e5bfb8d",
+  "time": "2026-09-24 05:07:49"
  }
 }

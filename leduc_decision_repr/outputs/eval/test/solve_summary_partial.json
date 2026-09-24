@@ -8,5 +8,15 @@
   "eps_idx": [
    2
   ]
+ },
+ "HYB_BLEND_ENSDEC": {
+  "lp_failures": 0,
+  "max_violation_os": 2.6822280507765583e-11,
+  "n_violations_1e-7": 0,
+  "max_abs_fast_vs_os": 4.996003610813204e-16,
+  "runtime_s": 408.9731402397156,
+  "eps_idx": [
+   2
+  ]
  }
 }
