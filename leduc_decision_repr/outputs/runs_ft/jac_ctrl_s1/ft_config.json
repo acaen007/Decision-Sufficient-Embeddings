@@ -1,0 +1,17 @@
+{
+ "base_dir": "/home/user/Decision-Sufficient-Embeddings/leduc_decision_repr/outputs/runs_v3/recjac889k_s1",
+ "base_step": 5999,
+ "method": "recon",
+ "seed": 1,
+ "lam": 0.0,
+ "loss": "none",
+ "steps": 1500,
+ "lr": 0.0001,
+ "warmup": 100,
+ "min_lr": 1e-05,
+ "val_every": 250,
+ "sigma_mult": null,
+ "sigma": null,
+ "sigma0": null,
+ "K": 4
+}
