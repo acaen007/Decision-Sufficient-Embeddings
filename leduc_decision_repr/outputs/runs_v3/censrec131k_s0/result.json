@@ -1,0 +1,14 @@
+{
+ "best_val_loss": 0.6345947324520066,
+ "best_step": 2999,
+ "runtime_s": 4411.358278512955,
+ "steps_run": 3000,
+ "stopped_early_at": null,
+ "plateau": {
+  "val_loss_last": 0.6345947324520066,
+  "val_loss_6_validations_earlier": 0.6396670863032341,
+  "relative_change_last_1500_steps": 0.007929677733681233
+ },
+ "n_params_head": 131331,
+ "n_params_encoder": 618752
+}
