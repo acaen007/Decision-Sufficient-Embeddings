@@ -275,3 +275,107 @@ sets the scale for every later comparison: at ε = 0.10 the whole oracle gain is
 **Deviation.**  The stored PCA spectrum in `t3_results.json` is truncated to 64 entries (storage only; all
 computations used the full 192-dimensional basis).  Panel (d) of the figure was switched to log-log axes
 after the first render because the fitted κ_dist line hid the points; nothing else was changed.
+
+## 5. T5 — empirical-Bayes hybrids
+
+*Status (04:40 UTC): (a) BLEND and (c) LEARNED PRIOR evaluated on the test split with their controls;
+(b) COUNT FEATURES (DEC-133k retrained with count inputs, 3 seeds) is queued behind the T2 runs and is
+appended here when it lands; single-seed and ensemble-only controls for BLEND are being solved.*
+
+**Arms as run.**
+* (a) **BLEND**: ĝ = λ_N ĝ_net + (1 − λ_N) ĝ_EM, with ĝ_net the mean over the three DEC-133k seeds and ĝ_EM
+  the tabular-EM (uniform prior, α = 1) estimate mapped through g(·).  λ_N chosen per N on the 150 validation
+  opponents (1 stream) from {0, 0.1, …, 1}: 0.7, 0.7, 0.8, 0.7, 0.6, 0.4, 0.5 at N = 5 … 500 — i.e. the net
+  is weighted more than the counts up to N = 100 and roughly equally after.
+* (c) **LEARNED PRIOR** (declared simplification of "network outputs Dirichlet concentrations"): tabular EM
+  in which the Dirichlet prior at every rank-level opponent infoset has mean q̂(H) = the reconstruction
+  network's output for that history (mean over the three V1 RECON-131k seeds) and concentration κ_N chosen
+  on validation from {1, 3, 10, 30, 100}: κ = 3 at every N (validation regret 0.161 → 0.060 from N = 5 to
+  500; κ = 1 and κ = 10 are 0.003–0.012 worse, κ ≥ 30 much worse).  Controls: the same with a single seed's
+  q̂ (κ = 3 again), the three-seed q̂ ensemble mapped straight to g without EM, and the same recipe with the
+  three RECON-889k seeds from T1 (κ = 3 again).
+* Nothing in (a) or (c) touches the test split before the single final solve; every deployed strategy comes
+  from the exact ε-safe LP and is audited (max Expl − ε over the six hybrid solves = 7.6e−10, 0 LP failures).
+
+**Safe regret at ε = 0.10 (mean over 300 test opponents).**
+
+| method | N=5 | 10 | 20 | 50 | 100 | 200 | 500 |
+|---|---|---|---|---|---|---|---|
+| train-bank posterior | 0.1583 | 0.1436 | 0.1361 | 0.1282 | 0.1269 | 0.1233 | 0.1217 |
+| DEC-133k (3 seeds, seed-averaged) | 0.1710 | 0.1552 | 0.1428 | 0.1316 | 0.1260 | 0.1228 | 0.1203 |
+| tabular EM (uniform prior) | 0.1960 | 0.1800 | 0.1654 | 0.1348 | 0.1138 | 0.0935 | 0.0748 |
+| lower envelope of the three | 0.1583 | 0.1436 | 0.1361 | 0.1282 | 0.1138 | 0.0935 | 0.0748 |
+| (a) BLEND λ_N | 0.1652 | 0.1469 | 0.1294 | 0.1100 | 0.0978 | 0.0849 | 0.0696 |
+| (c) LEARNED-PRIOR EM, 3-seed q̂ | 0.1675 | 0.1444 | 0.1225 | 0.0970 | 0.0831 | 0.0691 | 0.0525 |
+| (c) single-seed q̂ | 0.1706 | 0.1458 | 0.1242 | 0.0983 | 0.0838 | 0.0695 | 0.0528 |
+| (c) RECON-889k q̂ | 0.1690 | 0.1439 | 0.1218 | 0.0963 | 0.0823 | 0.0682 | 0.0522 |
+| control: 3-seed RECON ensemble, no EM | 0.1749 | 0.1557 | 0.1399 | 0.1258 | 0.1218 | 0.1184 | 0.1166 |
+
+**Excess over the per-N best of {bank, DEC-133k, EM} (paired; negative = below the envelope).**
+
+| method | N=5 | 10 | 20 | 50 | 100 | 200 | 500 |
+|---|---|---|---|---|---|---|---|
+| BLEND | +0.007 [0.004, 0.010] | +0.003 [−0.001, 0.008] | −0.007 [−0.012, −0.002] | −0.018 [−0.024, −0.012] | −0.016 [−0.021, −0.011] | −0.009 [−0.012, −0.006] | −0.005 [−0.009, −0.002] |
+| LEARNED-PRIOR EM | +0.009 [0.004, 0.014] | +0.001 [−0.003, 0.005] | −0.014 [−0.019, −0.009] | −0.031 [−0.039, −0.025] | −0.031 [−0.036, −0.026] | −0.024 [−0.029, −0.020] | −0.022 [−0.026, −0.018] |
+| RECON ensemble, no EM | +0.017 [0.011, 0.022] | +0.012 [0.008, 0.017] | +0.004 [−0.002, 0.009] | −0.002 [−0.008, 0.004] | +0.008 [−0.003, 0.020] | +0.025 [0.014, 0.037] | +0.042 [0.030, 0.056] |
+
+(The per-N best is the bank posterior for N ≤ 50 and tabular EM for N ≥ 100.)
+
+**Paired comparisons of the learned-prior EM (3-seed q̂; diff [95 % CI]).**
+
+| vs | N=5 | 10 | 20 | 50 | 100 | 200 | 500 |
+|---|---|---|---|---|---|---|---|
+| tabular EM | −0.029 [−0.037, −0.020] | −0.036 [−0.044, −0.027] | −0.043 [−0.051, −0.035] | −0.038 [−0.044, −0.032] | −0.031 [−0.036, −0.026] | −0.024 [−0.029, −0.020] | −0.022 [−0.026, −0.018] |
+| bank posterior | +0.009 [0.004, 0.014] | +0.001 [−0.004, 0.005] | −0.014 [−0.019, −0.009] | −0.031 [−0.038, −0.025] | −0.044 [−0.052, −0.036] | −0.054 [−0.063, −0.046] | −0.069 [−0.079, −0.060] |
+| DEC-133k | −0.004 [−0.008, 0.001] | −0.011 [−0.015, −0.007] | −0.020 [−0.026, −0.016] | −0.035 [−0.042, −0.028] | −0.043 [−0.051, −0.035] | −0.054 [−0.064, −0.045] | −0.068 [−0.079, −0.058] |
+| single-seed q̂ control | −0.003 [−0.005, −0.001] | −0.001 [−0.003, 0.000] | −0.002 [−0.003, −0.001] | −0.001 [−0.002, −0.000] | −0.001 [−0.001, −0.000] | −0.000 [−0.001, 0.000] | −0.000 [−0.001, 0.000] |
+| RECON ensemble, no EM | −0.007 [−0.010, −0.005] | −0.011 [−0.015, −0.008] | −0.018 [−0.023, −0.013] | −0.029 [−0.036, −0.022] | −0.039 [−0.048, −0.030] | −0.049 [−0.059, −0.040] | −0.064 [−0.075, −0.053] |
+| RECON-889k q̂ variant | −0.002 [−0.003, −0.000] | +0.001 [−0.001, 0.002] | +0.001 [−0.001, 0.002] | +0.001 [−0.000, 0.002] | +0.001 [0.000, 0.002] | +0.001 [0.000, 0.002] | +0.000 [−0.000, 0.001] |
+
+Per family, learned-prior EM vs tabular EM at N = 5 / 50 / 500: NASH_LOGIT_PERTURB −0.024 / −0.047 / −0.043,
+NASH_RANDOM_MIX −0.008 / −0.010 / −0.013, STRUCTURED_CORRELATED −0.095 / −0.091 / −0.030 (all CIs exclude
+0), UNSTRUCTURED_DIRICHLET +0.013 [0.005, 0.024] / −0.004 [−0.012, 0.003] / −0.002 [−0.007, 0.002].  Versus
+the bank posterior the hybrid is worse only at N = 5 on the three structured families (+0.010 … +0.020) and
+better everywhere from N = 20 on, by up to −0.145 on the Dirichlet family at N = 500.  BLEND vs DEC-133k:
+−0.006 … −0.051, all CIs exclude 0; BLEND vs tabular EM: −0.031 … −0.005, all CIs exclude 0, but on the
+Dirichlet family BLEND is slightly *worse* than EM (+0.002 … +0.013).
+
+**What the controls say.**  The three-seed q̂ prior is better than a single seed's by ≤ 0.003 chips
+(significant only at N ≤ 50), so ensembling is not the source of the gain.  The three-seed reconstruction
+ensemble *without* the EM step is worse than the single-seed RECON-131k curve of V1 by nothing (0.1749 vs
+0.1771 at N = 5, 0.1166 vs 0.1180 at N = 500) and worse than the hybrid by 0.007 … 0.064: the gain is the
+Bayesian update of the network's policy estimate with the observed counts, not the network's prediction
+itself.  Swapping the RECON-131k prior for the RECON-889k prior changes nothing (|Δ| ≤ 0.002), consistent
+with §1 (both heads sit at the same cross-entropy floor).
+
+**Verdict against the pre-registration.**
+* P5.1(a) — BLEND on or below the envelope at every N (within CI): **confirmed for N ≥ 10** (within the CI at
+  N = 10, strictly below at N ≥ 20), **falsified at N = 5** (+0.007 [0.004, 0.010] above the bank posterior).
+* P5.1(b) — count features improve the decision net at N ≥ 100: pending (runs queued).
+* P5.1(c) — learned-prior EM at least as good as tabular EM at every N and better at N ≤ 50: **confirmed and
+  exceeded**: it beats tabular EM at every N (by 0.022 … 0.043 chips, all CIs exclude 0), and beats every
+  other method in this program at every N ≥ 20.  The one exception is the Dirichlet family at N = 5, where
+  the learned prior is worse than the uniform prior by 0.013 (that family has no learnable structure and its
+  q̂ is a poor prior at 5 hands).
+* Falsification criterion (no hybrid reaches the envelope at N = 500): **not met** — both hybrids are below
+  tabular EM at N = 500 (BLEND −0.005, learned prior −0.022).
+
+**Signature.**  The learned-prior EM sits *below* the envelope of {bank posterior, decision net, tabular EM}
+at every N ≥ 20, by 0.014 (N = 20) to 0.031 (N = 50–100) chips, with every CI excluding 0; it ties the bank
+posterior at N = 10 and loses to it only at N = 5.  At N = 500 its regret (0.0525) is 27 % of the oracle-safe
+gain at ε = 0.10 (0.195), versus 38 % for tabular EM, 62 % for DEC-133k and 54 % for DEC-889k.  It is the first
+method in V1–V3 whose regret keeps falling at the rate of the count-based estimator while starting near the
+amortized estimators' level at N ≤ 10.
+
+**Reading.**  The amortized networks' large-N floor (§1, V1) and tabular EM's small-N weakness are
+complementary, and the cheapest way to combine them is not to blend ĝ's but to let the network supply the
+*prior over opponent policies* that the exact likelihood then updates.  Note what this uses: the
+*reconstruction* network's q̂ — the route that loses to the decision route when its output is deployed
+directly — and not the decision network, whose ĝ has no policy-space interpretation and cannot serve as an
+EM prior.  For the program's question this cuts both ways: decision training gives the better amortized
+predictor, but the reconstruction representation is the one that composes with exact inference.
+
+Figure: `figures/figV3_T5_hybrids.{png,pdf}` — (a) regret vs N for the hybrids, their controls and the three
+envelope methods, (b) paired excess over the per-N best baseline.  Compute: 11 min per hybrid fit
+(validation grid + test predictions, single core) and 7–11 min per test solve (16 800 LPs, 2 workers); the
+T5 box was not exceeded by (a)/(c); (b) is charged to the queue overrun in §8.
