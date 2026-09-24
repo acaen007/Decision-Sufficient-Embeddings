@@ -2678,8 +2678,24 @@
    "best_step": 2999,
    "ckpt": "step3000.pt",
    "group": "NEURAL_DEC133K3K"
+  },
+  "NEURAL_REC889K_s0": {
+   "kind": "neural",
+   "objective": "recon",
+   "run_dir": "/home/user/Decision-Sufficient-Embeddings/leduc_decision_repr/outputs/runs_v3/rec889k_s0",
+   "best_step": 5999,
+   "ckpt": "best.pt",
+   "group": "NEURAL_REC889K"
+  },
+  "NEURAL_REC889K3K_s0": {
+   "kind": "neural",
+   "objective": "recon",
+   "run_dir": "/home/user/Decision-Sufficient-Embeddings/leduc_decision_repr/outputs/runs_v3/rec889k_s0",
+   "best_step": 2999,
+   "ckpt": "step3000.pt",
+   "group": "NEURAL_REC889K3K"
   }
  },
  "g_valid_dims": 1074,
- "predict_runtime_s": 1569.6721496582031
+ "predict_runtime_s": 1909.673716545105
 }
