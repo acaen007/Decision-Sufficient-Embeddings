@@ -15,7 +15,7 @@ for sub in ["test", "test_revealed"]:
         m = Path(f).stem[len("solve_"):]; s = np.load(f)
         ok = s["ok"]; e = s["e_os"]
         for k, eps in enumerate(EPSILONS):
-            sel = ok[:, :, k]
+            sel = ok[:, :, k] & np.isfinite(e[:, :, k])          # unsolved eps indices are stored as NaN with ok=True
             if not sel.any():
                 continue
             viol = e[:, :, k][sel] - eps

@@ -194,7 +194,7 @@ def solve(out_dir: Path, methods, workers: int = 4, max_hist: int | None = None,
         prev = None; this_eps = list(eps_idx)
         if (out_dir / f"solve_{method}.npz").exists():
             prev = dict(np.load(out_dir / f"solve_{method}.npz"))
-            this_eps = [k for k in eps_idx if not prev["ok"][:, :, k].any()]        # extend an existing solve with new eps indices only
+            this_eps = [k for k in eps_idx if not np.isfinite(prev["u"][:, :, k]).any()]   # unsolved eps indices are stored as NaN
             if not this_eps:
                 print(f"{method}: already solved, skipping"); continue
             print(f"{method}: extending existing solve with eps indices {this_eps}", flush=True)

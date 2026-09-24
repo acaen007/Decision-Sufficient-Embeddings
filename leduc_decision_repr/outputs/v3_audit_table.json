@@ -38,19 +38,28 @@
   },
   {
    "eval_dir": "test",
-   "method": "HYB_ENSREC",
-   "eps": 0.0,
+   "method": "HYB_BLEND",
+   "eps": 0.1,
    "n_strategies": 16800,
-   "max_expl_minus_eps": NaN,
+   "max_expl_minus_eps": 4.709210660314156e-10,
    "n_violations": 0,
    "lp_failures": 0
   },
   {
    "eval_dir": "test",
-   "method": "HYB_ENSREC",
-   "eps": 0.05,
+   "method": "HYB_BLEND_ENSDEC",
+   "eps": 0.1,
    "n_strategies": 16800,
-   "max_expl_minus_eps": NaN,
+   "max_expl_minus_eps": 2.6822280507765583e-11,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "HYB_BLEND_S0",
+   "eps": 0.1,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 2.4954219246531295e-11,
    "n_violations": 0,
    "lp_failures": 0
   },
@@ -65,33 +74,6 @@
   },
   {
    "eval_dir": "test",
-   "method": "HYB_ENSREC",
-   "eps": 0.2,
-   "n_strategies": 16800,
-   "max_expl_minus_eps": NaN,
-   "n_violations": 0,
-   "lp_failures": 0
-  },
-  {
-   "eval_dir": "test",
-   "method": "HYB_PRIOR_EM",
-   "eps": 0.0,
-   "n_strategies": 16800,
-   "max_expl_minus_eps": NaN,
-   "n_violations": 0,
-   "lp_failures": 0
-  },
-  {
-   "eval_dir": "test",
-   "method": "HYB_PRIOR_EM",
-   "eps": 0.05,
-   "n_strategies": 16800,
-   "max_expl_minus_eps": NaN,
-   "n_violations": 0,
-   "lp_failures": 0
-  },
-  {
-   "eval_dir": "test",
    "method": "HYB_PRIOR_EM",
    "eps": 0.1,
    "n_strategies": 16800,
@@ -101,28 +83,10 @@
   },
   {
    "eval_dir": "test",
-   "method": "HYB_PRIOR_EM",
-   "eps": 0.2,
+   "method": "HYB_PRIOR_EM_889K",
+   "eps": 0.1,
    "n_strategies": 16800,
-   "max_expl_minus_eps": NaN,
-   "n_violations": 0,
-   "lp_failures": 0
-  },
-  {
-   "eval_dir": "test",
-   "method": "HYB_PRIOR_EM_S0",
-   "eps": 0.0,
-   "n_strategies": 16800,
-   "max_expl_minus_eps": NaN,
-   "n_violations": 0,
-   "lp_failures": 0
-  },
-  {
-   "eval_dir": "test",
-   "method": "HYB_PRIOR_EM_S0",
-   "eps": 0.05,
-   "n_strategies": 16800,
-   "max_expl_minus_eps": NaN,
+   "max_expl_minus_eps": 2.5141486115209943e-11,
    "n_violations": 0,
    "lp_failures": 0
   },
@@ -137,10 +101,127 @@
   },
   {
    "eval_dir": "test",
-   "method": "HYB_PRIOR_EM_S0",
+   "method": "NEURAL_DEC133K3K_s0",
+   "eps": 0.05,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 1.568247753880314e-10,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_DEC133K3K_s0",
+   "eps": 0.1,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 8.30428781295467e-12,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_DEC133K3K_s0",
    "eps": 0.2,
    "n_strategies": 16800,
-   "max_expl_minus_eps": NaN,
+   "max_expl_minus_eps": 1.2979889385533738e-10,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_DEC133K3K_s1",
+   "eps": 0.1,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 1.9906211401465868e-10,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_DEC133K3K_s2",
+   "eps": 0.1,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 1.0277147188819669e-10,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_DEC133K_s0",
+   "eps": 0.05,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 7.965220150119023e-11,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_DEC133K_s0",
+   "eps": 0.1,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 2.127688303321662e-11,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_DEC133K_s0",
+   "eps": 0.2,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 5.637817990233884e-11,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_DEC133K_s1",
+   "eps": 0.05,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 4.8563014720670594e-11,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_DEC133K_s1",
+   "eps": 0.1,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 1.9609466828107713e-11,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_DEC133K_s1",
+   "eps": 0.2,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 4.108036133487758e-11,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_DEC133K_s2",
+   "eps": 0.05,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 3.371667112173071e-10,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_DEC133K_s2",
+   "eps": 0.1,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 1.3992987324407125e-11,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_DEC133K_s2",
+   "eps": 0.2,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 1.8592405393036415e-11,
    "n_violations": 0,
    "lp_failures": 0
   },
@@ -249,6 +330,123 @@
    "eps": 0.2,
    "n_strategies": 16800,
    "max_expl_minus_eps": 1.722938458570411e-11,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_REC889K3K_s0",
+   "eps": 0.1,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 1.22077251085706e-10,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_REC889K3K_s1",
+   "eps": 0.1,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 3.060374315078107e-10,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_REC889K3K_s2",
+   "eps": 0.1,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 3.434837136939706e-11,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_REC889K_s0",
+   "eps": 0.05,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 1.1023520984920765e-10,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_REC889K_s0",
+   "eps": 0.1,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 3.094583339580126e-10,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_REC889K_s0",
+   "eps": 0.2,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 1.690531603593115e-10,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_REC889K_s1",
+   "eps": 0.05,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 4.487601956704168e-11,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_REC889K_s1",
+   "eps": 0.1,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 1.2581087560636917e-10,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_REC889K_s1",
+   "eps": 0.2,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 2.355081685223581e-10,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_REC889K_s2",
+   "eps": 0.05,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 5.1867066197530676e-11,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_REC889K_s2",
+   "eps": 0.1,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 2.698979512105737e-10,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_REC889K_s2",
+   "eps": 0.2,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 6.647587480479444e-10,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test",
+   "method": "NEURAL_RECJAC889K_s0",
+   "eps": 0.1,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 5.629017391095559e-10,
    "n_violations": 0,
    "lp_failures": 0
   },
@@ -539,6 +737,24 @@
    "max_expl_minus_eps": 5.3966775492853e-11,
    "n_violations": 0,
    "lp_failures": 0
+  },
+  {
+   "eval_dir": "test_revealed",
+   "method": "NEURAL_CENSDEC133K_s0",
+   "eps": 0.1,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 3.452239882850705e-11,
+   "n_violations": 0,
+   "lp_failures": 0
+  },
+  {
+   "eval_dir": "test_revealed",
+   "method": "NEURAL_CENSREC131K_s0",
+   "eps": 0.1,
+   "n_strategies": 16800,
+   "max_expl_minus_eps": 8.16441775297605e-11,
+   "n_violations": 0,
+   "lp_failures": 0
   }
  ],
  "extra": [
@@ -556,7 +772,7 @@
   }
  ],
  "total": {
-  "n_strategies": 1048851,
+  "n_strategies": 1452051,
   "max_expl_minus_eps": 1.1221782062614816e-09,
   "n_violations": 0,
   "lp_failures": 0
