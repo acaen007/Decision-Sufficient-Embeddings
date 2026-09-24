@@ -19,3 +19,7 @@ leduc_decision_repr/outputs/runs_ft/*/EVALUATED
 leduc_decision_repr/outputs/ft/*.stdout
 leduc_decision_repr/outputs/eval/test/predict.lock
 leduc_decision_repr/outputs/jacopp/weights.npz
+leduc_decision_repr/outputs/runs_jacopp/*/*.pt
+leduc_decision_repr/outputs/runs_jacopp/*.started
+leduc_decision_repr/outputs/runs_jacopp/*/EVALUATED
+leduc_decision_repr/outputs/jacopp/*.stdout
