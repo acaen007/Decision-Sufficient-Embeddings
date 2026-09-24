@@ -290,7 +290,7 @@ def _proj_batch(args):
         ok, x, e_os = _support(gp)
         L, S = _W["L"], _W["S"]
         pol = S.realization_to_behavioral(0, x); x_dep = S.behavioral_to_realization(0, pol)
-        out.append((status, float(v - gt @ x_dep), float(e_os), float(np.linalg.norm(gp - gh)), float(np.linalg.norm(gp - gt)), float(np.linalg.norm(gh - gt))))
+        out.append((status, float(v - gt @ x_dep), float(e_os - EPS), float(np.linalg.norm(gp - gh)), float(np.linalg.norm(gp - gt)), float(np.linalg.norm(gh - gt))))
     return out
 
 

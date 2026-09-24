@@ -1,0 +1,11 @@
+{
+ "n_points": 10800,
+ "n_width_lps": 21600,
+ "lp_failures": 0,
+ "audit_max_expl_minus_eps": 1.893036977174134e-10,
+ "audit_n_violations_1e-7": 0,
+ "R_minus_W_max": -0.020940629611676535,
+ "n_R_gt_W_1e-6": 0,
+ "R_min": -2.220446049250313e-15,
+ "runtime_s": 1332.731526374817
+}
