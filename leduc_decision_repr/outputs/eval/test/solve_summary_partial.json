@@ -1,10 +1,10 @@
 {
- "HYB_PRIOR_EM_889K": {
+ "HYB_BLEND_S0": {
   "lp_failures": 0,
-  "max_violation_os": 2.5141486115209943e-11,
+  "max_violation_os": 2.4954219246531295e-11,
   "n_violations_1e-7": 0,
-  "max_abs_fast_vs_os": 4.718447854656915e-16,
-  "runtime_s": 508.8130397796631,
+  "max_abs_fast_vs_os": 3.608224830031759e-16,
+  "runtime_s": 495.8670291900635,
   "eps_idx": [
    2
   ]
