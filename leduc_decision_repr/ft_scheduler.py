@@ -41,6 +41,22 @@ def eval_job(run, label):
             "ready": lambda r=run: done(r), "done": lambda r=run: evaluated(r)}
 
 
+def emprior_job():
+    ls = lam_star()
+    runs = [f"jac_ctrl_s{s}" for s in range(3)] + ([f"jac_spo{ls:g}_s{s}" for s in range(3)] if ls is not None else [])
+    return {"name": "emprior", "w": 2, "cmd": PY + ["leduc_decision_repr.ft_emprior"], "ready": lambda: ls is not None and all(done(r) for r in runs),
+            "done": lambda: (FT / "EMPRIOR_DONE").exists()}
+
+
+def used_slots():
+    """Count live processes (restart-safe): fine-tuning = 1 slot, evaluation / EM-prior = 2 slots."""
+    def n(pat):
+        out = subprocess.run(["pgrep", "-f", pat], capture_output=True, text=True).stdout.split()
+        return len(out)
+    py = "^[^ ]*python[^ ]* -m leduc_decision_repr[.]"          # anchored: never matches shells whose text mentions a module
+    return n(py + "finetune ") + 2 * n(py + "ft_eval ") + 2 * n(py + "ft_emprior")
+
+
 def jobs():
     J = [train_job("jac", 0, l) for l in LAMS] + [train_job("jac", s, 0) for s in range(3)]
     ls = lam_star()
@@ -48,6 +64,7 @@ def jobs():
         J += [train_job("jac", s, ls) for s in (1, 2)]
         J += [eval_job(f"jac_ctrl_s{s}", f"NEURAL_FTJACCTRL_s{s}") for s in range(3)]
         J += [eval_job(f"jac_spo{ls:g}_s{s}", f"NEURAL_FTJACSPO_s{s}") for s in range(3)]
+        J += [emprior_job()]
         J += [train_job("dec", s, 0) for s in range(3)] + [train_job("dec", s, ls) for s in range(3)]
         J += [eval_job(f"dec_ctrl_s{s}", f"NEURAL_FTDECCTRL_s{s}") for s in range(3)]
         J += [eval_job(f"dec_spo{ls:g}_s{s}", f"NEURAL_FTDECSPO_s{s}") for s in range(3)]
@@ -73,7 +90,7 @@ def main():
         for n, (p, w) in list(running.items()):
             if p.poll() is not None:
                 log.write(f"{time.strftime('%H:%M:%S')} finished {n} rc={p.returncode}\n"); log.flush(); del running[n]
-        used = sum(w for _, w in running.values())
+        used = used_slots()
         J = jobs(); pending = [j for j in J if not j["done"]() and j["name"] not in running and not (R / (j["name"] + ".started")).exists()]
         for j in pending:
             if j.get("ready", lambda: True)() and used + j["w"] <= CAP:
@@ -81,7 +98,7 @@ def main():
                 p = subprocess.Popen(j["cmd"], env=ENV, cwd=ROOT, stdout=open(R / f"{j['name']}.log", "w"), stderr=subprocess.STDOUT)
                 running[j["name"]] = (p, j["w"]); used += j["w"]
                 log.write(f"{time.strftime('%H:%M:%S')} launched {j['name']} (w={j['w']})\n"); log.flush()
-        if not running and not pending and lam_star() is not None:
+        if not running and not pending and lam_star() is not None and used_slots() == 0:
             break
         if (FT / "STOP").exists():
             break
