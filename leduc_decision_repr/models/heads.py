@@ -34,6 +34,8 @@ class ReconstructionHead(nn.Module):
         logp = F.log_softmax(self.logits(z), dim=-1)
         logp = torch.where(self.mask[None], logp, torch.zeros_like(logp))
         ce = -(q_true * logp).sum(-1)                                          # (B, I)
+        if infoset_weights is not None and infoset_weights.dim() == 2:           # per-sample (opponent-specific) weights
+            return ((ce * infoset_weights).sum(1) / infoset_weights.sum(1)).mean()
         if infoset_weights is not None:
             return (ce * infoset_weights[None]).sum(1).mean() / infoset_weights.sum()
         return ce.mean()

@@ -10,6 +10,8 @@ For every training opponent q (rank policy, 144 rank infosets x 3 action slots) 
   cons_I    = ||C_I(q) P_I||_F^2                                                          (consequence only)
 Checks: J vs central finite differences of the float64 map (coordinates and projected directions); J = r * C;
 reproduction of V3's weight file (mean over training opponents of ||J_I||_F over all 3 slots).
+Statistics use the 1200 training opponents only.  weights.npz also holds the 150 validation opponents' rows (used only
+to log each arm's own validation loss); test rows are left at 0 and are never used.
 Writes outputs/jacopp/{weights.npz, gate.json, gate_mass.png}.
 """
 import json, time
@@ -175,20 +177,21 @@ def main():
     K = len(pop["split"])
     Wp = np.zeros((K, 144)); Wu = np.zeros((K, 144)); R2 = np.zeros((K, 144)); Cp = np.zeros((K, 144)); V3 = np.zeros((K, 144))
     illegal_max = 0.0
-    for n, o in enumerate(tr):
+    va = np.flatnonzero(pop["split"] == 1)                 # validation rows: only for logging each arm's own validation loss
+    for n, o in enumerate(np.concatenate([tr, va])):
         J, C, r, _ = jc.jac(Q[o])
         illegal_max = max(illegal_max, float(np.abs(J[:, ~jc.legal]).max()))
         Wp[o], Wu[o] = jc.proj_norm2(J)
         Cp[o], _ = jc.proj_norm2(C)
         R2[o] = r ** 2
         V3[o] = np.sqrt((J ** 2).sum(axis=(0, 2)))
-        if (n + 1) % 300 == 0:
-            print(f"{n+1}/{len(tr)} opponents ({time.time()-t0:.0f}s)", flush=True)
+        if (n + 1) % 450 == 0:
+            print(f"{n+1}/{len(tr) + len(va)} opponents ({time.time()-t0:.0f}s)", flush=True)
     v3_file = np.load(OUT / "weights_v3" / "recon_weights_jacobian.npy")
     v3_rep = V3[tr].mean(0)
     res["checks"]["illegal_slot_J_max"] = illegal_max
     res["checks"]["v3_weight_reproduction_max_rel_err"] = float(np.abs(v3_rep - v3_file).max() / np.abs(v3_file).max())
-    np.savez_compressed(D_OUT / "weights.npz", w_proj=Wp, w_unproj=Wu, reach2=R2, cons_proj=Cp, v3_norm=V3, train_ids=tr)
+    np.savez_compressed(D_OUT / "weights.npz", w_proj=Wp, w_unproj=Wu, reach2=R2, cons_proj=Cp, v3_norm=V3, train_ids=tr, val_ids=va)
 
     Wn = norm_rows(Wp[tr]); Un = norm_rows(Wu[tr]); Rn = norm_rows(R2[tr]); Cn = norm_rows(Cp[tr])
     zero_total = int((Wp[tr].sum(1) <= 0).sum())

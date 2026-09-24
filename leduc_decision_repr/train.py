@@ -35,6 +35,9 @@ DEFAULT_CFG = dict(
     patience=0,         # early stopping: stop after this many validations without improvement (0 = off)
     save_at=0,          # also save a fixed checkpoint at this step (0 = off)
     recon_weights="none",   # reconstruction infoset weighting: none | jacobian | reach (files in outputs/weights_v3)
+                            #   JAC-opp study (outputs/jacopp/weights.npz): jac_global_proj | opp_reach | jac_opp
+    gterm_lambda=-1.0,  # JAC-opp arm 4: > 0 adds lambda * ||A y(q_hat) - g||^2 (raw chips, batch mean) to the recon loss
+    select_by="loss",   # checkpoint selection: loss (own validation loss) | regret (exact safe regret, eps 0.1, 450 fixed LPs)
     dataset_tag="",     # "" = V1 datasets; "revealed" = censoring-toggle datasets (opponent card revealed every hand)
     extra_features=0,   # 1 = add per-infoset observed-count features to the history encoder (T5b)
     spo_lambda=-1.0,    # T4: <0 = MSE only; 0 = SPO+ only; >0 = MSE + lambda * SPO+
@@ -95,8 +98,16 @@ class Trainer:
         self.g_valid = torch.as_tensor(self.g_stats["valid"])
         self.log = []
         self.Vt = torch.as_tensor(self.pop["V_oracle"], dtype=torch.float32)      # (K, 4) oracle values
-        self.recon_w = None
-        if method == "recon" and cfg.get("recon_weights", "none") != "none":
+        self.recon_w = None; self.recon_w_opp = None
+        if method == "recon" and cfg.get("recon_weights", "none") in ("jac_global_proj", "opp_reach", "jac_opp"):
+            Wz = np.load(OUT / "jacopp" / "weights.npz")
+            W = Wz["reach2" if cfg["recon_weights"] == "opp_reach" else "w_proj"]
+            tot = W.sum(1, keepdims=True); Wn = np.where(tot > 0, W / np.where(tot > 0, tot, 1.0), 0.0)   # sum 1 per opponent
+            if cfg["recon_weights"] == "jac_global_proj":
+                m = Wn[Wz["train_ids"]].mean(0); self.recon_w = torch.as_tensor(m / m.mean(), dtype=torch.float32)
+            else:                                                        # x 144: mean 1 over all (opponent, infoset) pairs
+                self.recon_w_opp = torch.as_tensor(Wn * W.shape[1], dtype=torch.float32)
+        elif method == "recon" and cfg.get("recon_weights", "none") != "none":
             w = np.load(OUT / "weights_v3" / f"recon_weights_{cfg['recon_weights']}.npy")
             self.recon_w = torch.as_tensor(w / w.mean(), dtype=torch.float32)
         if method == "safe_regret":
@@ -174,7 +185,16 @@ class Trainer:
         if self.method == "safe_regret":
             return self.regret_loss(z, opp_ids, eps_vec, tau, collect)
         if self.method == "recon":
-            return self.head.loss(z, self.targets(opp_ids), self.recon_w)
+            w = self.recon_w
+            if self.recon_w_opp is not None:
+                w = self.recon_w_opp[opp_ids]
+                assert bool((w.sum(1) > 0).all()), "per-opponent weights requested for an opponent without cached weights"
+            loss = self.head.loss(z, self.targets(opp_ids), w)
+            if self.cfg.get("gterm_lambda", -1.0) > 0:
+                gt = ((self.r2g(self.head(z)) - self.Gt[opp_ids]) ** 2).sum(1).mean()
+                self._last_gterm = gt.item(); self._last_ce = loss.item()
+                loss = loss + self.cfg["gterm_lambda"] * gt
+            return loss
         if self.method == "decision" and self.cfg.get("spo_lambda", -1.0) >= 0:
             return self.spo_loss(z, opp_ids)
         return self.head.loss(z, self.targets(opp_ids))
@@ -275,6 +295,32 @@ class Trainer:
                 "val_qp_iters": float(np.mean(stats["iters"])), "qp_failures": int(self.qp.n_fail),
                 "val_ghat_scale_ratio": float(np.mean(stats["scale"])), "val_tau_effective": float(tau / np.mean(stats["scale"])), **change}
 
+    def validate_select_regret(self):
+        """Exact safe regret at eps 0.10 on the fixed 450-LP selection set (150 validation opponents x N in {20, 100, 500}
+        x stream 0), with the exact OpenSpiel audit of every strategy (same set and code path as the fine-tuning study)."""
+        if getattr(self, "_sel_L", None) is None:
+            from .game.safe_lp import get_solver, OpenSpielAuditor
+            self._sel_L = get_solver(); self._sel_aud = OpenSpielAuditor(self.sf, self._sel_L.v_star)
+        eps, k, Ns = 0.1, TRAIN_EPS_INDEX[0.1], (20, 100, 500)
+        self.enc.eval(); self.head.eval()
+        obs = self.val["obs_types"][:, 0]; opp = self.val["opp_ids"]; R, viol, fails, nm = [], [], 0, []
+        with torch.no_grad():
+            for N in Ns:
+                x = torch.as_tensor(obs[:, :N].astype(np.int64))
+                z = self.enc(x, extra=(torch.as_tensor(self.cf.features(obs[:, :N])) if self.cf is not None else None))
+                g_hat = self.r2g(self.head(z)) if self.method == "recon" else self.head(z)
+                nm.append(float((((g_hat - self.Gt[opp]) / self.g_std) ** 2)[:, self.g_valid].mean()))
+                gh = g_hat.numpy().astype(np.float64)
+                for i, o in enumerate(opp):
+                    ok, pol, xd = self._sel_L.solve_safe(gh[i], eps); fails += (not ok)
+                    R.append(float(self.pop["V_oracle"][o, k] - self.G[o] @ xd))
+                    viol.append(self._sel_aud.exploitability_of_learner(pol) - eps)
+        self.enc.train(); self.head.train()
+        R = np.array(R).reshape(len(Ns), -1)
+        return {"val_sel_regret": float(R.mean()), "val_sel_regret_by_N": {str(N): float(R[j].mean()) for j, N in enumerate(Ns)},
+                "val_sel_g_nmse": float(np.mean(nm)), "val_sel_audit_max": float(np.max(viol)),
+                "val_sel_audit_viol": int((np.array(viol) > 1e-7).sum()), "val_sel_lp_fail": int(fails)}
+
     def run(self):
         cfg = self.cfg; t0 = time.time(); best = np.inf; best_step = -1
         save_json({"method": self.method, "seed": self.seed, "cfg": cfg, "n_params": self.n_params,
@@ -296,6 +342,8 @@ class Trainer:
             gn = torch.nn.utils.clip_grad_norm_(list(self.enc.parameters()) + list(self.head.parameters()), cfg["grad_clip"])
             self.opt.step()
             rec = {"step": step, "N": N, "loss": loss.item(), "grad_norm": float(gn), "lr": self.lr_at(step), "t": time.time() - t0}
+            if getattr(self, "_last_gterm", None) is not None:
+                rec["gterm"] = self._last_gterm; rec["ce"] = self._last_ce
             if getattr(self, "_last_spo", None) is not None:
                 rec["spo_loss"] = self._last_spo; rec["n_lp"] = self.spo.n_lp
             if self.method == "safe_regret":
@@ -310,6 +358,11 @@ class Trainer:
             if (step + 1) % cfg["val_every"] == 0 or step == cfg["steps"] - 1:
                 vl, per_N = self.validate()
                 rec["val_loss"] = vl; rec["val_per_N"] = per_N
+                if cfg.get("select_by", "loss") == "regret":
+                    sel = self.validate_select_regret(); rec.update(sel)
+                    print(f"[{self.method} s{self.seed}] step {step+1} val_sel_regret {sel['val_sel_regret']:.5f} "
+                          f"nmse {sel['val_sel_g_nmse']:.3f} audit_max {sel['val_sel_audit_max']:.2e} fails {sel['val_sel_lp_fail']}", flush=True)
+                    vl = sel["val_sel_regret"]
                 if vl < best - 1e-6:
                     best, best_step = vl, step; self._no_improve = 0
                 else:
@@ -350,7 +403,7 @@ class Trainer:
         if len(vals) >= 7:
             plateau = {"val_loss_last": vals[-1]["val_loss"], "val_loss_6_validations_earlier": vals[-7]["val_loss"],
                        "relative_change_last_1500_steps": (vals[-7]["val_loss"] - vals[-1]["val_loss"]) / max(abs(vals[-7]["val_loss"]), 1e-9)}
-        save_json({"best_val_loss": best, "best_step": best_step, "runtime_s": time.time() - t0, "steps_run": len(self.log),
+        save_json({"best_val_loss": best, "best_step": best_step, "select_by": cfg.get("select_by", "loss"), "runtime_s": time.time() - t0, "steps_run": len(self.log),
                    "stopped_early_at": getattr(self, "stopped_early", None), "plateau": plateau,
                    "n_params_head": self.n_params_head, "n_params_encoder": self.n_params_enc}, self.out / "result.json")
         return best
