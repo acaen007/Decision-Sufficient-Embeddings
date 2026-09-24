@@ -280,10 +280,11 @@ after the first render because the fitted κ_dist line hid the points; nothing e
 
 *Status (04:40 UTC): (a) BLEND and (c) LEARNED PRIOR evaluated on the test split with their controls;
 (b) COUNT FEATURES (DEC-133k retrained with count inputs, 3 seeds) is queued behind the T2 runs and is
-appended here when it lands; single-seed and ensemble-only controls for BLEND are being solved.*
+appended here when it lands.*
 
 **Arms as run.**
-* (a) **BLEND**: ĝ = λ_N ĝ_net + (1 − λ_N) ĝ_EM, with ĝ_net the mean over the three DEC-133k seeds and ĝ_EM
+* (a) **BLEND**: ĝ = λ_N ĝ_net + (1 − λ_N) ĝ_EM, with ĝ_net the mean over the three DEC-133k seeds (a
+  single-seed variant and a no-EM ensemble control are reported alongside) and ĝ_EM
   the tabular-EM (uniform prior, α = 1) estimate mapped through g(·).  λ_N chosen per N on the 150 validation
   opponents (1 stream) from {0, 0.1, …, 1}: 0.7, 0.7, 0.8, 0.7, 0.6, 0.4, 0.5 at N = 5 … 500 — i.e. the net
   is weighted more than the counts up to N = 100 and roughly equally after.
@@ -295,7 +296,7 @@ appended here when it lands; single-seed and ensemble-only controls for BLEND ar
   q̂ (κ = 3 again), the three-seed q̂ ensemble mapped straight to g without EM, and the same recipe with the
   three RECON-889k seeds from T1 (κ = 3 again).
 * Nothing in (a) or (c) touches the test split before the single final solve; every deployed strategy comes
-  from the exact ε-safe LP and is audited (max Expl − ε over the six hybrid solves = 7.6e−10, 0 LP failures).
+  from the exact ε-safe LP and is audited (max Expl − ε over the eight hybrid solves = 7.6e−10, 0 LP failures).
 
 **Safe regret at ε = 0.10 (mean over 300 test opponents).**
 
@@ -305,7 +306,9 @@ appended here when it lands; single-seed and ensemble-only controls for BLEND ar
 | DEC-133k (3 seeds, seed-averaged) | 0.1710 | 0.1552 | 0.1428 | 0.1316 | 0.1260 | 0.1228 | 0.1203 |
 | tabular EM (uniform prior) | 0.1960 | 0.1800 | 0.1654 | 0.1348 | 0.1138 | 0.0935 | 0.0748 |
 | lower envelope of the three | 0.1583 | 0.1436 | 0.1361 | 0.1282 | 0.1138 | 0.0935 | 0.0748 |
-| (a) BLEND λ_N | 0.1652 | 0.1469 | 0.1294 | 0.1100 | 0.0978 | 0.0849 | 0.0696 |
+| (a) BLEND λ_N, 3-seed ĝ_net | 0.1652 | 0.1469 | 0.1294 | 0.1100 | 0.0978 | 0.0849 | 0.0696 |
+| (a) single-seed ĝ_net (λ_N = 0.6, 0.9, 0.6, 0.7, 0.6, 0.4, 0.5) | 0.1693 | 0.1504 | 0.1334 | 0.1118 | 0.0984 | 0.0852 | 0.0702 |
+| control: 3-seed DEC-133k ensemble, no EM (λ = 1) | 0.1664 | 0.1508 | 0.1380 | 0.1270 | 0.1211 | 0.1180 | 0.1154 |
 | (c) LEARNED-PRIOR EM, 3-seed q̂ | 0.1675 | 0.1444 | 0.1225 | 0.0970 | 0.0831 | 0.0691 | 0.0525 |
 | (c) single-seed q̂ | 0.1706 | 0.1458 | 0.1242 | 0.0983 | 0.0838 | 0.0695 | 0.0528 |
 | (c) RECON-889k q̂ | 0.1690 | 0.1439 | 0.1218 | 0.0963 | 0.0823 | 0.0682 | 0.0522 |
@@ -340,7 +343,11 @@ better everywhere from N = 20 on, by up to −0.145 on the Dirichlet family at N
 −0.006 … −0.051, all CIs exclude 0; BLEND vs tabular EM: −0.031 … −0.005, all CIs exclude 0, but on the
 Dirichlet family BLEND is slightly *worse* than EM (+0.002 … +0.013).
 
-**What the controls say.**  The three-seed q̂ prior is better than a single seed's by ≤ 0.003 chips
+**What the controls say.**  For BLEND: averaging the three decision nets without any EM improves DEC-133k
+by a constant 0.005 at every N (CIs [−0.006, −0.004]); the single-seed blend is within 0.004 of the
+three-seed blend (significant only at N ≤ 50); and the blend's gain over the ensemble alone grows from
+0.001 at N = 5 to 0.046 at N = 500 — the large-N gain is the count-based component, not the ensemble.
+For the learned prior: the three-seed q̂ prior is better than a single seed's by ≤ 0.003 chips
 (significant only at N ≤ 50), so ensembling is not the source of the gain.  The three-seed reconstruction
 ensemble *without* the EM step is worse than the single-seed RECON-131k curve of V1 by nothing (0.1749 vs
 0.1771 at N = 5, 0.1166 vs 0.1180 at N = 500) and worse than the hybrid by 0.007 … 0.064: the gain is the
