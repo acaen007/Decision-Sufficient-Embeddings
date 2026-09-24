@@ -1,10 +1,22 @@
 {
- "NEURAL_REC889K_s0": {
+ "NEURAL_DEC133K_s0": {
   "lp_failures": 0,
-  "max_violation_os": 3.094583339580126e-10,
+  "max_violation_os": 7.965220150119023e-11,
   "n_violations_1e-7": 0,
-  "max_abs_fast_vs_os": 4.996003610813204e-16,
-  "runtime_s": 1848.2736282348633,
+  "max_abs_fast_vs_os": 5.551115123125783e-16,
+  "runtime_s": 3643.865517139435,
+  "eps_idx": [
+   1,
+   2,
+   3
+  ]
+ },
+ "NEURAL_DEC133K3K_s0": {
+  "lp_failures": 0,
+  "max_violation_os": 1.568247753880314e-10,
+  "n_violations_1e-7": 0,
+  "max_abs_fast_vs_os": 5.551115123125783e-16,
+  "runtime_s": 3470.2304248809814,
   "eps_idx": [
    1,
    2,
