@@ -1,14 +1,12 @@
 {
- "NEURAL_JO_A4_s2": {
+ "HYB_PRIOR_EM_JOBEST": {
   "lp_failures": 0,
-  "max_violation_os": 1.0056028232341419e-10,
+  "max_violation_os": 5.87491305603649e-11,
   "n_violations_1e-7": 0,
-  "max_abs_fast_vs_os": 4.996003610813204e-16,
-  "runtime_s": 1182.616408586502,
+  "max_abs_fast_vs_os": 3.885780586188048e-16,
+  "runtime_s": 499.53445076942444,
   "eps_idx": [
-   1,
-   2,
-   3
+   2
   ]
  }
 }

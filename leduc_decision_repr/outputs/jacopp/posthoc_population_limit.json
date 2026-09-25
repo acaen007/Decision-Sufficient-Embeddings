@@ -1,0 +1,92 @@
+{
+ "A0 V3 global (plain average)": {
+  "eps0.05": {
+   "test_regret": 0.16560101391275311,
+   "audit_excess": 1.6653345369377348e-15,
+   "ok": true
+  },
+  "eps0.1": {
+   "test_regret": 0.21887130448330272,
+   "audit_excess": 1.105920910404734e-13,
+   "ok": true
+  },
+  "eps0.2": {
+   "test_regret": 0.34063302281265595,
+   "audit_excess": 1.1657341758564144e-15,
+   "ok": true
+  },
+  "dist_to_mean_train_g": 0.15878849318130286
+ },
+ "A1 global proj (plain average)": {
+  "eps0.05": {
+   "test_regret": 0.16560101391275295,
+   "audit_excess": 9.159339953157541e-16,
+   "ok": true
+  },
+  "eps0.1": {
+   "test_regret": 0.21887130448330297,
+   "audit_excess": 2.0816681711721685e-16,
+   "ok": true
+  },
+  "eps0.2": {
+   "test_regret": 0.34063302281265573,
+   "audit_excess": 8.992806499463768e-15,
+   "ok": true
+  },
+  "dist_to_mean_train_g": 0.15878849318130286
+ },
+ "A2 OPP-REACH (r^2 / sum r^2)": {
+  "eps0.05": {
+   "test_regret": 0.1496190600649346,
+   "audit_excess": 6.38378239159465e-16,
+   "ok": true
+  },
+  "eps0.1": {
+   "test_regret": 0.196527649155925,
+   "audit_excess": 2.3592239273284576e-16,
+   "ok": true
+  },
+  "eps0.2": {
+   "test_regret": 0.2871438901642102,
+   "audit_excess": 1.6653345369377348e-15,
+   "ok": true
+  },
+  "dist_to_mean_train_g": 0.09985350328457147
+ },
+ "A3 JAC-opp (w~)": {
+  "eps0.05": {
+   "test_regret": 0.15175154750883238,
+   "audit_excess": 6.522560269672795e-15,
+   "ok": true
+  },
+  "eps0.1": {
+   "test_regret": 0.1990624436167561,
+   "audit_excess": 9.020562075079397e-16,
+   "ok": true
+  },
+  "eps0.2": {
+   "test_regret": 0.28694903589376697,
+   "audit_excess": 7.216449660063518e-16,
+   "ok": true
+  },
+  "dist_to_mean_train_g": 0.10801459823287372
+ },
+ "Kuhn mixture (weights r)": {
+  "eps0.05": {
+   "test_regret": 0.1487602581338962,
+   "audit_excess": 4.163336342344337e-16,
+   "ok": true
+  },
+  "eps0.1": {
+   "test_regret": 0.1945881492764108,
+   "audit_excess": 1.096345236817342e-15,
+   "ok": true
+  },
+  "eps0.2": {
+   "test_regret": 0.28693343193388066,
+   "audit_excess": 5.551115123125783e-17,
+   "ok": true
+  },
+  "dist_to_mean_train_g": 1.4872211066553916e-15
+ }
+}
