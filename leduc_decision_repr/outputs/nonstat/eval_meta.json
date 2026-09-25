@@ -1,0 +1,63 @@
+{
+ "eps": 0.1,
+ "kappa": 3.0,
+ "checkpoints": {
+  "SWITCH": [
+   100,
+   200,
+   205,
+   210,
+   220,
+   250,
+   300,
+   400,
+   500
+  ],
+  "DRIFT": [
+   20,
+   50,
+   100,
+   200,
+   300,
+   400,
+   500
+  ]
+ },
+ "methods": {
+  "SWITCH": [
+   "BANK",
+   "TAB-EM",
+   "WIN-EM W=25",
+   "WIN-EM W=50",
+   "WIN-EM W=100",
+   "DISC-EM g=0.95",
+   "DISC-EM g=0.98",
+   "DISC-EM g=0.99",
+   "JAC-opp",
+   "JAC-opp-W50",
+   "DEC-889k",
+   "PRIOR-EM",
+   "PRIOR-EM-WIN",
+   "POST-EM",
+   "POST-PRIOR-EM"
+  ],
+  "DRIFT": [
+   "BANK",
+   "TAB-EM",
+   "WIN-EM W=25",
+   "WIN-EM W=50",
+   "WIN-EM W=100",
+   "DISC-EM g=0.95",
+   "DISC-EM g=0.98",
+   "DISC-EM g=0.99",
+   "JAC-opp",
+   "JAC-opp-W50",
+   "DEC-889k",
+   "PRIOR-EM",
+   "PRIOR-EM-WIN"
+  ]
+ },
+ "build_s": 127.54552459716797,
+ "predict_s": 108.78738069534302,
+ "solve_s": 342.18489384651184
+}

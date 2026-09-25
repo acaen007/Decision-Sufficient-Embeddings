@@ -57,8 +57,9 @@ def summarize_switch(ms, U, V0, Ve, idx, rng):
            "relative_recovery": {m: float(post[i] / pre[i]) if pre[i] > 0 else None for i, m in enumerate(ms)}}
     out["recovery"] = {}
     for p in (0.5, 0.8):
-        R = np.array([b[5][p] for b in bs])
-        out["recovery"][str(p)] = {m: {"hands": float(rec[p][i]), "ci": [float(np.percentile(R[:, i], 2.5)), float(np.percentile(R[:, i], 97.5))],
+        R = np.array([b[5][p] for b in bs]); Rs = np.where(np.isfinite(R), R, 1e9)          # "never recovered" -> sentinel for percentiles
+        pc = lambda col, qq: (lambda v: float("inf") if v >= 1e9 else float(v))(np.percentile(col, qq))
+        out["recovery"][str(p)] = {m: {"hands": float(rec[p][i]), "ci": [pc(Rs[:, i], 2.5), pc(Rs[:, i], 97.5)],
                                        "p_not_recovered": float(np.mean(~np.isfinite(R[:, i])))} for i, m in enumerate(ms) if i > 0}
     ix = {m: i for i, m in enumerate(ms)}
     def paired(a, b, which):     # difference of a pooled statistic between methods a and b over the same resamples

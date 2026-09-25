@@ -52,7 +52,7 @@ def fig_panels(r, kind, methods, fname, title):
             ax.text(3, 0.98, "switch", transform=ax.get_xaxis_transform(), fontsize=7, color="#d03b3b", va="top")
             ax.set_xticks([-100, 0, 50, 100, 200, 300])
         fne = r[kind]["contrasting"]["regret"]["FIXED-NE"]["mean"]
-        axs[1, 0].text(0.02, 0.97, f"FIXED-NE regret ≈ {np.mean(fne):.2f} (not shown)", transform=axs[1, 0].transAxes, fontsize=7, va="top")
+        axs[1, 0].text(0.55, 0.97, f"FIXED-NE regret ≈ {np.mean(fne):.2f} (not shown)", transform=axs[1, 0].transAxes, fontsize=7, va="top")
     h, l = axs[0, 0].get_legend_handles_labels(); fig.legend(h, l, loc="lower center", ncol=4, fontsize=8, frameon=False)
     fig.suptitle(title, fontsize=11, color=INK); fig.tight_layout(rect=(0, 0.1, 1, 1)); fig.savefig(D / fname, dpi=130); plt.close(fig)
 
