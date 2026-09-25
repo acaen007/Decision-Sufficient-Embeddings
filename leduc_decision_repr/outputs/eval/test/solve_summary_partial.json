@@ -1,10 +1,10 @@
 {
- "NEURAL_FTJACSPO_s2": {
+ "NEURAL_JO_A0_s2": {
   "lp_failures": 0,
-  "max_violation_os": 1.5638198652689894e-09,
+  "max_violation_os": 3.50755050004814e-10,
   "n_violations_1e-7": 0,
-  "max_abs_fast_vs_os": 4.440892098500626e-16,
-  "runtime_s": 1278.923156261444,
+  "max_abs_fast_vs_os": 4.996003610813204e-16,
+  "runtime_s": 1184.1102788448334,
   "eps_idx": [
    1,
    2,

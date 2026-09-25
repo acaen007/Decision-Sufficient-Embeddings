@@ -3399,8 +3399,40 @@
    "best_step": 1250,
    "ckpt": "best.pt",
    "group": "NEURAL_FTJACSPO"
+  },
+  "NEURAL_JO_A0_s0": {
+   "kind": "neural",
+   "objective": "recon",
+   "run_dir": "/home/user/Decision-Sufficient-Embeddings/leduc_decision_repr/outputs/runs_jacopp/a0_s0",
+   "best_step": 4749,
+   "ckpt": "best.pt",
+   "group": "NEURAL_JO_A0"
+  },
+  "NEURAL_JO_A0_s1": {
+   "kind": "neural",
+   "objective": "recon",
+   "run_dir": "/home/user/Decision-Sufficient-Embeddings/leduc_decision_repr/outputs/runs_jacopp/a0_s1",
+   "best_step": 5499,
+   "ckpt": "best.pt",
+   "group": "NEURAL_JO_A0"
+  },
+  "NEURAL_JO_A0_s2": {
+   "kind": "neural",
+   "objective": "recon",
+   "run_dir": "/home/user/Decision-Sufficient-Embeddings/leduc_decision_repr/outputs/runs_jacopp/a0_s2",
+   "best_step": 4749,
+   "ckpt": "best.pt",
+   "group": "NEURAL_JO_A0"
+  },
+  "NEURAL_JO_A1_s0": {
+   "kind": "neural",
+   "objective": "recon",
+   "run_dir": "/home/user/Decision-Sufficient-Embeddings/leduc_decision_repr/outputs/runs_jacopp/a1_s0",
+   "best_step": 3999,
+   "ckpt": "best.pt",
+   "group": "NEURAL_JO_A1"
   }
  },
  "g_valid_dims": 1074,
- "predict_runtime_s": 7645.888551950455
+ "predict_runtime_s": 7913.298818826675
 }
