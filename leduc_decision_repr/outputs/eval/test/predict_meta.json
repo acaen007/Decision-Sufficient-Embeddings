@@ -3431,8 +3431,177 @@
    "best_step": 3999,
    "ckpt": "best.pt",
    "group": "NEURAL_JO_A1"
+  },
+  "NEURAL_JO_A1_s1": {
+   "kind": "neural",
+   "objective": "recon",
+   "run_dir": "/home/user/Decision-Sufficient-Embeddings/leduc_decision_repr/outputs/runs_jacopp/a1_s1",
+   "best_step": 3999,
+   "ckpt": "best.pt",
+   "group": "NEURAL_JO_A1"
+  },
+  "NEURAL_JO_A1_s2": {
+   "kind": "neural",
+   "objective": "recon",
+   "run_dir": "/home/user/Decision-Sufficient-Embeddings/leduc_decision_repr/outputs/runs_jacopp/a1_s2",
+   "best_step": 4749,
+   "ckpt": "best.pt",
+   "group": "NEURAL_JO_A1"
+  },
+  "NEURAL_JO_A2_s0": {
+   "kind": "neural",
+   "objective": "recon",
+   "run_dir": "/home/user/Decision-Sufficient-Embeddings/leduc_decision_repr/outputs/runs_jacopp/a2_s0",
+   "best_step": 5749,
+   "ckpt": "best.pt",
+   "group": "NEURAL_JO_A2"
+  },
+  "NEURAL_JO_A2_s1": {
+   "kind": "neural",
+   "objective": "recon",
+   "run_dir": "/home/user/Decision-Sufficient-Embeddings/leduc_decision_repr/outputs/runs_jacopp/a2_s1",
+   "best_step": 5999,
+   "ckpt": "best.pt",
+   "group": "NEURAL_JO_A2"
+  },
+  "NEURAL_JO_A2_s2": {
+   "kind": "neural",
+   "objective": "recon",
+   "run_dir": "/home/user/Decision-Sufficient-Embeddings/leduc_decision_repr/outputs/runs_jacopp/a2_s2",
+   "best_step": 3749,
+   "ckpt": "best.pt",
+   "group": "NEURAL_JO_A2"
+  },
+  "NEURAL_JO_A3_s0": {
+   "kind": "neural",
+   "objective": "recon",
+   "run_dir": "/home/user/Decision-Sufficient-Embeddings/leduc_decision_repr/outputs/runs_jacopp/a3_s0",
+   "best_step": 5999,
+   "ckpt": "best.pt",
+   "group": "NEURAL_JO_A3"
+  },
+  "NEURAL_JO_A3_s1": {
+   "kind": "neural",
+   "objective": "recon",
+   "run_dir": "/home/user/Decision-Sufficient-Embeddings/leduc_decision_repr/outputs/runs_jacopp/a3_s1",
+   "best_step": 5999,
+   "ckpt": "best.pt",
+   "group": "NEURAL_JO_A3"
+  },
+  "NEURAL_JO_A3_s2": {
+   "kind": "neural",
+   "objective": "recon",
+   "run_dir": "/home/user/Decision-Sufficient-Embeddings/leduc_decision_repr/outputs/runs_jacopp/a3_s2",
+   "best_step": 5499,
+   "ckpt": "best.pt",
+   "group": "NEURAL_JO_A3"
+  },
+  "NEURAL_JO_A4_s0": {
+   "kind": "neural",
+   "objective": "recon",
+   "run_dir": "/home/user/Decision-Sufficient-Embeddings/leduc_decision_repr/outputs/runs_jacopp/a4l0.3_s0",
+   "best_step": 5999,
+   "ckpt": "best.pt",
+   "group": "NEURAL_JO_A4"
+  },
+  "NEURAL_JO_A4_s1": {
+   "kind": "neural",
+   "objective": "recon",
+   "run_dir": "/home/user/Decision-Sufficient-Embeddings/leduc_decision_repr/outputs/runs_jacopp/a4l0.3_s1",
+   "best_step": 5249,
+   "ckpt": "best.pt",
+   "group": "NEURAL_JO_A4"
+  },
+  "NEURAL_JO_A4_s2": {
+   "kind": "neural",
+   "objective": "recon",
+   "run_dir": "/home/user/Decision-Sufficient-Embeddings/leduc_decision_repr/outputs/runs_jacopp/a4l0.3_s2",
+   "best_step": 4749,
+   "ckpt": "best.pt",
+   "group": "NEURAL_JO_A4"
+  },
+  "HYB_PRIOR_EM_JOBEST": {
+   "kind": "classical",
+   "hybrid": true,
+   "runs": [
+    "/home/user/Decision-Sufficient-Embeddings/leduc_decision_repr/outputs/runs_jacopp/a3_s0",
+    "/home/user/Decision-Sufficient-Embeddings/leduc_decision_repr/outputs/runs_jacopp/a3_s1",
+    "/home/user/Decision-Sufficient-Embeddings/leduc_decision_repr/outputs/runs_jacopp/a3_s2"
+   ],
+   "selection": {
+    "5": {
+     "val_regret_by_kappa": {
+      "1.0": 0.17383179131919121,
+      "3.0": 0.1577944628001787,
+      "10.0": 0.16146889062945005,
+      "30.0": 0.1634071108877742,
+      "100.0": 0.1640424227488352
+     },
+     "selected": 3.0
+    },
+    "10": {
+     "val_regret_by_kappa": {
+      "1.0": 0.16067057323589076,
+      "3.0": 0.14685472809634426,
+      "10.0": 0.14415548686697427,
+      "30.0": 0.14550856387625113,
+      "100.0": 0.14586563553135862
+     },
+     "selected": 10.0
+    },
+    "20": {
+     "val_regret_by_kappa": {
+      "1.0": 0.13839012656013172,
+      "3.0": 0.12620357006535593,
+      "10.0": 0.12503588463756943,
+      "30.0": 0.12527615828587998,
+      "100.0": 0.12838333000652294
+     },
+     "selected": 10.0
+    },
+    "50": {
+     "val_regret_by_kappa": {
+      "1.0": 0.11761003841395624,
+      "3.0": 0.11044181976450483,
+      "10.0": 0.11120892658696131,
+      "30.0": 0.11428010199489248,
+      "100.0": 0.1151282804129403
+     },
+     "selected": 3.0
+    },
+    "100": {
+     "val_regret_by_kappa": {
+      "1.0": 0.10321250568762791,
+      "3.0": 0.09093482034474319,
+      "10.0": 0.09250232271488339,
+      "30.0": 0.09657920068049307,
+      "100.0": 0.09781877907053894
+     },
+     "selected": 3.0
+    },
+    "200": {
+     "val_regret_by_kappa": {
+      "1.0": 0.08376482472426,
+      "3.0": 0.07684437831673065,
+      "10.0": 0.08324811052109728,
+      "30.0": 0.08900474860792765,
+      "100.0": 0.0942207635460738
+     },
+     "selected": 3.0
+    },
+    "500": {
+     "val_regret_by_kappa": {
+      "1.0": 0.06777518422809035,
+      "3.0": 0.06029124817248859,
+      "10.0": 0.06506183651739482,
+      "30.0": 0.07577783743303437,
+      "100.0": 0.08622775755797943
+     },
+     "selected": 3.0
+    }
+   }
   }
  },
  "g_valid_dims": 1074,
- "predict_runtime_s": 7913.298818826675
+ "predict_runtime_s": 8630.8310983181
 }

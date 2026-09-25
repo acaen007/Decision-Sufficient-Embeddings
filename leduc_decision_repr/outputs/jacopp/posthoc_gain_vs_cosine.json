@@ -1,0 +1,37 @@
+{
+ "test_cosine_median": 0.9421835009097068,
+ "by_family": {
+  "NASH_LOGIT_PERTURB": 0.9461260617183072,
+  "NASH_RANDOM_MIX": 0.964654434843775,
+  "STRUCTURED_CORRELATED": 0.8920678053579102,
+  "UNSTRUCTURED_DIRICHLET": 0.9298884844843897
+ },
+ "N5": {
+  "spearman_gain_A3_vs_cos": -0.20743919376881967,
+  "p": 0.00029760173129562024,
+  "spearman_gain_A3_minus_A1_vs_cos": -0.1740023778041978,
+  "mean_diff_low_cos_tercile": -0.017877978274943248,
+  "mean_diff_high_cos_tercile": 0.000590009138441015
+ },
+ "N10": {
+  "spearman_gain_A3_vs_cos": -0.1592613251258347,
+  "p": 0.005698593087808614,
+  "spearman_gain_A3_minus_A1_vs_cos": -0.1257431749241658,
+  "mean_diff_low_cos_tercile": -0.007866163306051593,
+  "mean_diff_high_cos_tercile": 0.0005728139150512655
+ },
+ "N>=50": {
+  "spearman_gain_A3_vs_cos": -0.14366737408193422,
+  "p": 0.01274059994566073,
+  "spearman_gain_A3_minus_A1_vs_cos": -0.09620418004644496,
+  "mean_diff_low_cos_tercile": -0.0027550225044254304,
+  "mean_diff_high_cos_tercile": 0.0008535191743362571
+ },
+ "all": {
+  "spearman_gain_A3_vs_cos": -0.23322570250780564,
+  "p": 4.520724662189429e-05,
+  "spearman_gain_A3_minus_A1_vs_cos": -0.14032289247658308,
+  "mean_diff_low_cos_tercile": -0.0056060426898922825,
+  "mean_diff_high_cos_tercile": 0.0008365238337312781
+ }
+}

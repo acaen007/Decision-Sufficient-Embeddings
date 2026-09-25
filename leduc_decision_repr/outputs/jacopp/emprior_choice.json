@@ -1,0 +1,16 @@
+{
+ "seed_mean_val_regret": {
+  "a0": 0.113215559674377,
+  "a1": 0.11184203654082092,
+  "a2": 0.11534933298246088,
+  "a3": 0.11162135920177403,
+  "a4": 0.11425743211126242
+ },
+ "best_arm": "a3",
+ "runs": [
+  "a3_s0",
+  "a3_s1",
+  "a3_s2"
+ ],
+ "rule": "lowest seed-averaged selected validation regret (eps 0.10, 450 fixed LPs)"
+}
