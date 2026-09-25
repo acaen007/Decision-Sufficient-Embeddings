@@ -1,0 +1,58 @@
+classical done (77s)
+DEC-889k done (method decision, step 5999) (91s)
+RECON-889k done (method recon, step 5999) (111s)
+RECON-JAC-global done (method recon, step 4749) (131s)
+JAC-opp done (method recon, step 5999) (150s)
+PRIOR-EM (RECON-131k) done (218s)
+PRIOR-EM (JAC-opp) done (264s)
+  worker0 25/275 (80s)
+  worker0 50/275 (162s)
+  worker0 75/275 (238s)
+  worker0 100/275 (311s)
+  worker0 125/275 (384s)
+  worker0 150/275 (458s)
+  worker0 175/275 (526s)
+  worker0 200/275 (596s)
+  worker0 225/275 (669s)
+  worker0 250/275 (740s)
+  worker0 275/275 (811s)
+{
+ "eps": 0.1,
+ "kappa": 3.0,
+ "neural_runs": {
+  "DEC-889k": "runs/decision_s0",
+  "RECON-889k": "runs_v3/rec889k_s0",
+  "RECON-JAC-global": "runs_jacopp/a0_s0",
+  "JAC-opp": "runs_jacopp/a3_s0"
+ },
+ "prior_runs": {
+  "PRIOR-EM (RECON-131k)": "runs/recon_s0",
+  "PRIOR-EM (JAC-opp)": "runs_jacopp/a3_s0"
+ },
+ "methods": [
+  "FIXED-NE",
+  "BANK",
+  "TAB-EM",
+  "DEC-889k",
+  "RECON-889k",
+  "RECON-JAC-global",
+  "JAC-opp",
+  "PRIOR-EM (RECON-131k)",
+  "PRIOR-EM (JAC-opp)"
+ ],
+ "predict_time_s": {
+  "BANK": 1.8333656787872314,
+  "TAB-EM": 72.90939521789551,
+  "DEC-889k": 13.46009349822998,
+  "RECON-889k": 20.35643744468689,
+  "RECON-JAC-global": 19.719660997390747,
+  "JAC-opp": 19.484906911849976,
+  "PRIOR-EM (RECON-131k)": 55.482327461242676,
+  "PRIOR-EM (JAC-opp)": 46.314271688461304
+ },
+ "predict_wall_s": 331.42792773246765,
+ "solve_wall_s": 812.4711790084839,
+ "lp_failures": 0,
+ "expl_fixed_ne": 2.3180068975392487e-13
+}
+total 1144s

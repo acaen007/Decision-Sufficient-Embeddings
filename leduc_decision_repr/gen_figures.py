@@ -41,13 +41,22 @@ def xaxis(ax, N):
 
 
 def fig_lines(r, key, fams, methods, fname, title, ylab, hlines=()):
-    N = r["N"]; n = len(fams); cols = 3; rows = int(np.ceil((n + 1) / cols))
-    fig, axs = plt.subplots(rows, cols, figsize=(14, 4.0 * rows), squeeze=False); axs = axs.ravel()
+    N = r["N"]; n = len(fams); cols = 3; legend_axis = n % cols != 0; rows = int(np.ceil((n + legend_axis) / cols))
+    fig, axs = plt.subplots(rows, cols, figsize=(14, 4.0 * rows + (0 if legend_axis else 0.9)), squeeze=False); axs = axs.ravel()
     for i, f in enumerate(fams):
         ax = axs[i]; e = r["per_family"][f]
         data = e["fraction"] if key == "fraction" else (e["regret"] if f != "NE" else e["ne_loss"])
+        top = None
+        if key != "fraction" and f != "NE":                                   # FIXED-NE is far above everything: mark it off scale
+            top = 1.12 * max(max(data[m]["hi"]) for m in methods if m != "FIXED-NE")
         for m in methods:
+            if top is not None and m == "FIXED-NE" and min(data[m]["mean"]) > top:
+                ax.plot([], [], **style(m))
+                ax.text(0.02, 0.97, f"FIXED-NE regret = {data[m]['mean'][0]:.2f} (off scale)", transform=ax.transAxes, fontsize=7.5, va="top", color=INK)
+                continue
             band(ax, N, data[m], m)
+        if top is not None:
+            ax.set_ylim(0, top)
         for h, lab in hlines:
             ax.axhline(h, color=MUTED, lw=0.9, ls=":", zorder=1)
         if key != "fraction" and f == "NE":
@@ -59,13 +68,18 @@ def fig_lines(r, key, fams, methods, fname, title, ylab, hlines=()):
     h, l = axs[0].get_legend_handles_labels()
     for ax in axs[n:]:
         ax.axis("off")
-    axs[n].legend(h, l, loc="center", fontsize=8, frameon=False, title="method  [group]", title_fontsize=8)
-    fig.suptitle(title, fontsize=11, color=INK); fig.tight_layout(); fig.savefig(D / fname, dpi=130); plt.close(fig)
+    if legend_axis:
+        axs[n].legend(h, l, loc="center", fontsize=8, frameon=False, title="method  [group]", title_fontsize=8)
+        fig.suptitle(title, fontsize=11, color=INK); fig.tight_layout()
+    else:
+        fig.legend(h, l, loc="lower center", ncol=min(len(l), 5), fontsize=8, frameon=False)
+        fig.suptitle(title, fontsize=11, color=INK); fig.tight_layout(rect=(0, 0.07 if len(l) <= 5 else 0.1, 1, 1))
+    fig.savefig(D / fname, dpi=130); plt.close(fig)
 
 
 def fig_heat(r, fname):
     fams = ["ID-REF", "NEAR", "FAR-ARCH", "FAR-CFR", "FAR-EXPL"]; methods = r["methods"]; N = r["N"]
-    fig, axs = plt.subplots(1, 2, figsize=(13, 5.2))
+    fig, axs = plt.subplots(1, 2, figsize=(13, 5.2), gridspec_kw={"wspace": 0.05})
     vals = {Nq: np.array([[r["per_family"][f]["fraction"][m]["ratio_of_means"][N.index(Nq)] for f in fams] for m in methods]) for Nq in (20, 500)}
     vmin = min(-1.0, min(v.min() for v in vals.values())); norm = TwoSlopeNorm(vmin=vmin, vcenter=0.0, vmax=1.0)
     for ax, Nq in zip(axs, (20, 500)):
@@ -75,7 +89,7 @@ def fig_heat(r, fname):
                 c = im.cmap(norm(V[i, j])); lum = 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]
                 ax.text(j, i, f"{V[i, j]:.2f}", ha="center", va="center", fontsize=8, color="#ffffff" if lum < 0.5 else INK)
         ax.set_xticks(range(len(fams))); ax.set_xticklabels(fams, fontsize=8); ax.set_yticks(range(len(methods)))
-        ax.set_yticklabels([f"{m}  [{GROUP[m][0].upper()}]" for m in methods], fontsize=8); ax.grid(False)
+        ax.set_yticklabels([f"{m}  [{GROUP[m][0].upper()}]" for m in methods] if Nq == 20 else [], fontsize=8); ax.grid(False)
         ax.set_title(f"fraction of attainable safe gain, N = {Nq}", fontsize=10, color=INK)
     cb = fig.colorbar(im, ax=axs, shrink=0.8); cb.set_label("0 = best equilibrium for this opponent, 1 = oracle safe exploit; < 0 = worse than best equilibrium", fontsize=7)
     fig.savefig(D / fname, dpi=130, bbox_inches="tight"); plt.close(fig)
@@ -102,19 +116,23 @@ def fig_safety(r, fname):
     ax.axhline(EPS, color="#d03b3b", lw=1.0, ls="--"); ax.text(N[0], EPS * 1.01, " ε = 0.10", fontsize=7, va="bottom", color=INK)
     ax.axhline(0, color=MUTED, lw=0.8); xaxis(ax, N); ax.set_ylabel("loss v* − u (chips)")
     ax.set_title("(a) loss against Nash opponents (5 × 20 streams)", fontsize=9, color=INK)
-    ax = axs[1]; Xs = [np.array([float(S["expl_fixed_ne"])])] + [S["expl"][i].ravel() for i in range(len(S["methods"]))]
-    bp = ax.boxplot(Xs, vert=True, patch_artist=True, widths=0.6, showfliers=True, flierprops=dict(marker=".", ms=2, alpha=0.3))
-    for patch, m in zip(bp["boxes"], methods):
-        patch.set_facecolor(COL[m]); patch.set_alpha(0.55); patch.set_edgecolor(COL[m])
-    for med in bp["medians"]:
-        med.set_color(INK)
-    ax.axhline(EPS, color="#d03b3b", lw=1.0, ls="--"); ax.text(0.6, EPS * 1.005, "ε = 0.10 (audit bound; 0 violations)", fontsize=7, va="bottom", color=INK)
-    ax.set_xticks(range(1, len(methods) + 1)); ax.set_xticklabels(methods, rotation=40, ha="right", fontsize=7)
-    ax.set_ylabel("Expl(x) of deployed strategy (chips)"); ax.set_title("(b) exact exploitability of every deployed strategy, all families", fontsize=9, color=INK)
+    ax = axs[1]; rng = np.random.default_rng(0)
+    Xs = [np.array([float(S["expl_fixed_ne"])])] + [S["expl"][i].ravel() for i in range(len(S["methods"]))]
+    for i, (m, x) in enumerate(zip(methods, Xs)):
+        d = x - EPS; sub = d if len(d) <= 3000 else rng.choice(d, 3000, replace=False)
+        ax.scatter(i + rng.uniform(-0.28, 0.28, len(sub)), sub, s=3, color=COL[m], alpha=0.35, lw=0)
+        ax.plot([i - 0.35, i + 0.35], [d.max()] * 2, color=INK, lw=1.2)
+    ax.set_yscale("symlog", linthresh=1e-12); ax.axhline(1e-7, color="#d03b3b", lw=1.0, ls="--")
+    ax.text(-0.4, 1.4e-7, "audit tolerance: Expl − ε ≤ 1e−7", fontsize=7, color=INK, va="bottom")
+    ax.axhline(0, color=MUTED, lw=0.8)
+    ax.set_xticks(range(len(methods))); ax.set_xticklabels(methods, rotation=40, ha="right", fontsize=7)
+    ax.set_ylabel("Expl(x) − ε (chips, symlog)")
+    ax.set_title("(b) exact exploitability − ε of every deployed strategy (all families; bar = max)\n"
+                 "every modelling strategy has Expl = ε to within 2e−10; FIXED-NE has Expl ≈ 0", fontsize=8.5, color=INK)
     ax = axs[2]; hr = r["harm_rate_pooled_nonNE"]
     for m in methods[1:]:
         ax.plot(N, hr[m], **style(m))
-    xaxis(ax, N); ax.set_ylabel("fraction of (opponent, N) with u < u(FIXED-NE)"); ax.set_ylim(-0.02, 1.0)
+    xaxis(ax, N); ax.set_ylabel("fraction of (opponent, N) with u < u(FIXED-NE)"); ax.set_ylim(0, 0.2)
     ax.set_title("(c) harm rate vs FIXED-NE (5 non-NE families pooled)", fontsize=9, color=INK)
     h, l = axs[0].get_legend_handles_labels(); fig.legend(h, l, loc="lower center", ncol=5, fontsize=8, frameon=False)
     fig.tight_layout(rect=(0, 0.1, 1, 1)); fig.savefig(D / fname, dpi=130); plt.close(fig)

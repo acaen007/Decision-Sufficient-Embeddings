@@ -1,0 +1,89 @@
+{
+ "TAB-EM": {
+  "CFR": {
+   "harm_rate_N500": 0.75,
+   "harm_rate_N20": 0.85,
+   "median_headroom": 0.09245090653968037,
+   "median_opp_expl": 0.29101206409267666
+  },
+  "CFR+": {
+   "harm_rate_N500": 0.8,
+   "harm_rate_N20": 0.85,
+   "median_headroom": 0.03499637902358897,
+   "median_opp_expl": 0.10938913655395698
+  },
+  "ES-MCCFR": {
+   "harm_rate_N500": 0.0,
+   "harm_rate_N20": 0.0,
+   "median_headroom": 0.5489633610049337,
+   "median_opp_expl": 2.2352468922787434
+  },
+  "OS-MCCFR": {
+   "harm_rate_N500": 0.0,
+   "harm_rate_N20": 0.0,
+   "median_headroom": 0.589083808728864,
+   "median_opp_expl": 2.247632490050952
+  },
+  "mean_shortfall_when_harmed_N500": 0.05525707101117074,
+  "max_shortfall_N500": 0.07557978013103298,
+  "mean_gain_over_fixedne_N500": 0.3083427727764944
+ },
+ "JAC-opp": {
+  "CFR": {
+   "harm_rate_N500": 0.85,
+   "harm_rate_N20": 0.85,
+   "median_headroom": 0.09245090653968037,
+   "median_opp_expl": 0.29101206409267666
+  },
+  "CFR+": {
+   "harm_rate_N500": 0.95,
+   "harm_rate_N20": 0.85,
+   "median_headroom": 0.03499637902358897,
+   "median_opp_expl": 0.10938913655395698
+  },
+  "ES-MCCFR": {
+   "harm_rate_N500": 0.0,
+   "harm_rate_N20": 0.0,
+   "median_headroom": 0.5489633610049337,
+   "median_opp_expl": 2.2352468922787434
+  },
+  "OS-MCCFR": {
+   "harm_rate_N500": 0.0,
+   "harm_rate_N20": 0.0,
+   "median_headroom": 0.589083808728864,
+   "median_opp_expl": 2.247632490050952
+  },
+  "mean_shortfall_when_harmed_N500": 0.037914885646892854,
+  "max_shortfall_N500": 0.07138459200830165,
+  "mean_gain_over_fixedne_N500": 0.3212906067601837
+ },
+ "PRIOR-EM (RECON-131k)": {
+  "CFR": {
+   "harm_rate_N500": 0.3,
+   "harm_rate_N20": 0.85,
+   "median_headroom": 0.09245090653968037,
+   "median_opp_expl": 0.29101206409267666
+  },
+  "CFR+": {
+   "harm_rate_N500": 0.55,
+   "harm_rate_N20": 0.9,
+   "median_headroom": 0.03499637902358897,
+   "median_opp_expl": 0.10938913655395698
+  },
+  "ES-MCCFR": {
+   "harm_rate_N500": 0.0,
+   "harm_rate_N20": 0.0,
+   "median_headroom": 0.5489633610049337,
+   "median_opp_expl": 2.2352468922787434
+  },
+  "OS-MCCFR": {
+   "harm_rate_N500": 0.0,
+   "harm_rate_N20": 0.0,
+   "median_headroom": 0.589083808728864,
+   "median_opp_expl": 2.247632490050952
+  },
+  "mean_shortfall_when_harmed_N500": 0.011393948663880675,
+  "max_shortfall_N500": 0.03372988121278945,
+  "mean_gain_over_fixedne_N500": 0.34151136727656495
+ }
+}

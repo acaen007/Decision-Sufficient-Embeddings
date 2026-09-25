@@ -1,0 +1,32 @@
+{
+ "BANK": {
+  "spearman_nn_dist_vs_gap": 0.6598079190670665,
+  "p": 8.439106003176763e-64,
+  "gap_near_third": 0.0009409427852429904,
+  "gap_far_third": 0.25050523404894687
+ },
+ "DEC-889k": {
+  "spearman_nn_dist_vs_gap": 0.5115686825523788,
+  "p": 1.0749841903881876e-34,
+  "gap_near_third": -0.019061594770379033,
+  "gap_far_third": 0.19039008644302138
+ },
+ "JAC-opp": {
+  "spearman_nn_dist_vs_gap": 0.5085331503373971,
+  "p": 3.0658811612974683e-34,
+  "gap_near_third": -0.026744367776620873,
+  "gap_far_third": 0.16887763095956543
+ },
+ "PRIOR-EM (RECON-131k)": {
+  "spearman_nn_dist_vs_gap": -0.183822547701932,
+  "p": 3.5433624828132035e-05,
+  "gap_near_third": -0.030217430686784674,
+  "gap_far_third": -0.05966403418875521
+ },
+ "PRIOR-EM (JAC-opp)": {
+  "spearman_nn_dist_vs_gap": -0.10712831908435602,
+  "p": 0.016558535314713328,
+  "gap_near_third": -0.02852552142204032,
+  "gap_far_third": -0.04505937301950398
+ }
+}
