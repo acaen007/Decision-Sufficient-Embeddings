@@ -1,0 +1,11 @@
+[     32s]   bocpd-offset hand 97/500 (29s)
+[    106s]   bocpd-offset hand 197/500 (104s)
+[    176s]   bocpd-offset hand 297/500 (173s)
+[    245s]   bocpd-offset hand 397/500 (243s)
+[    323s]   bocpd-offset hand 497/500 (320s)
+[    326s]   SW: 20438 unique segment estimates
+[    358s]   ghat 5120/20438
+[    388s]   ghat 10240/20438
+[    417s]   ghat 15360/20438
+[    449s]   ghat 20438/20438
+[    473s] offset BOCPD done: 1800 deployed from 20438 segment estimates, max expl-eps 8.25e-12, 471s

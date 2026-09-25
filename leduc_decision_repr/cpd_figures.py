@@ -122,8 +122,8 @@ def main():
     st = r["STAT"]["fraction_by_ckpt"]; ax = axs[0]
     for m in st:
         c, mk, ls, lw, _ = STY[m]; ax.plot([100, 200, 300, 400, 500], st[m], color=c, marker=mk, ls=ls, lw=lw, label=f"{LAB(m)}  (mean {r['STAT']['mean_fraction'][m]:.3f})")
-    ax.set_xlabel("hands t (stationary opponent)"); ax.set_ylabel("fraction (pooled)"); ax.set_title("TEST-STAT: 40 stationary opponents — the price of watching for switches", fontsize=9.5, color=INK)
-    ax.legend(fontsize=7.5, frameon=False, loc="lower right")
+    ax.set_ylim(0.66, 0.885); ax.set_xlabel("hands t (stationary opponent)"); ax.set_ylabel("fraction (pooled)"); ax.set_title("TEST-STAT: 40 stationary opponents — the price of watching for switches", fontsize=9.5, color=INK)
+    ax.legend(fontsize=7.5, frameon=False, loc="lower left")
     dr = r["DRIFT"]; ax = axs[1]
     for m in dr["fraction"]:
         line(ax, DR_T, dr["fraction"][m], dr["fraction_ci"][m][0], dr["fraction_ci"][m][1], m, band=m in ("CPD-PRIOR-EM", "BOCPD-PRIOR-EM", "PRIOR-EM-WIN"))

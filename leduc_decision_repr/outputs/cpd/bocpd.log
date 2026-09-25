@@ -1,0 +1,33 @@
+[     55s]   bocpd[CAL] hand 100/500: 38000 encodings, mean alive starts 20.00 (52s)
+[    189s]   bocpd[CAL] hand 200/500: 120164 encodings, mean alive starts 20.00 (186s)
+[    313s]   bocpd[CAL] hand 300/500: 199430 encodings, mean alive starts 20.00 (310s)
+[    452s]   bocpd[CAL] hand 400/500: 285514 encodings, mean alive starts 20.00 (449s)
+[    611s]   bocpd[CAL] hand 500/500: 373227 encodings, mean alive starts 20.00 (608s)
+[    611s]   CST: 5910 unique segment estimates
+[    648s]   ghat 5120/5910
+[    655s]   CSW: 12188 unique segment estimates
+[    688s]   ghat 5120/12188
+[    722s]   ghat 10240/12188
+[    770s]   LPs 4000/4440 (35s)
+[    773s] BOCPD calibration: selected BOCPD[H=1/100]  F {'CSW': 0.7853028501885542, 'CST': 0.8469102799035862}  cost +0.0092
+[    819s]   bocpd[TEST] hand 100/500: 37996 encodings, mean alive starts 20.00 (46s)
+[    935s]   bocpd[TEST] hand 200/500: 120175 encodings, mean alive starts 20.00 (162s)
+[   1057s]   bocpd[TEST] hand 300/500: 199137 encodings, mean alive starts 20.00 (284s)
+[   1193s]   bocpd[TEST] hand 400/500: 284608 encodings, mean alive starts 20.00 (421s)
+[   1346s]   bocpd[TEST] hand 500/500: 371507 encodings, mean alive starts 20.00 (573s)
+[   1363s]   bocpd[DRIFT] hand 100/500: 15200 encodings, mean alive starts 20.00 (17s)
+[   1403s]   bocpd[DRIFT] hand 200/500: 47200 encodings, mean alive starts 20.00 (57s)
+[   1447s]   bocpd[DRIFT] hand 300/500: 79200 encodings, mean alive starts 20.00 (101s)
+[   1494s]   bocpd[DRIFT] hand 400/500: 111200 encodings, mean alive starts 20.00 (148s)
+[   1544s]   bocpd[DRIFT] hand 500/500: 143200 encodings, mean alive starts 20.00 (198s)
+[   1544s]   DR: 7492 unique segment estimates
+[   1576s]   ghat 5120/7492
+[   1591s]   SW: 19462 unique segment estimates
+[   1622s]   ghat 5120/19462
+[   1651s]   ghat 10240/19462
+[   1678s]   ghat 15360/19462
+[   1705s]   ST: 5660 unique segment estimates
+[   1745s]   ghat 5120/5660
+[   1796s]   LPs 4000/9360 (45s)
+[   1840s]   LPs 8000/9360 (89s)
+[   1858s] BOCPD test done: 9360 deployed strategies from 32614 segment estimates
