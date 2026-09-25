@@ -5,7 +5,7 @@ import numpy as np
 from scipy.stats import spearmanr, rankdata
 from .common import save_json
 from .dc_common import D, EPS_LIST, OOD_FAMS, load_sets, HandDist, js_matrix, fraction
-from .dc_ae import ARMS, DIMS, SEEDS, EVALS, run_name
+from .dc_ae import ARMS, POSTHOC_ARMS, DIMS, SEEDS, EVALS, run_name
 
 B = 2000; KS = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512]
 
@@ -38,7 +38,7 @@ def main():
     orc = json.loads((D / "oracle.json").read_text()); res["partA"] = part_a(orc)
     # ---------------- Part B: per (arm, d)
     tab = {}; rng = np.random.default_rng(0)
-    for arm in ARMS:
+    for arm in ARMS + POSTHOC_ARMS:
         for d in DIMS:
             ev = [load_eval(run_name(arm, d, s)) for s in SEEDS]; ev = [e for e in ev if e is not None]
             if not ev:
@@ -96,7 +96,7 @@ def main():
     partc = {"n_pairs": int(len(dd)), "pct_used": pct, "n_DEQ_BF": int(deq.sum()), "n_BC_DD": int(bcd.sum()), "spearman_Ddec_Dbeh": float(rho_db),
              "Ddec_quantiles": [float(np.percentile(dd, q)) for q in (10, 50, 90)], "Dbeh_quantiles": [float(np.percentile(db, q)) for q in (10, 50, 90)], "models": {}}
     rdd, rdb = rankdata(dd), rankdata(db)
-    for arm in ARMS:
+    for arm in ARMS + POSTHOC_ARMS:
         for d in DIMS:
             vals = []
             for s in SEEDS:
@@ -121,6 +121,15 @@ def main():
         v["C1"] = {"holds": bool(gap["REGRET"] > gap["RECON"] and gap["G-MSE"] > gap["RECON"]), "rho_dec_minus_rho_beh_d8": gap}
         v["C2"] = {"holds": bool(m8["REGRET_d8"]["SR"] < 1 and m8["RECON_d8"]["SR"] > 1), "SR_d8": {a: m8[f"{a}_d8"]["SR"] for a in ARMS if f"{a}_d8" in m8}}
     res["verdicts_B_C"] = v
+    # post-hoc: the behaviour-optimal autoencoder (OBS-RECON) as the behavioural reference (not a pre-registered test)
+    if all(f"OBS-RECON_d{d}" in tab for d in DIMS):
+        ph = []
+        for d in DIMS:
+            val = T("REGRET", d); dr = next((x for x in DIMS if T("OBS-RECON", x) >= val), None)
+            ph.append({"d": d, "REGRET": val, "OBS-RECON": T("OBS-RECON", d), "obs_d_to_match_regret": dr,
+                       "beh_REGRET": T("REGRET", d, "test_beh"), "beh_OBS": T("OBS-RECON", d, "test_beh"), "beh_RECON": T("RECON", d, "test_beh"),
+                       "pol_REGRET": T("REGRET", d, "test_pol"), "pol_OBS": T("OBS-RECON", d, "test_pol"), "pol_RECON": T("RECON", d, "test_pol")})
+        res["posthoc_obs_recon"] = ph
     save_json(res, D / "analysis.json")
     print(json.dumps({**{k: x.get("holds") for k, x in res["partA"].items()}, **{k: (x.get("holds"), x.get("a_holds"), x.get("b_holds")) if k == "H4" else x.get("holds") for k, x in v.items()}}, indent=1))
 
