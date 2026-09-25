@@ -257,8 +257,9 @@ Raw regret at N = 500 (chips): each FIXED-NE value is its regret at every N.
 
 ## 4. Pre-registered expectations
 
-* **E1 — fails.**  The bank's drop from ID-REF to the FAR mean at N = 500 is +0.003, the second-smallest of
-  the eight modelling methods; TAB-EM's is +0.020, and the neural models and hybrids *improve* on FAR.
+* **E1 — fails.**  The bank's drop from ID-REF to the FAR mean at N = 500 is only +0.003.  That is the
+  second-largest of the eight modelling methods, after TAB-EM's +0.020.  The JAC-opp hybrid's is +0.001, and
+  the four neural models and the RECON-131k hybrid *improve* on FAR (drops −0.015 to −0.050).
   - Its N = 500 drop does exceed its N = 20 drop (−0.008), but it is not the largest.
   - The bank does degrade most, together with the neural models, on the two families far from the bank in
     g-space.  On NEAR its fraction is 0.62 vs 0.76 on ID-REF; on FAR-EXPL it is 0.67.
