@@ -1,0 +1,79 @@
+805 targets (17s)
+JAC-opp: cloud d_full=108, r_full=15.37 (80s)
+    step 50/300 mean loss 0.6955
+    step 100/300 mean loss 0.6630
+    step 150/300 mean loss 0.6574
+    step 200/300 mean loss 0.6580
+    step 250/300 mean loss 0.6581
+    step 300/300 mean loss 0.6575
+  JAC-opp/full: 805 targets, median loss 0.1555, median rel change last 100 steps -1.01e-03
+  JAC-opp/free: 805 targets, median loss 0.0657, median rel change last 100 steps 1.79e-01
+  JAC-opp/k2: 180 targets, median loss 0.5498, median rel change last 100 steps -6.51e-08
+  JAC-opp/k4: 180 targets, median loss 0.2791, median rel change last 100 steps -7.42e-08
+  JAC-opp/k8: 180 targets, median loss 0.1842, median rel change last 100 steps 4.47e-05
+  JAC-opp/k16: 180 targets, median loss 0.1661, median rel change last 100 steps 3.93e-04
+  JAC-opp/k32: 180 targets, median loss 0.1688, median rel change last 100 steps -3.92e-04
+  JAC-opp/full-muinit: 180 targets, median loss 0.1879, median rel change last 100 steps 1.58e-03
+RECON-889k: cloud d_full=106, r_full=16.04 (2033s)
+    step 50/300 mean loss 0.7493
+    step 100/300 mean loss 0.7052
+    step 150/300 mean loss 0.6863
+    step 200/300 mean loss 0.6859
+    step 250/300 mean loss 0.6786
+    step 300/300 mean loss 0.6701
+  RECON-889k/full: 180 targets, median loss 0.2275, median rel change last 100 steps -3.88e-04
+  RECON-889k/free: 180 targets, median loss 0.1162, median rel change last 100 steps 1.60e-01
+{
+ "times": {
+  "values_s": 43.919408082962036,
+  "JAC-opp/cloud_s": 18.859498739242554,
+  "JAC-opp/fit_s": 1932.9633045196533,
+  "RECON-889k/cloud_s": 15.985182523727417,
+  "RECON-889k/fit_s": 201.14643120765686,
+  "deploy_s": 80.27383303642273
+ },
+ "total_s": 2319.453101873398,
+ "steps": 300,
+ "lr": 0.05,
+ "clouds": {
+  "JAC-opp": {
+   "d_full": 108,
+   "r": {
+    "2": 2.717855011934784,
+    "4": 3.903055555586481,
+    "8": 4.70670473711693,
+    "16": 6.636684268016186,
+    "32": 9.05767137679629,
+    "108": 15.369428099111788
+   },
+   "nn_within_p99": 12.478965143512882,
+   "var_explained": {
+    "2": 0.4874634682015589,
+    "4": 0.7147045257442686,
+    "8": 0.9744823072771673,
+    "16": 0.9968472525849331,
+    "32": 0.9991864659591044
+   }
+  },
+  "RECON-889k": {
+   "d_full": 106,
+   "r": {
+    "2": 2.722979072295507,
+    "4": 4.087102692844732,
+    "8": 5.566502707575954,
+    "16": 7.206854650603377,
+    "32": 9.62756531764291,
+    "106": 16.039803755353343
+   },
+   "nn_within_p99": 14.648936835432146,
+   "var_explained": {
+    "2": 0.6509588627111003,
+    "4": 0.8893861238911773,
+    "8": 0.990971290570306,
+    "16": 0.9975859531505362,
+    "32": 0.9993041935712188
+   }
+  }
+ }
+}
+total 2319s
