@@ -74,8 +74,8 @@ def dsum(d, sel_h):
     x = d["delay"][sel_h]; c = d["cp_err"][sel_h]; fin = np.isfinite(x)
     return {"n_histories": int(len(x)), "median_delay": float(np.median(x)), "p25": float(np.percentile(x, 25)), "p75": float(np.percentile(x, 75)),
             "within_10": float(np.mean(x <= 10)), "within_25": float(np.mean(x <= 25)), "within_50": float(np.mean(x <= 50)), "within_100": float(np.mean(x <= 100)),
-            "undetected": float(np.mean(~fin)), "median_cp_err": float(np.nanmedian(c)) if fin.any() else None,
-            "median_abs_cp_err": float(np.nanmedian(np.abs(c))) if fin.any() else None, "frac_cp_before_switch": float(np.mean(c[fin] < 0)) if fin.any() else None}
+            "undetected": float(np.mean(~fin)), "median_cp_err": float(np.nanmedian(c)) if np.isfinite(c).any() else None,
+            "median_abs_cp_err": float(np.nanmedian(np.abs(c))) if np.isfinite(c).any() else None, "frac_cp_before_switch": float(np.mean(c[fin] < 0)) if np.isfinite(c).any() else None}
 
 
 def main():
