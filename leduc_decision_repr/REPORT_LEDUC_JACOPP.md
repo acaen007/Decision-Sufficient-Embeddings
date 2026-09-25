@@ -25,8 +25,9 @@ seed-averaged difference at ε = 0.10:
   global baseline at every N ≥ 50: +0.0019 to +0.0026, with CIs above 0.
 * **Negative share.**  The pre-registered fraction of JAC-opp's gain captured by reach is therefore
   negative: −0.88 [−5.3, −0.13] at N = 500, the only N ≥ 50 where the denominator's CI excludes 0.
-* **Consequences add substantially.**  Payoff consequences are what make per-opponent weighting work at
-  moderate and large N.
+* **Consequences add substantially.**  JAC-opp (reach × consequence) beats OPP-REACH at every N, by
+  0.002–0.006 chips with every CI above 0.  Without the payoff-consequence factor, per-opponent weighting
+  hurts at N ≥ 50.
 * **Small N is the exception.**  At N = 5, reach alone captures 80% [50, 98]% of the gain (descriptive, not
   pre-registered).
 
