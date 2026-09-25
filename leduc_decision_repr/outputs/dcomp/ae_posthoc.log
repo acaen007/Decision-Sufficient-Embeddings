@@ -1,0 +1,44 @@
+/home/user/Decision-Sufficient-Embeddings/leduc_decision_repr/dc_ae.py:67: UserWarning: Sparse invariant checks are implicitly disabled. Memory errors (e.g. SEGFAULT) will occur when operating on a sparse tensor which violates the invariants, but checks incur performance overhead. To silence this warning, explicitly opt in or out. See `torch.sparse.check_sparse_tensor_invariants.__doc__` for guidance.  (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:848.)
+  self.M = torch.sparse_coo_tensor(np.stack([O["M_row"], O["M_col"]]), torch.ones(len(O["M_row"])), (n, 432)).coalesce()
+/home/user/Decision-Sufficient-Embeddings/leduc_decision_repr/dc_ae.py:67: UserWarning: Sparse invariant checks are implicitly disabled. Memory errors (e.g. SEGFAULT) will occur when operating on a sparse tensor which violates the invariants, but checks incur performance overhead. To silence this warning, explicitly opt in or out. See `torch.sparse.check_sparse_tensor_invariants.__doc__` for guidance.  (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:848.)
+  self.M = torch.sparse_coo_tensor(np.stack([O["M_row"], O["M_col"]]), torch.ones(len(O["M_row"])), (n, 432)).coalesce()
+/home/user/Decision-Sufficient-Embeddings/leduc_decision_repr/dc_ae.py:67: UserWarning: Sparse invariant checks are implicitly disabled. Memory errors (e.g. SEGFAULT) will occur when operating on a sparse tensor which violates the invariants, but checks incur performance overhead. To silence this warning, explicitly opt in or out. See `torch.sparse.check_sparse_tensor_invariants.__doc__` for guidance.  (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:848.)
+  self.M = torch.sparse_coo_tensor(np.stack([O["M_row"], O["M_col"]]), torch.ones(len(O["M_row"])), (n, 432)).coalesce()
+/home/user/Decision-Sufficient-Embeddings/leduc_decision_repr/dc_ae.py:67: UserWarning: Sparse invariant checks are implicitly disabled. Memory errors (e.g. SEGFAULT) will occur when operating on a sparse tensor which violates the invariants, but checks incur performance overhead. To silence this warning, explicitly opt in or out. See `torch.sparse.check_sparse_tensor_invariants.__doc__` for guidance.  (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:848.)
+  self.M = torch.sparse_coo_tensor(np.stack([O["M_row"], O["M_col"]]), torch.ones(len(O["M_row"])), (n, 432)).coalesce()
+[    168s]   trained OBS-RECON_d2_s0 (164s)
+[    169s]   trained OBS-RECON_d2_s2 (165s)
+[    171s]   trained OBS-RECON_d2_s1 (168s)
+[    172s]   trained OBS-RECON_d4_s0 (168s)
+[    312s]   trained OBS-RECON_d4_s1 (144s)
+[    314s]   trained OBS-RECON_d4_s2 (145s)
+[    316s]   trained OBS-RECON_d8_s1 (144s)
+[    318s]   trained OBS-RECON_d8_s0 (146s)
+[    458s]   trained OBS-RECON_d8_s2 (146s)
+[    459s]   trained OBS-RECON_d16_s0 (145s)
+[    460s]   trained OBS-RECON_d16_s1 (144s)
+[    463s]   trained OBS-RECON_d16_s2 (145s)
+[    603s]   trained OBS-RECON_d32_s1 (144s)
+[    606s]   trained OBS-RECON_d32_s2 (146s)
+[    608s]   trained OBS-RECON_d32_s0 (150s)
+[    612s]   trained OBS-RECON_d64_s0 (149s)
+[    752s]   trained OBS-RECON_d64_s1 (149s)
+[    754s]   trained OBS-RECON_d64_s2 (148s)
+[    779s]   evaluated OBS-RECON_d2_s0
+[    802s]   evaluated OBS-RECON_d2_s1
+[    824s]   evaluated OBS-RECON_d2_s2
+[    848s]   evaluated OBS-RECON_d4_s0
+[    873s]   evaluated OBS-RECON_d4_s1
+[    896s]   evaluated OBS-RECON_d4_s2
+[    921s]   evaluated OBS-RECON_d8_s0
+[    946s]   evaluated OBS-RECON_d8_s1
+[    972s]   evaluated OBS-RECON_d8_s2
+[    998s]   evaluated OBS-RECON_d16_s0
+[   1023s]   evaluated OBS-RECON_d16_s1
+[   1050s]   evaluated OBS-RECON_d16_s2
+[   1076s]   evaluated OBS-RECON_d32_s0
+[   1102s]   evaluated OBS-RECON_d32_s1
+[   1128s]   evaluated OBS-RECON_d32_s2
+[   1155s]   evaluated OBS-RECON_d64_s0
+[   1181s]   evaluated OBS-RECON_d64_s1
+[   1207s]   evaluated OBS-RECON_d64_s2

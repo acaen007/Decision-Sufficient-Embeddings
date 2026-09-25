@@ -91,9 +91,9 @@ def main():
         axs[0].plot(x, [m[f"{a}_d{d}"]["SR"] for d in DIMS], color=AC[a], marker=AM[a], lw=2, label=LB(a))
         axs[1].plot(x, [m[f"{a}_d{d}"]["partial_dec_given_beh"] for d in DIMS], color=AC[a], marker=AM[a], lw=2, label=a)
     axs[0].axhline(1, color=MUTED, lw=0.9, ls=":")
-    axs[0].set_ylabel("SR = latent distance of decision-equivalent/behaviourally-far pairs\n÷ latent distance of behaviourally-close/decision-different pairs")
+    axs[0].set_ylabel("separation ratio SR (latent distance, DEQ-BF ÷ BC-DD pairs)")
     axs[0].set_title(f"< 1: the code groups opponents by decision ({pc['n_DEQ_BF']} vs {pc['n_BC_DD']} test pairs)", fontsize=9.5, color=INK)
-    axs[1].set_ylabel("partial Spearman ρ(latent distance, cross-regret | behavioural distance)"); axs[1].axhline(0, color=MUTED, lw=0.9, ls=":")
+    axs[1].set_ylabel("partial Spearman ρ(latent dist., cross-regret | behav. dist.)"); axs[1].axhline(0, color=MUTED, lw=0.9, ls=":")
     axs[1].set_title("how much the latent geometry tracks decisions beyond behaviour", fontsize=9.5, color=INK)
     for ax in axs:
         ax.set_xticks(x); ax.set_xticklabels(DIMS); ax.set_xlabel("latent dimension d"); ax.legend(fontsize=8, frameon=False)

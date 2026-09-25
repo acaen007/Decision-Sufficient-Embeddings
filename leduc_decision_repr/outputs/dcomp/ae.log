@@ -1,0 +1,152 @@
+[    562s]   trained REGRET_d8_s0_b100_l0.1 (559s)
+[    657s]   trained REGRET_d8_s0_b1000_l0.1 (654s)
+[    823s]   trained REGRET_d8_s0_b1000_l0 (819s)
+[   1221s]   trained REGRET_d8_s0_b100_l0 (1218s)
+[   1228s]   select REGRET_d8_s0_b100_l0: val fraction 0.4951
+[   1231s]   select REGRET_d8_s0_b100_l0.1: val fraction 0.8935
+[   1232s]   select REGRET_d8_s0_b1000_l0: val fraction 0.4598
+[   1235s]   select REGRET_d8_s0_b1000_l0.1: val fraction 0.8809
+[   1560s]   trained G-MSE_d2_s1 (322s)
+[   1560s]   trained G-MSE_d2_s0 (322s)
+[   1763s]   trained REGRET_d2_s1 (526s)
+[   1765s]   trained REGRET_d2_s0 (528s)
+[   1836s]   trained G-MSE_d2_s2 (277s)
+[   2043s]   trained G-MSE_d4_s0 (279s)
+[   2074s]   trained REGRET_d2_s2 (514s)
+[   2113s]   trained G-MSE_d4_s1 (277s)
+[   2296s]   trained REGRET_d4_s0 (531s)
+[   2360s]   trained G-MSE_d4_s2 (286s)
+[   2360s]   trained REGRET_d8_s0 (0s)
+[   2579s]   trained REGRET_d4_s1 (536s)
+[   2582s]   trained G-MSE_d8_s0 (286s)
+[   2643s]   trained G-MSE_d8_s1 (283s)
+[   2664s]   trained REGRET_d4_s2 (551s)
+[   2867s]   trained G-MSE_d8_s2 (285s)
+[   2955s]   trained G-MSE_d16_s0 (290s)
+[   3132s]   trained REGRET_d8_s1 (553s)
+[   3191s]   trained REGRET_d8_s2 (548s)
+[   3237s]   trained G-MSE_d16_s1 (283s)
+[   3407s]   trained REGRET_d16_s0 (540s)
+[   3474s]   trained G-MSE_d16_s2 (283s)
+[   3674s]   trained REGRET_d16_s1 (542s)
+[   3690s]   trained G-MSE_d32_s0 (283s)
+[   3785s]   trained REGRET_d16_s2 (548s)
+[   3955s]   trained G-MSE_d32_s1 (282s)
+[   4024s]   trained REGRET_d32_s0 (550s)
+[   4064s]   trained G-MSE_d32_s2 (279s)
+[   4219s]   trained REGRET_d32_s1 (529s)
+[   4306s]   trained G-MSE_d64_s0 (282s)
+[   4492s]   trained G-MSE_d64_s1 (273s)
+[   4494s]   trained REGRET_d32_s2 (538s)
+[   4602s]   trained REGRET_d64_s0 (538s)
+[   4676s]   trained RECON_d2_s0 (74s)
+[   4751s]   trained JAC-OPP_d2_s0 (76s)
+[   4764s]   trained G-MSE_d64_s2 (273s)
+[   4827s]   trained RECON_d2_s1 (75s)
+[   4838s]   trained REGRET_d64_s1 (533s)
+[   4841s]   trained JAC-OPP_d2_s1 (77s)
+[   4901s]   trained RECON_d2_s2 (75s)
+[   4914s]   trained JAC-OPP_d2_s2 (76s)
+[   4915s]   trained RECON_d4_s0 (74s)
+[   4978s]   trained JAC-OPP_d4_s0 (77s)
+[   4988s]   trained RECON_d4_s1 (74s)
+[   4992s]   trained JAC-OPP_d4_s1 (77s)
+[   5030s]   trained REGRET_d64_s2 (536s)
+[   5053s]   trained RECON_d4_s2 (75s)
+[   5063s]   trained JAC-OPP_d4_s2 (75s)
+[   5065s]   trained RECON_d8_s0 (73s)
+[   5107s]   trained JAC-OPP_d8_s0 (78s)
+[   5129s]   trained RECON_d8_s1 (76s)
+[   5139s]   trained JAC-OPP_d8_s1 (76s)
+[   5141s]   trained RECON_d8_s2 (76s)
+[   5184s]   trained JAC-OPP_d8_s2 (77s)
+[   5204s]   trained RECON_d16_s0 (75s)
+[   5214s]   trained JAC-OPP_d16_s0 (75s)
+[   5214s]   trained RECON_d16_s1 (74s)
+[   5260s]   trained JAC-OPP_d16_s1 (75s)
+[   5280s]   trained RECON_d16_s2 (76s)
+[   5290s]   trained JAC-OPP_d16_s2 (76s)
+[   5291s]   trained RECON_d32_s0 (77s)
+[   5339s]   trained JAC-OPP_d32_s0 (79s)
+[   5358s]   trained RECON_d32_s1 (78s)
+[   5368s]   trained RECON_d32_s2 (77s)
+[   5368s]   trained JAC-OPP_d32_s1 (78s)
+[   5418s]   trained JAC-OPP_d32_s2 (79s)
+[   5437s]   trained RECON_d64_s0 (79s)
+[   5447s]   trained RECON_d64_s1 (79s)
+[   5448s]   trained JAC-OPP_d64_s0 (80s)
+[   5498s]   trained JAC-OPP_d64_s1 (80s)
+[   5516s]   trained RECON_d64_s2 (79s)
+[   5526s]   trained JAC-OPP_d64_s2 (79s)
+[   5548s]   evaluated RECON_d2_s0
+[   5572s]   evaluated JAC-OPP_d2_s0
+[   5595s]   evaluated G-MSE_d2_s0
+[   5621s]   evaluated REGRET_d2_s0
+[   5642s]   evaluated RECON_d2_s1
+[   5665s]   evaluated JAC-OPP_d2_s1
+[   5688s]   evaluated G-MSE_d2_s1
+[   5713s]   evaluated REGRET_d2_s1
+[   5733s]   evaluated RECON_d2_s2
+[   5756s]   evaluated JAC-OPP_d2_s2
+[   5779s]   evaluated G-MSE_d2_s2
+[   5804s]   evaluated REGRET_d2_s2
+[   5824s]   evaluated RECON_d4_s0
+[   5849s]   evaluated JAC-OPP_d4_s0
+[   5875s]   evaluated G-MSE_d4_s0
+[   5901s]   evaluated REGRET_d4_s0
+[   5922s]   evaluated RECON_d4_s1
+[   5946s]   evaluated JAC-OPP_d4_s1
+[   5971s]   evaluated G-MSE_d4_s1
+[   5997s]   evaluated REGRET_d4_s1
+[   6018s]   evaluated RECON_d4_s2
+[   6043s]   evaluated JAC-OPP_d4_s2
+[   6069s]   evaluated G-MSE_d4_s2
+[   6095s]   evaluated REGRET_d4_s2
+[   6117s]   evaluated RECON_d8_s0
+[   6143s]   evaluated JAC-OPP_d8_s0
+[   6170s]   evaluated G-MSE_d8_s0
+[   6197s]   evaluated REGRET_d8_s0
+[   6219s]   evaluated RECON_d8_s1
+[   6245s]   evaluated JAC-OPP_d8_s1
+[   6272s]   evaluated G-MSE_d8_s1
+[   6299s]   evaluated REGRET_d8_s1
+[   6321s]   evaluated RECON_d8_s2
+[   6347s]   evaluated JAC-OPP_d8_s2
+[   6373s]   evaluated G-MSE_d8_s2
+[   6400s]   evaluated REGRET_d8_s2
+[   6424s]   evaluated RECON_d16_s0
+[   6454s]   evaluated JAC-OPP_d16_s0
+[   6481s]   evaluated G-MSE_d16_s0
+[   6509s]   evaluated REGRET_d16_s0
+[   6535s]   evaluated RECON_d16_s1
+[   6562s]   evaluated JAC-OPP_d16_s1
+[   6590s]   evaluated G-MSE_d16_s1
+[   6617s]   evaluated REGRET_d16_s1
+[   6642s]   evaluated RECON_d16_s2
+[   6668s]   evaluated JAC-OPP_d16_s2
+[   6695s]   evaluated G-MSE_d16_s2
+[   6723s]   evaluated REGRET_d16_s2
+[   6748s]   evaluated RECON_d32_s0
+[   6776s]   evaluated JAC-OPP_d32_s0
+[   6804s]   evaluated G-MSE_d32_s0
+[   6831s]   evaluated REGRET_d32_s0
+[   6856s]   evaluated RECON_d32_s1
+[   6882s]   evaluated JAC-OPP_d32_s1
+[   6909s]   evaluated G-MSE_d32_s1
+[   6936s]   evaluated REGRET_d32_s1
+[   6961s]   evaluated RECON_d32_s2
+[   6987s]   evaluated JAC-OPP_d32_s2
+[   7015s]   evaluated G-MSE_d32_s2
+[   7042s]   evaluated REGRET_d32_s2
+[   7068s]   evaluated RECON_d64_s0
+[   7095s]   evaluated JAC-OPP_d64_s0
+[   7122s]   evaluated G-MSE_d64_s0
+[   7150s]   evaluated REGRET_d64_s0
+[   7176s]   evaluated RECON_d64_s1
+[   7202s]   evaluated JAC-OPP_d64_s1
+[   7229s]   evaluated G-MSE_d64_s1
+[   7256s]   evaluated REGRET_d64_s1
+[   7282s]   evaluated RECON_d64_s2
+[   7310s]   evaluated JAC-OPP_d64_s2
+[   7337s]   evaluated G-MSE_d64_s2
+[   7365s]   evaluated REGRET_d64_s2
