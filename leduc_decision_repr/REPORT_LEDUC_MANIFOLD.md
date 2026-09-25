@@ -192,11 +192,13 @@ Jacobian decision-relevance weighting improved the decoder's fidelity where it m
 
 ## 3. Audits and convergence
 
-* **Audits:** 5 050 deployed strategies from fits and ceilings, all passed (max Expl − ε = 1.1e−11,
+* **Audits:** 4 055 deployed strategies from fits and ceilings, all passed (max Expl − ε = 1.1e−11,
   0 violations, 0 LP failures), plus 1 610 oracle-value LPs.
 * **Convergence at 300 steps.**
-  - The in-cloud fits have converged: the median relative loss change over the last 100 steps is ≤ 0.2%
-    in every family, with the 90th percentile ≤ 1%.
+  - The in-cloud fits have converged in every family but one: the median relative loss change over the
+    last 100 steps is within ±0.5%, with the 90th percentile ≤ 1%.
+  - The exception is FAR-ARCH, where the median loss *rose* 5% over the last 100 steps.  That looks like
+    projected-Adam oscillation at the ball boundary, so its 0.95 ceiling may be slightly understated.
   - The unconstrained fits have *not*: the median change is 12–31%.  Their ceilings are lower bounds.
 * **Initialization.**  Starting from the cloud mean instead of the nearest training opponent's encoding
   changes subset ceilings by −0.03 to +0.02 (FAR-CFR 0.85 vs 0.89), so local optima matter only modestly.
