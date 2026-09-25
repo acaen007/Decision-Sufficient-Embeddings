@@ -79,14 +79,19 @@ def dsum(d, sel_h):
 
 
 def main():
-    rng = np.random.default_rng(0); P = np.load(D / "processes.npz", allow_pickle=True); T = np.load(D / "test.npz", allow_pickle=True)
+    rng = np.random.default_rng(0); P = np.load(D / "processes.npz", allow_pickle=True); T0 = np.load(D / "test.npz", allow_pickle=True)
     meta = json.loads((D / "test_meta.json").read_text()); cal = json.loads((D / "calib.json").read_text()); res = {"meta": meta, "calibration": cal}
     sel = meta["selected_name"]; grid = [cfg_name(c) for c in GRID]
+    T = {k: T0[k] for k in T0.files}; bgrid = []; has_b = (D / "bocpd_test.npz").exists()
+    if has_b:                                                        # pre-registered conditional BOCPD arm
+        TB = np.load(D / "bocpd_test.npz", allow_pickle=True); T.update({k: TB[k] for k in TB.files if "::" in k})
+        res["bocpd_calibration"] = json.loads((D / "bocpd_calib.json").read_text()); res["bocpd_meta"] = json.loads((D / "bocpd_meta.json").read_text())
+        bgrid = sorted({k.split("::")[1] for k in TB.files if k.startswith("SW::BOCPD[")}); MAIN.insert(MAIN.index("KNOWN-CUSUM-RESET"), "BOCPD-PRIOR-EM")
     def U_of(s, ms):
         return np.stack([T[f"{s}::{m}::u"].reshape(-1, 2, len(CKPTS[s])).mean(1) for m in ms])
     # ---------------- SWITCH
     _, V0f, Vef = cur_values(P, "SW", SW_FINE); jo = [SW_FINE.index(t) for t in SW_T]; group = P["SW_sel"]
-    Uf = U_of("SW", MAIN); Ug = U_of("SW", grid)
+    Uf = U_of("SW", MAIN); Ug = U_of("SW", grid + bgrid)
     res["SWITCH"] = {}; helpers = {}
     for g in ("contrasting", "random"):
         idx = np.flatnonzero(group == g); res["SWITCH"][g] = {}
@@ -95,18 +100,18 @@ def main():
         # hindsight grid (point estimates, original grid)
         stg = stats(Ug[:, :, jo], V0f[:, jo], Vef[:, jo], idx, SW_T); ro = res["SWITCH"][g]["original_grid"]["methods"]["POST-PRIOR-EM"]["R80"]
         res["SWITCH"][g]["hindsight_grid"] = {m: {"pre": float(stg["pre"][i]), "post": float(stg["post"][i]), "postall": float(stg["postall"][i]),
-                                                  "R80": float(stg["R80"][i]), "ratio": float(stg["R80"][i] / ro)} for i, m in enumerate(grid)}
+                                                  "R80": float(stg["R80"][i]), "ratio": float(stg["R80"][i] / ro)} for i, m in enumerate(grid + bgrid)}
     # ---------------- TEST-STAT and DRIFT
-    _, V0s, Ves = cur_values(P, "ST", CKPTS["ST"]); ms_st = [m for m in MAIN if f"ST::{m}::u" in T.files]
-    Us = U_of("ST", ms_st); Usg = U_of("ST", grid); idx = np.arange(Us.shape[1])
+    _, V0s, Ves = cur_values(P, "ST", CKPTS["ST"]); ms_st = [m for m in MAIN if f"ST::{m}::u" in T]
+    Us = U_of("ST", ms_st); Usg = U_of("ST", grid + bgrid); idx = np.arange(Us.shape[1])
     def fstat(U, ii):
         return pooled(U, V0s, Ves, ii).mean(1)
     fs = fstat(Us, idx); bs = [fstat(Us, rng.choice(idx, len(idx), replace=True)) for _ in range(B)]; ix = {m: i for i, m in enumerate(ms_st)}
     res["STAT"] = {"fraction_by_ckpt": {m: pooled(Us, V0s, Ves, idx)[i].tolist() for i, m in enumerate(ms_st)},
                    "mean_fraction": {m: float(fs[i]) for i, m in enumerate(ms_st)}, "mean_fraction_ci": {m: ci([b[i] for b in bs]) for i, m in enumerate(ms_st)},
                    "cost_vs_PRIOR-EM": {m: {"diff": float(fs[ix["PRIOR-EM"]] - fs[i]), "ci": ci([b[ix["PRIOR-EM"]] - b[i] for b in bs])} for i, m in enumerate(ms_st)}}
-    fg = fstat(Usg, idx); res["STAT"]["hindsight_grid_cost"] = {m: float(fs[ix["PRIOR-EM"]] - fg[i]) for i, m in enumerate(grid)}
-    _, V0d, Ved = cur_values(P, "DR", CKPTS["DR"]); ms_dr = [m for m in MAIN if f"DR::{m}::u" in T.files]; Ud = U_of("DR", ms_dr); idd = np.arange(Ud.shape[1])
+    fg = fstat(Usg, idx); res["STAT"]["hindsight_grid_cost"] = {m: float(fs[ix["PRIOR-EM"]] - fg[i]) for i, m in enumerate(grid + bgrid)}
+    _, V0d, Ved = cur_values(P, "DR", CKPTS["DR"]); ms_dr = [m for m in MAIN if f"DR::{m}::u" in T]; Ud = U_of("DR", ms_dr); idd = np.arange(Ud.shape[1])
     def fdr(U, ii):
         return pooled(U, V0d, Ved, ii)
     frd = fdr(Ud, idd); bsd = [fdr(Ud, rng.choice(idd, len(idd), replace=True)) for _ in range(B)]; ixd = {m: i for i, m in enumerate(ms_dr)}
@@ -126,6 +131,15 @@ def main():
         det[name]["_delay"] = d["delay"].tolist()
     det["CPD"]["TEST-STAT"] = detection(a_st, 2 * 40, True); det["CPD"]["DRIFT_alarms_per_history"] = float(len(adr) / (2 * 40))
     det["CPD"]["DRIFT_alarm_hist"] = np.histogram(adr[:, 2], bins=[0, 100, 200, 300, 400, 500])[0].tolist()
+    if has_b:                                                        # soft detection: posterior mass on segments starting at hand >= 195 exceeds 0.5
+        ms_ = TB["SW_mass_post_switch"]; b0 = SWITCH_AT // 5; sd = np.full(nsw, np.inf)
+        for h in range(nsw):
+            hit = np.flatnonzero(ms_[h, b0 + 1:] > 0.5)
+            if len(hit):
+                sd[h] = 5 * (hit[0] + 1)
+        det["BOCPD"] = {g: dsum({"delay": sd, "cp_err": np.full(nsw, np.nan)}, hsel == g) for g in ("contrasting", "random")}
+        det["BOCPD"]["_delay"] = sd.tolist()
+        det["BOCPD"]["mean_mixture_components_SW"] = float(TB["SW_n_mix"].mean())
     res["detection"] = det
     # hindsight: false alarms per 1000 stationary hands for each grid configuration
     res["hindsight_false_alarms_per_1000"] = {m: 1000 * float(((al[:, 0] == i) & (al[:, 1] >= nsw)).sum()) / (80 * 500) for i, m in enumerate(grid)}
@@ -139,9 +153,9 @@ def main():
                      "mc_llr_vs_KL_median_rel_diff": float(np.median(np.abs(F["mc_llr_post"][m] - kl[m]) / kl[m]))}
         fl["KL_BA"] = kl.tolist(); res["floor"] = fl
     # ---------------- audit (every unique deployed test strategy)
-    ex = T["expl_all"] - EPS; ok = T["ok_all"]
+    ex = np.concatenate([T0["expl_all"]] + ([TB["expl_all"]] if has_b else [])) - EPS; ok = np.concatenate([T0["ok_all"]] + ([TB["ok_all"]] if has_b else []))
     res["audit"] = {"n": int(len(ex)), "max_expl_minus_eps": float(np.nanmax(ex)), "violations": int((ex > 1e-7).sum()), "lp_failures": int((~ok).sum()),
-                    "n_method_level": int(sum(np.isfinite(T[k]).sum() for k in T.files if k.endswith("::u")))}
+                    "n_method_level": int(sum(np.isfinite(T[k]).sum() for k in T if k.endswith("::u")))}
     # ---------------- expectations and decision
     C = res["SWITCH"]["contrasting"]["original_grid"]["methods"]; paired, ratio = helpers[("contrasting", "original_grid")]
     v = {}
@@ -166,10 +180,24 @@ def main():
                      "fine_grid": {m: res["SWITCH"]["contrasting"]["fine_grid"]["methods"][m]["R80"] for m in MAIN}}
     pr, rr = helpers[("contrasting", "fine_grid")]; v["DECISION"]["fine_grid_ratio"] = rr("CPD-PRIOR-EM", "POST-PRIOR-EM")
     prr, rrr = helpers[("random", "original_grid")]; v["DECISION"]["random_pairs_ratio"] = rrr("CPD-PRIOR-EM", "POST-PRIOR-EM")
+    if has_b:                                                        # pre-registered: bands applied to the better (lower R80) of the two detectors
+        rb = ratio("BOCPD-PRIOR-EM", "POST-PRIOR-EM"); better = "BOCPD-PRIOR-EM" if C["BOCPD-PRIOR-EM"]["R80"] < C["CPD-PRIOR-EM"]["R80"] else "CPD-PRIOR-EM"
+        rbest = rb if better == "BOCPD-PRIOR-EM" else r
+        v["DECISION"].update({"band_cusum_alone": band, "R80_BOCPD": C["BOCPD-PRIOR-EM"]["R80"], "R80_BOCPD_ci": C["BOCPD-PRIOR-EM"]["R80_ci"], "ratio_bocpd": rb,
+                              "better_detector": better, "ratio_better": rbest,
+                              "band": "no-go" if rbest["ratio"] <= 1.5 else ("go" if (rbest["ratio"] > 2.0 or not np.isfinite(rbest["ratio"])) else "inconclusive"),
+                              "stationary_cost_better": res["STAT"]["cost_vs_PRIOR-EM"][better],
+                              "qualified_by_stationary_cost": bool(res["STAT"]["cost_vs_PRIOR-EM"][better]["diff"] > 0.03),
+                              "post_diff_BOCPD_minus_CPD": paired("BOCPD-PRIOR-EM", "CPD-PRIOR-EM", "post"),
+                              "post_diff_BOCPD_minus_oracle": paired("BOCPD-PRIOR-EM", "POST-PRIOR-EM", "post"),
+                              "postall_diff_BOCPD_minus_oracle": paired("BOCPD-PRIOR-EM", "POST-PRIOR-EM", "postall"),
+                              "R80_diff_BOCPD_minus_oracle": paired("BOCPD-PRIOR-EM", "POST-PRIOR-EM", "R80"),
+                              "fine_grid_ratio_bocpd": rr("BOCPD-PRIOR-EM", "POST-PRIOR-EM"), "random_pairs_ratio_bocpd": rrr("BOCPD-PRIOR-EM", "POST-PRIOR-EM")})
     res["verdicts"] = v
     save_json(res, D / "analysis.json")
     print(json.dumps({k: x.get("holds", x.get("band")) for k, x in v.items()}, indent=1))
-    print(json.dumps({k: v["DECISION"][k] for k in ("R80_CPD", "R80_CPD_ci", "R80_oracle", "ratio", "band", "R80_known", "ratio_known", "fine_grid", "fine_grid_ratio", "random_pairs_ratio")}, indent=1, default=float))
+    print(json.dumps({k: v["DECISION"][k] for k in ("R80_CPD", "R80_CPD_ci", "R80_oracle", "ratio", "band", "R80_known", "ratio_known", "fine_grid", "fine_grid_ratio", "random_pairs_ratio",
+                                                  "better_detector", "ratio_bocpd", "R80_BOCPD", "R80_BOCPD_ci") if k in v["DECISION"]}, indent=1, default=float))
 
 
 if __name__ == "__main__":
