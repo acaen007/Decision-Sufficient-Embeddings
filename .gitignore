@@ -23,3 +23,4 @@ leduc_decision_repr/outputs/runs_jacopp/*/*.pt
 leduc_decision_repr/outputs/runs_jacopp/*.started
 leduc_decision_repr/outputs/runs_jacopp/*/EVALUATED
 leduc_decision_repr/outputs/jacopp/*.stdout
+leduc_decision_repr/outputs/gen/ghat_*.npy
