@@ -4,3 +4,5 @@
 [    104s]   detector[CAL] hand 200/500: 1413 segments this block, 38553 encodings, 3909 alarms (65s)
 [    157s]   detector[CAL] hand 300/500: 1975 segments this block, 72890 encodings, 10639 alarms (118s)
 [    237s]   detector[CAL] hand 400/500: 2245 segments this block, 115436 encodings, 12761 alarms (198s)
+[    325s]   detector[CAL] hand 500/500: 2429 segments this block, 162462 encodings, 14660 alarms (287s)
+[    326s]   CSW: 7678 unique estimates
