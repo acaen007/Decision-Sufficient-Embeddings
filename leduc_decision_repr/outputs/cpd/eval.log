@@ -1,0 +1,38 @@
+[      9s] TEST-STAT built
+[     37s] calibration built: pool 198, median pair distance 1.506
+[     61s]   detector[CAL] hand 100/500: 1033 segments this block, 13865 encodings, 1828 alarms (22s)
+[    104s]   detector[CAL] hand 200/500: 1413 segments this block, 38553 encodings, 3909 alarms (65s)
+[    157s]   detector[CAL] hand 300/500: 1975 segments this block, 72890 encodings, 10639 alarms (118s)
+[    237s]   detector[CAL] hand 400/500: 2245 segments this block, 115436 encodings, 12761 alarms (198s)
+[    325s]   detector[CAL] hand 500/500: 2429 segments this block, 162462 encodings, 14660 alarms (287s)
+[    326s]   CSW: 7678 unique estimates
+[    364s]   ghat 5120/7678
+[    385s]   CST: 2760 unique estimates
+[    448s]   LPs 4000/10438 (40s)
+[    488s]   LPs 8000/10438 (80s)
+[    513s] calibration: selected CPD[Wa=10,c=0.15,tau=3]  F_switch 0.7321  stationary cost +0.0178  (28 qualify)
+[    530s]   detector[TEST] hand 100/500: 1017 segments this block, 13585 encodings, 1751 alarms (18s)
+[    567s]   detector[TEST] hand 200/500: 1467 segments this block, 38773 encodings, 4162 alarms (54s)
+[    615s]   detector[TEST] hand 300/500: 1976 segments this block, 73194 encodings, 10961 alarms (102s)
+[    684s]   detector[TEST] hand 400/500: 2223 segments this block, 115521 encodings, 13226 alarms (171s)
+[    768s]   detector[TEST] hand 500/500: 2358 segments this block, 161592 encodings, 15269 alarms (256s)
+[    772s]   detector[DRIFT] hand 100/500: 160 segments this block, 2879 encodings, 9 alarms (4s)
+[    777s]   detector[DRIFT] hand 200/500: 160 segments this block, 6072 encodings, 47 alarms (9s)
+[    783s]   detector[DRIFT] hand 300/500: 159 segments this block, 9264 encodings, 67 alarms (15s)
+[    791s]   detector[DRIFT] hand 400/500: 160 segments this block, 12462 encodings, 86 alarms (23s)
+[    801s]   detector[DRIFT] hand 500/500: 160 segments this block, 15661 encodings, 103 alarms (32s)
+[    802s]   SW: 19924 unique estimates
+[    837s]   ghat 5120/19924
+[    873s]   ghat 10240/19924
+[    910s]   ghat 15360/19924
+[    947s]   ST: 3639 unique estimates
+[    978s]   DR: 2293 unique estimates
+[   1048s]   LPs 4000/25856 (55s)
+[   1103s]   LPs 8000/25856 (110s)
+[   1154s]   LPs 12000/25856 (161s)
+[   1206s]   LPs 16000/25856 (213s)
+[   1257s]   LPs 20000/25856 (264s)
+[   1310s]   LPs 24000/25856 (317s)
+[   1332s] test done: 25856 unique deployed strategies; verification {'PRIOR-EM': 2.1686124183906141e-07, 'PRIOR-EM-WIN': 1.5370828592917163e-07, 'POST-PRIOR-EM': 4.138684072951815e-07}
+[   1333s] floor: median KL(B||A) 1.312 nats/hand; exact-vs-likelihood check 7.11e-15
+[   1333s] done: {'build_s': 36.88808751106262, 'calibrate_s': 473.9401333332062, 'test_s': 819.1125237941742, 'floor_s': 1.4817430973052979}
