@@ -12,6 +12,7 @@ from .common import save_json
 from .dc_common import D, EPS_LIST, log, load_sets, HandDist, kl_rows, policy_kl, fraction, LPPool
 
 ARMS = ["RECON", "JAC-OPP", "G-MSE", "REGRET"]; DIMS = [2, 4, 8, 16, 32, 64]; SEEDS = [0, 1, 2]
+POSTHOC_ARMS = ["OBS-RECON"]            # post-hoc behaviour-optimal arm: KL between observable hand distributions (declared deviation)
 STEPS = 6000; BATCH = 256; LR = 1e-3; WD = 1e-4; WARM = 200; N_GEN = 5000
 SEL_GRID = [(100.0, 0.0), (100.0, 0.1), (1000.0, 0.0), (1000.0, 0.1)]
 RUNS = D / "ae_runs"; EVALS = D / "ae_eval"
@@ -49,6 +50,31 @@ def prep():
     log(f"prep: {len(Q)} training policies ({len(Qg)} generated), Jacobian weights mean-1 per opponent")
 
 
+def prep_obs():
+    """Targets for OBS-RECON: exact observable hand distributions of the training policies, plus the likelihood tables."""
+    S, pop = load_sets(); hd = HandDist(pop); A = np.load(D / "ae_data.npz"); Q = A["Q"].astype(np.float64)
+    P = np.concatenate([hd(Q[i:i + 2000]) for i in range(0, len(Q), 2000)]); lik = hd.lik; M = lik.M.tocoo()
+    np.savez_compressed(D / "ae_obs.npz", P=P.astype(np.float32), M_row=M.row, M_col=M.col, n_pairs=lik.n_pairs, pair_logprior=lik.pair_logprior,
+                        pair_type=lik.pair_type, reach=hd.reach, logC=hd.logC, n_types=lik.tab.n_types)
+    log(f"prep_obs: {P.shape} observable targets, {lik.n_pairs} likelihood pairs")
+
+
+class TorchHandDist:
+    """log p_q(o) over the reachable observation types, differentiable in q (mirrors dc_common.HandDist)."""
+    def __init__(self, O):
+        import torch
+        self.t = torch; n = int(O["n_pairs"])
+        self.M = torch.sparse_coo_tensor(np.stack([O["M_row"], O["M_col"]]), torch.ones(len(O["M_row"])), (n, 432)).coalesce()
+        self.lp = torch.as_tensor(O["pair_logprior"], dtype=torch.float32); self.pt = torch.as_tensor(O["pair_type"], dtype=torch.long)
+        self.reach = torch.as_tensor(O["reach"], dtype=torch.bool); self.logC = torch.as_tensor(O["logC"], dtype=torch.float32); self.T = int(O["n_types"])
+
+    def log_p(self, lq):                                             # lq (B, 144, 3) log-policy, 0 on illegal slots
+        t = self.t; B = lq.shape[0]; ll = t.sparse.mm(self.M, lq.reshape(B, -1).T).T + self.lp[None]          # (B, n_pairs)
+        idx = self.pt[None].expand(B, -1); m = t.full((B, self.T), -1e30).scatter_reduce(1, idx, ll, "amax").detach()
+        s = t.zeros((B, self.T)).scatter_add(1, idx, t.exp(ll - m.gather(1, idx))); lt = (m + t.log(s.clamp_min(1e-38)))[:, self.reach] + self.logC[None]
+        return lt - t.logsumexp(lt, 1, keepdim=True)
+
+
 # ----------------------------------------------------------------------------------------------- model / training
 def make_model(d, legal):
     import torch, torch.nn as nn
@@ -78,6 +104,8 @@ def train_one(args):
     t0 = time.time(); A = np.load(D / "ae_data.npz"); sym = get_symmetry(); legal = np.asarray(sym.rank_legal_mask[1], bool)
     Q = torch.as_tensor(A["Q"]); G = torch.as_tensor(A["G"]); W = torch.as_tensor(A["W"]); B = torch.as_tensor(A["B"])
     tg = TorchRankPolicyToG(RankPolicyToG(get_tree(), get_sequence_form(), sym)) if arm in ("G-MSE", "REGRET") else None
+    if arm == "OBS-RECON":
+        O = np.load(D / "ae_obs.npz"); thd = TorchHandDist(O); Pt = torch.as_tensor(O["P"]); lPt = torch.log(Pt.clamp_min(1e-30))
     model = make_model(d, legal); opt = torch.optim.AdamW(model.parameters(), lr=LR, weight_decay=WD)
     sched = torch.optim.lr_scheduler.LambdaLR(opt, lambda s: min(1.0, (s + 1) / WARM) * 0.5 * (1 + np.cos(np.pi * min(1.0, s / STEPS))))
     lq = torch.log(Q.clamp_min(1e-30)); hist = []
@@ -90,6 +118,8 @@ def train_one(args):
             loss = kl.mean()
         elif arm == "JAC-OPP":
             loss = (kl * W[ix]).mean()
+        elif arm == "OBS-RECON":
+            loss = (Pt[ix] * (lPt[ix] - thd.log_p(lqh0))).sum(1).mean()
         else:
             gh = tg(lqh.exp()); gmse = ((gh - G[ix]) ** 2).sum(1).mean()
             if arm == "G-MSE":
@@ -171,6 +201,19 @@ def main(stages):
                     jobs.append((arm, d, seed, beta if arm == "REGRET" else None, lam if arm == "REGRET" else None, name))
         jobs.sort(key=lambda j: j[0] in ("G-MSE", "REGRET"), reverse=True)                            # long jobs first
         train_many(jobs); wall["train_s"] = wall.get("train_s", 0) + time.time() - t; save_json(wall, wall_f)
+    if "posthoc" in stages:                                         # declared post-hoc arm OBS-RECON: train + evaluate
+        t = time.time()
+        if not (D / "ae_obs.npz").exists():
+            prep_obs()
+        train_many([(a, d, seed, None, None, run_name(a, d, seed)) for a in POSTHOC_ARMS for d in DIMS for seed in SEEDS])
+        ev = Evaluator()
+        for a in POSTHOC_ARMS:
+            for d in DIMS:
+                for seed in SEEDS:
+                    name = run_name(a, d, seed)
+                    if not (EVALS / f"{name}.npz").exists():
+                        ev.evaluate(name); log(f"  evaluated {name}")
+        ev.pool.close(); wall["posthoc_s"] = time.time() - t; save_json(wall, wall_f)
     if "eval" in stages:
         t = time.time(); ev = Evaluator(); n = 0
         for d in DIMS:
