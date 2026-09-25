@@ -87,6 +87,9 @@ def main():
         TB = np.load(D / "bocpd_test.npz", allow_pickle=True); T.update({k: TB[k] for k in TB.files if "::" in k})
         res["bocpd_calibration"] = json.loads((D / "bocpd_calib.json").read_text()); res["bocpd_meta"] = json.loads((D / "bocpd_meta.json").read_text())
         bgrid = sorted({k.split("::")[1] for k in TB.files if k.startswith("SW::BOCPD[")}); MAIN.insert(MAIN.index("KNOWN-CUSUM-RESET"), "BOCPD-PRIOR-EM")
+        if (D / "bocpd_offset.npz").exists():                         # post-hoc robustness: change-point grid offset by 2 hands
+            TO = np.load(D / "bocpd_offset.npz"); T["SW::BOCPD-OFFSET2::u"] = TO["u"]; T["SW::BOCPD-OFFSET2::expl"] = TO["expl"]; T["SW::BOCPD-OFFSET2::ok"] = TO["ok"]
+            MAIN.insert(MAIN.index("KNOWN-CUSUM-RESET"), "BOCPD-OFFSET2")
     def U_of(s, ms):
         return np.stack([T[f"{s}::{m}::u"].reshape(-1, 2, len(CKPTS[s])).mean(1) for m in ms])
     # ---------------- SWITCH
@@ -153,7 +156,8 @@ def main():
                      "mc_llr_vs_KL_median_rel_diff": float(np.median(np.abs(F["mc_llr_post"][m] - kl[m]) / kl[m]))}
         fl["KL_BA"] = kl.tolist(); res["floor"] = fl
     # ---------------- audit (every unique deployed test strategy)
-    ex = np.concatenate([T0["expl_all"]] + ([TB["expl_all"]] if has_b else [])) - EPS; ok = np.concatenate([T0["ok_all"]] + ([TB["ok_all"]] if has_b else []))
+    ex = np.concatenate([T0["expl_all"]] + ([TB["expl_all"]] if has_b else []) + ([T["SW::BOCPD-OFFSET2::expl"].ravel()] if "SW::BOCPD-OFFSET2::u" in T else [])) - EPS
+    ok = np.concatenate([T0["ok_all"]] + ([TB["ok_all"]] if has_b else []) + ([T["SW::BOCPD-OFFSET2::ok"].ravel()] if "SW::BOCPD-OFFSET2::u" in T else []))
     res["audit"] = {"n": int(len(ex)), "max_expl_minus_eps": float(np.nanmax(ex)), "violations": int((ex > 1e-7).sum()), "lp_failures": int((~ok).sum()),
                     "n_method_level": int(sum(np.isfinite(T[k]).sum() for k in T if k.endswith("::u")))}
     # ---------------- expectations and decision
@@ -192,7 +196,17 @@ def main():
                               "post_diff_BOCPD_minus_oracle": paired("BOCPD-PRIOR-EM", "POST-PRIOR-EM", "post"),
                               "postall_diff_BOCPD_minus_oracle": paired("BOCPD-PRIOR-EM", "POST-PRIOR-EM", "postall"),
                               "R80_diff_BOCPD_minus_oracle": paired("BOCPD-PRIOR-EM", "POST-PRIOR-EM", "R80"),
-                              "fine_grid_ratio_bocpd": rr("BOCPD-PRIOR-EM", "POST-PRIOR-EM"), "random_pairs_ratio_bocpd": rrr("BOCPD-PRIOR-EM", "POST-PRIOR-EM")})
+                              "fine_grid_ratio_bocpd": rr("BOCPD-PRIOR-EM", "POST-PRIOR-EM"), "random_pairs_ratio_bocpd": rrr("BOCPD-PRIOR-EM", "POST-PRIOR-EM"),
+                              "post_diff_BOCPD_minus_KNOWN": paired("BOCPD-PRIOR-EM", "KNOWN-CUSUM-RESET", "post"),
+                              "postall_diff_BOCPD_minus_KNOWN": paired("BOCPD-PRIOR-EM", "KNOWN-CUSUM-RESET", "postall"),
+                              "post_diff_BOCPD_minus_DISC095": paired("BOCPD-PRIOR-EM", "DISC-PRIOR-EM g=0.95", "post"),
+                              "post_diff_BOCPD_minus_WIN": paired("BOCPD-PRIOR-EM", "PRIOR-EM-WIN", "post")})
+        if "BOCPD-OFFSET2" in C:
+            v["DECISION"]["posthoc_offset2"] = {"R80": C["BOCPD-OFFSET2"]["R80"], "R80_ci": C["BOCPD-OFFSET2"]["R80_ci"], "ratio": ratio("BOCPD-OFFSET2", "POST-PRIOR-EM"),
+                                                "post": C["BOCPD-OFFSET2"]["post"], "postall": C["BOCPD-OFFSET2"]["postall"],
+                                                "post_diff_vs_BOCPD": paired("BOCPD-OFFSET2", "BOCPD-PRIOR-EM", "post"),
+                                                "post_diff_vs_KNOWN": paired("BOCPD-OFFSET2", "KNOWN-CUSUM-RESET", "post"),
+                                                "fine_grid_ratio": rr("BOCPD-OFFSET2", "POST-PRIOR-EM")}
     res["verdicts"] = v
     save_json(res, D / "analysis.json")
     print(json.dumps({k: x.get("holds", x.get("band")) for k, x in v.items()}, indent=1))

@@ -12,7 +12,8 @@ from .cpd_eval import GRID, cfg_name
 D = OUT / "cpd"; INK, MUTED, GRIDC = "#0b0b0b", "#52514e", "#e4e3df"
 STY = {"PRIOR-EM": ("#008300", "*", "-", 2.2, "full history"), "PRIOR-EM-WIN": ("#1baf7a", "s", "-", 2.2, "window 50"),
        "DISC-PRIOR-EM g=0.98": ("#eda100", ">", "-.", 1.8, "discount 0.98"), "DISC-PRIOR-EM g=0.95": ("#f5c64d", ">", "-.", 1.3, "discount 0.95, grid"),
-       "CPD-PRIOR-EM": ("#2a78d6", "o", "-", 2.6, "CUSUM change-detect + reset"), "BOCPD-PRIOR-EM": ("#4a3aa7", "v", "-", 2.2, "Bayesian change-point mixture"), "KNOWN-CUSUM-RESET": ("#8a8984", "D", ":", 1.8, "oracle detector (knows q_A, q_B)"),
+       "CPD-PRIOR-EM": ("#2a78d6", "o", "-", 2.6, "CUSUM change-detect + reset"), "BOCPD-PRIOR-EM": ("#4a3aa7", "v", "-", 2.2, "Bayesian change-point mixture"),
+       "BOCPD-OFFSET2": ("#8f84d6", "v", "--", 1.4, "BOCPD, grid offset by 2 hands (post-hoc)"), "KNOWN-CUSUM-RESET": ("#8a8984", "D", ":", 1.8, "oracle detector (knows q_A, q_B)"),
        "POST-PRIOR-EM": ("#0b0b0b", "+", "--", 1.8, "oracle reset (knows switch time)")}
 LAB = lambda m: f"{m.replace('g=', 'γ=')} — {STY[m][4]}"
 plt.rcParams.update({"font.size": 9, "axes.edgecolor": MUTED, "axes.labelcolor": INK, "xtick.color": MUTED, "ytick.color": MUTED,
@@ -50,7 +51,7 @@ def main():
     fig.tight_layout(); fig.savefig(D / "fig1_switch.png", dpi=130); plt.close(fig)
     # ---- Fig 2: R80 with CIs (contrasting; original and fine grid) with decision bands
     fig, axs = plt.subplots(1, 2, figsize=(14, 4.6), sharey=True)
-    order = [m for m in ["POST-PRIOR-EM", "KNOWN-CUSUM-RESET", "CPD-PRIOR-EM", "BOCPD-PRIOR-EM", "PRIOR-EM-WIN", "DISC-PRIOR-EM g=0.98", "DISC-PRIOR-EM g=0.95", "PRIOR-EM"] if m in MS]
+    order = [m for m in ["POST-PRIOR-EM", "KNOWN-CUSUM-RESET", "BOCPD-PRIOR-EM", "BOCPD-OFFSET2", "CPD-PRIOR-EM", "PRIOR-EM-WIN", "DISC-PRIOR-EM g=0.98", "DISC-PRIOR-EM g=0.95", "PRIOR-EM"] if m in MS]
     for ax, gname in zip(axs, ("original_grid", "fine_grid")):
         e = r["SWITCH"]["contrasting"][gname]["methods"]; ro = e["POST-PRIOR-EM"]["R80"]; cap = 120
         ax.axvspan(0, 1.5 * ro, color="#1baf7a", alpha=0.10, lw=0); ax.axvspan(1.5 * ro, 2.0 * ro, color="#8a8984", alpha=0.12, lw=0)
