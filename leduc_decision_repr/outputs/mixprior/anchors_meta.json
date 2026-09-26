@@ -1,0 +1,14 @@
+{
+ "run": "runs_jacopp/a3_s0",
+ "step": 5999,
+ "stream": 0,
+ "N": 500,
+ "n_anchors": 1200,
+ "mean_infoset_TV_to_true": {
+  "mean": 0.16096396280604014,
+  "median": 0.15662135411432887,
+  "p90": 0.2907115138721515
+ },
+ "illegal_mass_max": 0.0,
+ "wall_s": 19.998082876205444
+}
