@@ -130,7 +130,7 @@ def predict(split: str, runs: dict, out_dir: Path, em_alpha: float = 1.0, em_ite
                     x = torch.as_tensor(flat_obs[sl, :N].astype(np.int64))
                     z = enc(x, extra=(torch.as_tensor(cf.features(flat_obs[sl, :N])) if cf is not None else None))
                     Z[sl, j] = z.numpy()
-                    if method == "recon":
+                    if method in ("recon", "zcode"):
                         q_hat = head(z)
                         g_hat = tg(q_hat).numpy()
                         qe[sl, j] = q_err(q_hat.numpy())[0:0].sum() if False else np.sqrt((((q_hat.numpy() - Q_true[sl]) * sym.rank_legal_mask[1][None]) ** 2).sum((1, 2)) / 144)

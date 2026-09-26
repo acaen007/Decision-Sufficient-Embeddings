@@ -70,3 +70,27 @@ class DecisionHead(nn.Module):
         target = (g_true - self.g_mean) / torch.where(self.valid, self.g_std, torch.ones_like(self.g_std))
         err = ((s - target) ** 2)[:, self.valid]
         return err.mean()
+
+
+class ZCodeHead(nn.Module):
+    """z -> compact decision code (d numbers) -> frozen policy decoder of a regret autoencoder -> q_hat
+    (REPORT_LEDUC_ZCODE.md).  The code is predicted standardized; code_mu / code_sd undo the standardization."""
+
+    def __init__(self, legal_mask, z_dim=128, d_code=8, d_hidden=834):
+        super().__init__()
+        self.register_buffer("mask", torch.as_tensor(legal_mask, dtype=torch.bool))
+        self.register_buffer("code_mu", torch.zeros(d_code)); self.register_buffer("code_sd", torch.ones(d_code))
+        self.map = nn.Sequential(nn.Linear(z_dim, d_hidden), nn.GELU(), nn.Linear(d_hidden, d_hidden), nn.GELU(), nn.Linear(d_hidden, d_code))
+        self.dec = nn.Sequential(nn.Linear(d_code, 256), nn.GELU(), nn.Linear(256, 256), nn.GELU(), nn.Linear(256, 432))
+        for prm in self.dec.parameters():
+            prm.requires_grad_(False)
+
+    def code(self, z):
+        return self.map(z)
+
+    def logits(self, z):
+        c = self.code(z) * self.code_sd + self.code_mu
+        return self.dec(c).reshape(-1, 144, 3).masked_fill(~self.mask[None], float("-inf"))
+
+    def forward(self, z):
+        return F.softmax(self.logits(z), dim=-1)

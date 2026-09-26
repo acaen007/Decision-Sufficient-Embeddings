@@ -22,7 +22,7 @@ from .game.policy_utils import RankPolicyToG, rank_infoset_features
 from .data.tokenizer import get_token_table
 from .data.datasets import load_population, find_dataset_dir, load_split
 from .models.encoder import OpponentEncoder
-from .models.heads import ReconstructionHead, DecisionHead
+from .models.heads import ReconstructionHead, DecisionHead, ZCodeHead
 from .models.torch_g import TorchRankPolicyToG
 
 DEFAULT_CFG = dict(
@@ -43,6 +43,8 @@ DEFAULT_CFG = dict(
     spo_lambda=-1.0,    # T4: <0 = MSE only; 0 = SPO+ only; >0 = MSE + lambda * SPO+
     spo_subset=8,       # T4: number of samples per batch receiving the exact SPO+ loss
     spo_eps=0.1,
+    # decision-code study (method "zcode"): frozen regret autoencoder, code dim, loss mode and bank-regret settings
+    zc_ae="", zc_d=8, zc_mode="dec", zc_beta=100.0, zc_lam=0.1,
 )
 TRAIN_EPS_INDEX = {0.05: 1, 0.1: 2, 0.2: 3}       # index into the population's V_oracle columns
 
@@ -58,6 +60,8 @@ def build_model(method, cfg, tab, sym, tree, g_stats):
     if method == "recon":
         head = ReconstructionHead(rank_infoset_features(tree, sym, 1), sym.rank_legal_mask[1],
                                   z_dim=cfg["z_dim"], d_hidden=cfg["recon_hidden"])
+    elif method == "zcode":
+        head = ZCodeHead(sym.rank_legal_mask[1], z_dim=cfg["z_dim"], d_code=cfg["zc_d"], d_hidden=cfg["recon_hidden"])
     else:   # "decision" (standardized MSE on g) and "safe_regret" (same head, regret objective)
         head = DecisionHead(g_stats["mean"], g_stats["std"], g_stats["valid"], z_dim=cfg["z_dim"],
                             d_hidden=cfg["decision_hidden"])
@@ -110,6 +114,17 @@ class Trainer:
         elif method == "recon" and cfg.get("recon_weights", "none") != "none":
             w = np.load(OUT / "weights_v3" / f"recon_weights_{cfg['recon_weights']}.npy")
             self.recon_w = torch.as_tensor(w / w.mean(), dtype=torch.float32)
+        if method == "zcode":                                            # frozen regret-autoencoder decoder, code targets, bank
+            from .dc_ae import make_model as make_ae
+            ae = torch.load(cfg["zc_ae"], weights_only=False); assert ae["d"] == cfg["zc_d"]
+            aem = make_ae(ae["d"], np.asarray(self.sym.rank_legal_mask[1], bool)); aem.load_state_dict(ae["state"]); aem.eval()
+            with torch.no_grad():
+                zs = aem.enc(self.Qt.reshape(len(self.Qt), -1))
+            tr = self.train["opp_ids"]; mu, sd = zs[tr].mean(0), zs[tr].std(0).clamp_min(1e-6)
+            self.head.dec.load_state_dict(aem.dec.state_dict()); self.head.code_mu.copy_(mu); self.head.code_sd.copy_(sd)
+            self.Zstar = (zs - mu) / sd
+            train_all = np.flatnonzero(self.pop["split"] == 0)
+            self.Bank = torch.as_tensor(self.pop["X_oracle"][train_all, TRAIN_EPS_INDEX[0.1]], dtype=torch.float32)
         if method == "safe_regret":
             from .game.safe_lp import get_solver
             from .game.safe_qp import SafeQP, make_torch_layer
@@ -181,7 +196,18 @@ class Trainer:
             return spo
         return self.head.loss(z, self.targets(opp_ids)) + lam * spo
 
+    def zc_loss(self, z, opp_ids):
+        """Decision-code study: 'distill' = squared error on the standardized regret code; 'dec' = response-bank regret of
+        g(q_hat) against the true opponent (softmax over the eps = 0.10 safe responses of the training opponents) + lambda g-MSE."""
+        if self.cfg["zc_mode"] == "distill":
+            return ((self.head.code(z) - self.Zstar[opp_ids]) ** 2).sum(1).mean()
+        gh = self.r2g(self.head(z)); g = self.Gt[opp_ids]
+        val = g @ self.Bank.T; p = torch.softmax(self.cfg["zc_beta"] * (gh @ self.Bank.T), 1)
+        return (val.max(1).values - (p * val).sum(1)).mean() + self.cfg["zc_lam"] * ((gh - g) ** 2).sum(1).mean()
+
     def loss_fn(self, z, opp_ids, eps_vec=None, tau=None, collect=None):
+        if self.method == "zcode":
+            return self.zc_loss(z, opp_ids)
         if self.method == "safe_regret":
             return self.regret_loss(z, opp_ids, eps_vec, tau, collect)
         if self.method == "recon":
@@ -202,7 +228,7 @@ class Trainer:
     def g_nmse(self, z, opp_ids):
         """Normalized g error of the model's implied g_hat (both methods)."""
         with torch.no_grad():
-            g_hat = self.r2g(self.head(z)) if self.method == "recon" else self.head(z)
+            g_hat = self.r2g(self.head(z)) if self.method in ("recon", "zcode") else self.head(z)
             err = ((g_hat - self.Gt[opp_ids]) / self.g_std) ** 2
             nmse = err[:, self.g_valid].mean().item()
             raw = ((g_hat - self.Gt[opp_ids]) ** 2).sum(1).sqrt().mean().item()
@@ -308,7 +334,7 @@ class Trainer:
             for N in Ns:
                 x = torch.as_tensor(obs[:, :N].astype(np.int64))
                 z = self.enc(x, extra=(torch.as_tensor(self.cf.features(obs[:, :N])) if self.cf is not None else None))
-                g_hat = self.r2g(self.head(z)) if self.method == "recon" else self.head(z)
+                g_hat = self.r2g(self.head(z)) if self.method in ("recon", "zcode") else self.head(z)
                 nm.append(float((((g_hat - self.Gt[opp]) / self.g_std) ** 2)[:, self.g_valid].mean()))
                 gh = g_hat.numpy().astype(np.float64)
                 for i, o in enumerate(opp):
@@ -424,7 +450,7 @@ def load_trained(run_dir, ckpt_name=None):
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("--method", choices=["recon", "decision", "safe_regret"], required=True)
+    ap.add_argument("--method", choices=["recon", "decision", "safe_regret", "zcode"], required=True)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--out", type=str, default=None)
     for k, v in DEFAULT_CFG.items():
