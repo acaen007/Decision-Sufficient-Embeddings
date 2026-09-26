@@ -98,6 +98,21 @@ def main():
         ax.set_xlabel("observed hands N"); ax.set_ylabel(f"regret difference vs {base} (chips; < 0 = better)"); ax.legend(fontsize=7.5, frameon=False)
         ax.set_title(f"paired difference vs {base} (95% CI over opponents)", fontsize=9.5, color=INK)
     fig.tight_layout(); fig.savefig(D / "fig2_differences.png", dpi=130); plt.close(fig)
+    if (D / "diag.json").exists():                                    # post-hoc diagnostics figure
+        dg = json.loads((D / "diag.json").read_text()); fig, axs = plt.subplots(1, 2, figsize=(14, 4.6))
+        ks = ["0", "5", "20", "100", "500"]; xx = np.arange(len(ks))
+        axs[0].plot(xx, [dg["D1"][k]["frac_belief"] for k in ks], color="#2a78d6", marker="o", lw=2, label="LP on the belief (train-bank posterior mean g)")
+        axs[0].plot(xx, [dg["D1"][k]["frac_projected"] for k in ks], color="#4a3aa7", marker="D", lw=2, label="LP on the nearest g the 8-number decoder can produce")
+        axs[0].set_xticks(xx); axs[0].set_xticklabels(["0 (population)", "5", "20", "100", "500"]); axs[0].set_xlabel("observed hands N")
+        axs[0].set_ylabel("fraction of attainable safe gain (test)"); axs[0].legend(fontsize=8, frameon=False, loc="lower right")
+        axs[0].set_title("D1: the decision code cannot express uncertain beliefs (loss at small N)", fontsize=9.5, color=INK)
+        sig = [0.0, 0.25, 0.5, 1.0]; axs[1].plot(sig, [dg["D2"][f"noise_{s_}"] for s_ in sig], color="#4a3aa7", marker="D", lw=2, label="true code + Gaussian noise")
+        r2 = dg["D2"]["distill_code_R2_by_N"]
+        for (N_, c_), ty in zip((("20", "#8f84d6"), ("100", "#6b5fc4"), ("500", "#4a3aa7")), (0.905, 0.875, 0.845)):
+            sd_ = float(np.sqrt(max(1 - r2[N_], 0))); axs[1].axvline(sd_, color=c_, lw=0.9, ls=":"); axs[1].text(sd_ + 0.01, ty, f"ZC-DISTILL error at N = {N_}", fontsize=7.5, color=c_)
+        axs[1].set_xlabel("noise σ in the standardized 8-number code"); axs[1].set_ylabel("fraction of attainable safe gain (test)"); axs[1].set_ylim(0.6, 0.93)
+        axs[1].set_title("D2: small code errors cost a lot of decision value", fontsize=9.5, color=INK); axs[1].legend(fontsize=8, frameon=False, loc="lower left")
+        fig.tight_layout(); fig.savefig(D / "fig3_diagnostics.png", dpi=130); plt.close(fig)
     print(json.dumps({k: (x_.get("holds", x_.get("helps_in_play"))) for k, x_ in v.items()}, indent=1)); print(json.dumps(res["audit_total"]))
     for arm in res["arms"]:
         print(f"{arm:26s} regret " + " ".join(f"{r:.4f}" for r in res["arms"][arm]["regret"]) + " | frac " + " ".join(f"{f:.3f}" for f in res["arms"][arm]["fraction"]))

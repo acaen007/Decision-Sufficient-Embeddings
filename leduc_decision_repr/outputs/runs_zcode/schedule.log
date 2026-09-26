@@ -1,0 +1,35 @@
+09:59:04 start zcdec8_s1
+09:59:04 start zcdist8_s0
+09:59:04 start zcdec8_s2
+09:59:04 start zcdec8_s0
+11:17:57 trained zcdec8_s1 rc=0
+11:18:17 trained zcdec8_s0 rc=0
+11:18:30 trained zcdist8_s0 rc=0
+11:18:46 trained zcdec8_s2 rc=0
+11:18:46 start zcdist8_s1
+11:18:46 start zcdec4_s1
+11:18:46 start zcdec4_s0
+11:18:46 start zcdist8_s2
+12:37:37 trained zcdec4_s1 rc=0
+12:37:59 trained zcdist8_s1 rc=0
+12:38:01 trained zcdec4_s0 rc=0
+12:38:13 trained zcdist8_s2 rc=0
+12:38:13 eval zcdec8_s0
+12:42:53 evaluated zcdec8_s0 rc=0
+12:42:53 eval zcdec8_s1
+12:47:37 evaluated zcdec8_s1 rc=0
+12:47:37 eval zcdec8_s2
+12:52:13 evaluated zcdec8_s2 rc=0
+12:52:13 eval zcdist8_s0
+12:57:04 evaluated zcdist8_s0 rc=0
+12:57:04 eval zcdist8_s1
+13:01:57 evaluated zcdist8_s1 rc=0
+13:01:57 eval zcdist8_s2
+13:06:51 evaluated zcdist8_s2 rc=0
+13:06:51 eval zcdec4_s0
+13:11:41 evaluated zcdec4_s0 rc=0
+13:11:41 eval zcdec4_s1
+13:16:32 evaluated zcdec4_s1 rc=0
+13:16:32 prior-EM (ZC prior)
+13:30:04 prior-EM done rc=0
+13:30:04 ALL DONE
