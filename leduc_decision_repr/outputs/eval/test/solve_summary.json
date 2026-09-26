@@ -1,17 +1,17 @@
 {
  "summary": {
-  "HYB_PRIOR_EM_JOBEST": {
+  "NEURAL_ZC_DEC8_s0": {
    "lp_failures": 0,
-   "max_violation_os": 5.87491305603649e-11,
+   "max_violation_os": 1.4965940986488846e-10,
    "n_violations_1e-7": 0,
    "max_abs_fast_vs_os": 3.885780586188048e-16,
-   "runtime_s": 499.53445076942444,
+   "runtime_s": 243.8668396472931,
    "eps_idx": [
     2
    ]
   }
  },
- "runtime_s": 499.5358691215515,
+ "runtime_s": 243.86814379692078,
  "env": {
   "python": "3.11.15 (main, Mar  3 2026, 09:26:23) [GCC 13.3.0]",
   "platform": "Linux-6.18.44-fc-v37-x86_64-with-glibc2.39",
@@ -20,7 +20,7 @@
   "scipy": "1.17.1",
   "torch": "2.14.0+cu130",
   "open_spiel": "2.0.2",
-  "git": "248e252c8ef748e2dcfa0e41964d56f3611b8d2e",
-  "time": "2026-09-25 06:30:41"
+  "git": "06ce30bf5c20becba9ebecb7346dd2d1bcc822b5",
+  "time": "2026-09-26 12:42:52"
  }
 }
