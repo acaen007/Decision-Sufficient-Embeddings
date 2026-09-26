@@ -1,17 +1,17 @@
 {
  "summary": {
-  "NEURAL_ZC_DIST8_s0": {
+  "NEURAL_ZC_DIST8_s1": {
    "lp_failures": 0,
-   "max_violation_os": 1.3735915321833048e-09,
+   "max_violation_os": 9.627258018563012e-10,
    "n_violations_1e-7": 0,
-   "max_abs_fast_vs_os": 4.163336342344337e-16,
-   "runtime_s": 256.29084849357605,
+   "max_abs_fast_vs_os": 4.440892098500626e-16,
+   "runtime_s": 258.44779920578003,
    "eps_idx": [
     2
    ]
   }
  },
- "runtime_s": 256.2921621799469,
+ "runtime_s": 258.4496912956238,
  "env": {
   "python": "3.11.15 (main, Mar  3 2026, 09:26:23) [GCC 13.3.0]",
   "platform": "Linux-6.18.44-fc-v37-x86_64-with-glibc2.39",
@@ -20,7 +20,7 @@
   "scipy": "1.17.1",
   "torch": "2.14.0+cu130",
   "open_spiel": "2.0.2",
-  "git": "eedfe3677062d35e5e4da7149f7c97230ff73218",
-  "time": "2026-09-26 12:57:04"
+  "git": "887375de9074fe7c7dd3611dc2e8b333cc916c79",
+  "time": "2026-09-26 13:01:57"
  }
 }
