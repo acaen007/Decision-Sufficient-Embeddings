@@ -1,10 +1,10 @@
 {
- "NEURAL_ZC_DIST8_s1": {
+ "NEURAL_ZC_DIST8_s2": {
   "lp_failures": 0,
-  "max_violation_os": 9.627258018563012e-10,
+  "max_violation_os": 5.4584406439239785e-11,
   "n_violations_1e-7": 0,
   "max_abs_fast_vs_os": 4.440892098500626e-16,
-  "runtime_s": 258.44779920578003,
+  "runtime_s": 258.6162040233612,
   "eps_idx": [
    2
   ]
