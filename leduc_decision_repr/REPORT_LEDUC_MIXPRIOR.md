@@ -1,11 +1,199 @@
 # Mixture-prior Bayesian opponent modelling: is the neural prior needed? (Leduc)
 
-*Results are added below the pre-registration after the test run.  The pre-registration section is not edited after the
-selection and test runs start.*
+*The pre-registration (section 8) was committed in `dd2abed` before κ selection and before any test history was scored.
+It is reproduced below unchanged.*
+
+## 1. Verdict
+
+**The learned representation adds value.  A classical mixture prior over the true training opponents (MIX-BANK) does
+not match PRIOR-EM.**
+
+**The decision rule's second branch triggers.**  PRIOR-EM beats MIX-BANK by ≥ 0.01 chips per hand, with the paired 95%
+CI excluding 0, in **16 of 21 cells**:
+
+* **In distribution, N ≥ 20:** by 0.010–0.018.
+* **NEAR, N = 10, 20, 50 and 500:** by 0.019–0.071.
+* **FAR-EXPL, every N:** by 0.023–0.112.
+
+The "not needed" branch fails badly: the worst cell is +0.112.
+
+**The value sits in the network's decoded policies, not in its per-history inference.**  MIX-LATENT is the same
+classical mixture with no per-history network call.  Its only change is that the 1,200 anchors are JAC-opp's decoded
+policy for each training opponent, instead of that opponent's true policy.  It recovers almost all of PRIOR-EM's value:
+
+* **In distribution:** within 0.004 at every N.
+* **Off distribution, N ≥ 50:** within 0.007, with every CI covering 0.
+
+**Only off distribution at N ≤ 20 does per-history network inference still add value**: PRIOR-EM beats MIX-LATENT by
+0.021–0.041 in four of those six cells.
+
+**Where the classical mixture does hold up:**
+
+* **In distribution, N ≤ 10:** within 0.007 of PRIOR-EM (N = 5: −0.002, CI [−0.006, +0.001]).
+* **It is the best purely classical method.**  It beats TAB-EM at every N in distribution (by 0.013–0.033) and beats
+  BANK from N = 50 onward (by 0.013 → 0.061 in distribution; 0.05 → 0.27 off distribution).
+
+**Safe regret in distribution** (chips per hand, ε = 0.10, 300 test opponents × 4 streams; lower is better):
+
+| N | 5 | 10 | 20 | 50 | 100 | 200 | 500 |
+|---|---|---|---|---|---|---|---|
+| BANK | **0.160** | 0.146 | 0.137 | 0.127 | 0.126 | 0.126 | 0.121 |
+| TAB-EM | 0.199 | 0.180 | 0.164 | 0.133 | 0.112 | 0.092 | 0.073 |
+| JAC-opp | 0.165 | 0.147 | 0.129 | 0.110 | 0.101 | 0.095 | 0.090 |
+| PRIOR-EM (JAC-opp prior) | 0.168 | **0.143** | **0.122** | **0.096** | **0.083** | **0.067** | **0.050** |
+| **MIX-BANK** | 0.166 | 0.149 | 0.136 | 0.114 | 0.096 | 0.080 | 0.060 |
+| **MIX-LATENT** | 0.169 | 0.143 | 0.126 | 0.099 | 0.085 | 0.070 | 0.053 |
+
+**Paired regret differences** (mean over opponents; \* marks a 95% CI that excludes 0):
+
+| N | 5 | 10 | 20 | 50 | 100 | 200 | 500 |
+|---|---|---|---|---|---|---|---|
+| **MIX-BANK − PRIOR-EM**, ID | −0.002 | +0.007\* | +0.014\* | +0.018\* | +0.013\* | +0.012\* | +0.010\* |
+| MIX-BANK − PRIOR-EM, NEAR | −0.002 | +0.026\* | +0.041\* | +0.071\* | +0.010 | +0.013 | +0.019\* |
+| MIX-BANK − PRIOR-EM, FAR-EXPL | +0.042\* | +0.051\* | +0.072\* | +0.112\* | +0.048\* | +0.028\* | +0.023\* |
+| **MIX-LATENT − PRIOR-EM**, ID | +0.001 | +0.001 | +0.004\* | +0.002 | +0.002 | +0.003\* | +0.002\* |
+| MIX-LATENT − PRIOR-EM, NEAR | +0.011 | +0.021\* | +0.039\* | −0.001 | −0.007 | −0.001 | −0.000 |
+| MIX-LATENT − PRIOR-EM, FAR-EXPL | +0.026\* | +0.018 | +0.041\* | +0.004 | +0.007 | +0.004 | −0.001 |
+
+## 2. Figures
+
+**Fig 1: in-distribution safe regret.**  MIX-BANK (magenta) tracks BANK up to N = 20.  From N = 50 it sits clearly
+between PRIOR-EM and TAB-EM.  MIX-LATENT (teal) lies almost on PRIOR-EM (green) from N = 10.
+
+![](outputs/mixprior/fig1_regret_id.png)
+
+**Fig 2: off-distribution fraction of the attainable safe gain.**  MIX-BANK dips at N = 20–50: its prior is centred on
+training opponents that do not resemble these ones.  It then converges to TAB-EM / PRIOR-EM by N = 100–500.  MIX-LATENT
+matches PRIOR-EM from N = 50.
+
+![](outputs/mixprior/fig2_fraction_ood.png)
+
+**Fig 3: paired differences.**
+
+* **MIX-BANK − PRIOR-EM:** above the +0.01 line at N ≥ 20 in distribution, and far above it off distribution.
+* **MIX-LATENT − MIX-BANK:** negative (latent better) almost everywhere.
+* **MIX-BANK − BANK:** ≈ 0 up to N = 20, then strongly negative.
+
+![](outputs/mixprior/fig3_paired.png)
+
+**Fig 4: effective number of components.**  The MIX-BANK belief collapses fast: to about 4 components at N = 50 in
+distribution, and to 1.0–1.7 at N = 500.  MIX-LATENT stays broader (6.5 components at N = 500 in distribution), because
+the decoded anchors are closer to each other than the true policies are.  Off distribution, both collapse faster.
+
+![](outputs/mixprior/fig4_eff_components.png)
+
+**Fig 5: κ selected on validation.**  MIX-BANK trusts its anchors strongly at small N (κ = 100 at N = 5; 30 at N = 10)
+and keeps κ = 10 through N = 50.  MIX-LATENT drops to κ = 3 from N = 50.  Both use κ = 3 from N = 100.
+
+![](outputs/mixprior/fig5_kappa.png)
+
+## 3. Summary table: fraction of the attainable safe gain (u − V₀)/(V_ε − V₀)
+
+Pooled as a ratio of means.  No opponent was excluded for headroom < 0.01 in any group.  Bold marks the best in each
+column.
+
+| Method | ID 5 | ID 20 | ID 100 | ID 500 | NEAR 5 | NEAR 20 | NEAR 100 | NEAR 500 | FAR-EXPL 5 | FAR-EXPL 20 | FAR-EXPL 100 | FAR-EXPL 500 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| BANK | **0.670** | 0.717 | 0.742 | 0.750 | 0.566 | 0.606 | 0.604 | 0.618 | 0.652 | 0.670 | 0.667 | 0.675 |
+| TAB-EM | 0.590 | 0.661 | 0.769 | 0.849 | 0.557 | **0.682** | **0.824** | 0.900 | 0.614 | 0.692 | 0.804 | 0.848 |
+| JAC-opp | 0.660 | 0.734 | 0.793 | 0.815 | 0.544 | 0.596 | 0.638 | 0.663 | 0.666 | 0.715 | 0.741 | 0.760 |
+| PRIOR-EM | 0.654 | **0.749** | **0.829** | **0.897** | 0.569 | 0.680 | 0.806 | **0.904** | **0.676** | **0.747** | **0.854** | 0.905 |
+| **MIX-BANK** | 0.659 | 0.720 | 0.803 | 0.876 | **0.571** | 0.634 | 0.794 | 0.883 | 0.643 | 0.690 | 0.816 | 0.887 |
+| **MIX-LATENT** | 0.652 | 0.741 | 0.825 | 0.892 | 0.556 | 0.636 | 0.814 | **0.904** | 0.656 | 0.715 | 0.849 | **0.906** |
+
+## 4. Pre-registered hypotheses
+
+| | Criterion | Result | |
+|---|---|---|---|
+| **M1** | MIX-BANK − BANK ≤ 0.005 at N = 5, 10 (ID) | +0.0052 [0.003, 0.008] at N = 5; +0.0032 at N = 10 | **fails narrowly** (by 0.0002 at N = 5) |
+| **M2** | at N = 500: MIX-BANK fraction ≥ TAB-EM − 0.02 in every group, and > BANK on NEAR / FAR-EXPL with CI excluding 0 | vs TAB-EM: ID +0.027, NEAR −0.017, FAR-EXPL +0.040.  vs BANK: NEAR +0.265 [0.223, 0.308], FAR-EXPL +0.212 [0.183, 0.242] | **passes** |
+| **M3** | MIX-BANK − PRIOR-EM ≤ 0.005 at N = 5, 10, 20 (ID) | −0.002, +0.007, +0.014 | **fails** at N = 10 and 20 |
+| **M4** | (exploratory) MIX-LATENT − MIX-BANK | ID: +0.003\* at N = 5, then −0.006\* to −0.016\* for N ≥ 10.  NEAR: −0.072\* at N = 50, −0.019\* at N = 500, CIs cover 0 elsewhere.  FAR-EXPL: −0.017\* to −0.108\* at every N | latent anchors are better from N = 10 |
+
+**Decision rule.**  "Not needed" requires MIX-BANK − PRIOR-EM ≤ 0.005 in all 21 cells.  It fails: 16 cells exceed
++0.01 with the CI excluding 0, and the maximum is +0.112 (FAR-EXPL, N = 50).  "Learned representation adds value"
+holds, through PRIOR-EM in the 16 cells above and through MIX-LATENT in 12 cells:
+
+* in distribution at N = 20, 50 and 100;
+* NEAR at N = 50 and 500;
+* FAR-EXPL at every N.
+
+## 5. Why the bank loses (post hoc; not pre-registered)
+
+**Diagnostic** (`mix_diag.py`, `outputs/mixprior/diag.json`).  For each in-distribution test opponent, take the
+training opponent nearest to it in true policy (mean per-infoset TV), and deploy the LP on that anchor.  This is the
+best possible centre for a bank prior that has collapsed onto one anchor, which is what MIX-BANK does at large N (Fig 4).
+
+| | TV to the test opponent's true policy | Safe regret |
+|---|---|---|
+| Nearest training opponent (chosen with the true policy) | 0.157 | 0.153 ± 0.008 |
+| JAC-opp decoded q̂ after 500 hands (seed 0) | 0.164 | 0.090 (Fig 1) |
+
+**The finding: a similar distance gives a very different decision.**  The network's estimate is no closer to the true
+policy than the nearest bank anchor; it is closer for only 40% of opponents.  Yet as a deployment target it loses 0.063
+chips less.  This is consistent with its Jacobian-weighted training: its errors lie in directions that matter less for
+the ε-safe best response.
+
+**How this explains the bank's losses.**
+
+* **The prior centre stays wrong.**  EM with a Dirichlet prior keeps the centre in thinly observed infosets.  Once
+  MIX-BANK collapses onto 1–2 true anchors, its centre is a real training opponent that is behaviourally close but
+  decision-wise wrong.  MIX-LATENT's centres are decoded policies with decision-weighted errors, which is why it
+  recovers PRIOR-EM.
+* **Off distribution, the bank is also over-confident.**  At N = 20–50 the validation-chosen κ for MIX-BANK is still
+  10.  That makes it trust anchors that do not resemble the new opponents, which produces the dip in Fig 2 and the
+  +0.07 / +0.11 peaks at N = 50 in Fig 3.
+
+## 6. Sanity checks, audit and wall-clock
+
+**Sanity checks** (validation; details in section 8):
+
+* **S-a passes** with the declared evidence weight and K(N).  MIX-BANK at κ = 10⁴ is within 0.003 of the full bank at
+  every N, with weight TV ≤ 0.004.  The spec's default EM-objective weight fails, by +0.009 to +0.124.
+* **S-b passes exactly** (|Δg| ≤ 1e-16).
+* **S-c passes** in every sanity, selection and test run.
+
+**Audit:**
+
+* The 22,400 new deployed strategies (2 arms × 1,600 histories × 7 N) were all audited in OpenSpiel: **0 violations**,
+  max exploitability 0.1000000003, 0 LP failures.
+* The reused baselines, on the same histories (4 × 11,200 strategies), also have 0 violations and 0 LP failures.
+* The 300 diagnostic strategies have 0 violations.
+
+**Wall-clock** (4 cores):
+
+| Stage | Time |
+|---|---|
+| K-coverage measurement and benchmarks (scratch) | ≈ 10 min |
+| Sanity checks | 4.4 min |
+| MIX-LATENT anchors | 0.3 min |
+| κ selection | 21.9 min |
+| Test run | 30.1 min (EM 13.9 + 10.4 min; LP + audit 3.1 + 2.8 min) |
+| Analysis and diagnostic | ≈ 1 min |
+| **Total** | **≈ 68 min** |
+
+This is under the 2 h target.  The test run beat its 59 min projection.
+
+## 7. Deviations (all declared; none after seeing test data unless marked post hoc)
+
+1. **Weight formula.**  The weight is the Dirichlet-multinomial "evidence" formula, not the default EM objective,
+   because the EM objective failed S-a.  The parameterization is Dir(κ a_k), without the +1 shift.
+2. **Truncation.**  K(N) = 128/128/64/16/16/16/16 replaces the spec's K = 16, which failed S-a against the full bank.
+   The rule was fixed on validation before any κ < 10⁴ fit.  This makes the study larger, not smaller; no budget cut was
+   needed.
+3. **Units of the margins.**  The 0.005 and 0.01 margins of M1, M3 and the decision rule were operationalized in regret
+   (chips per hand) in every group.  M2 uses fraction, as specified.
+4. **Reused PRIOR-EM prior.**  In distribution, PRIOR-EM is the existing 3-seed-mean JAC-opp prior (κ_N selected on
+   validation).  Off distribution, it is the seed-0 prior at κ = 3.  Both are reused, not re-run.  This makes the
+   in-distribution PRIOR-EM slightly stronger than a seed-0 prior, and may account for some of MIX-LATENT's small
+   +0.002–0.004 gap.
+5. **Validation audits.**  The validation LPs used only for κ selection were not audited (as in earlier studies).
+6. **Section 5 is post hoc.**
 
 ---
 
-## Pre-registration (written before κ selection and before any test history is scored)
+
+## 8. Pre-registration (written before κ selection and before any test history is scored)
 
 ### Question
 

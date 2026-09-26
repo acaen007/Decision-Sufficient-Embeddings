@@ -1,0 +1,22 @@
+{
+ "n_opp": 300,
+ "TV_nearest_train_anchor": {
+  "mean": 0.15655317370155045,
+  "median": 0.1472749990812675
+ },
+ "TV_JACopp_qhat_N500_stream0": {
+  "mean": 0.1640494616036292,
+  "median": 0.1640890647541841
+ },
+ "frac_opp_net_closer_than_nearest_anchor": 0.39666666666666667,
+ "regret_NN_TRUE": {
+  "mean": 0.1533098568104137,
+  "sem": 0.00844400346935437
+ },
+ "audit": {
+  "violations": 0,
+  "max_expl": 0.10000000000206878,
+  "lp_ok": true
+ },
+ "wall_s": 17.52835965156555
+}
