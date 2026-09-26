@@ -3632,8 +3632,16 @@
    "best_step": 5999,
    "ckpt": "best.pt",
    "group": "NEURAL_ZC_DIST8"
+  },
+  "NEURAL_ZC_DIST8_s1": {
+   "kind": "neural",
+   "objective": "zcode",
+   "run_dir": "leduc_decision_repr/outputs/runs_zcode/zcdist8_s1",
+   "best_step": 5749,
+   "ckpt": "best.pt",
+   "group": "NEURAL_ZC_DIST8"
   }
  },
  "g_valid_dims": 1074,
- "predict_runtime_s": 8762.679673433304
+ "predict_runtime_s": 8795.203488588333
 }
