@@ -3656,8 +3656,16 @@
    "best_step": 4749,
    "ckpt": "best.pt",
    "group": "NEURAL_ZC_DEC4"
+  },
+  "NEURAL_ZC_DEC4_s1": {
+   "kind": "neural",
+   "objective": "zcode",
+   "run_dir": "leduc_decision_repr/outputs/runs_zcode/zcdec4_s1",
+   "best_step": 5749,
+   "ckpt": "best.pt",
+   "group": "NEURAL_ZC_DEC4"
   }
  },
  "g_valid_dims": 1074,
- "predict_runtime_s": 8861.901699066162
+ "predict_runtime_s": 8895.162995815277
 }
